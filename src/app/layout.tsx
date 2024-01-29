@@ -5,7 +5,7 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const siteConfig = {
+const siteConfig = {
   name: "Chesski",
   url: "https://chesski.lol",
   description: "Your personal AI chess tutor that coaches you in plain English",
@@ -15,7 +15,7 @@ export const siteConfig = {
 export const metadata: Metadata = {
   title: siteConfig.name,
   description: siteConfig.description,
-  metadataBase: new URL("https://chesski.lol"),
+  metadataBase: new URL(siteConfig.url),
   openGraph: {
     type: "website",
     locale: "en_US",
