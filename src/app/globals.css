@@ -53,6 +53,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
 }
 
 .sub-header p {
@@ -113,13 +114,38 @@ body {
   margin-top: 32px;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (min-width: 480px) and (max-width: 640px) {
   .header {
     font-size: 36px;
   }
 
   .sub-header {
     font-size: 20px;
+    width: 400px;
+  }
+
+  .sign-up {
+    flex-direction: column;
+  }
+
+  .sign-up > :not(:last-child) {
+    margin-right: 0;
+    margin-bottom: 12px;
+  }
+
+  #email {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .header {
+    font-size: 24px;
+  }
+
+  .sub-header {
+    font-size: 16px;
+    max-width: 320px;
   }
 
   .sign-up {
@@ -135,4 +161,10 @@ body {
     width: 100%;
   }
   
+}
+
+@media screen and (min-width: 640px) {
+  .sub-header {
+    width: 480px;
+  }
 }

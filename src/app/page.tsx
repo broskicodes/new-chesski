@@ -40,8 +40,8 @@ export default function Home() {
         CHESSKI
       </div>
       <div className="sub-header">
-        <p>Your personal AI chess <i>tutor</i>&nbsp; that coaches</p>
-        <p>you in <i>plain English</i></p>
+        <p>Your personal AI chess <i>tutor</i>&nbsp; that coaches you in <i>plain English</i></p>
+        {/* <p></p> */}
       </div>
       {validSignup && (
         <div className="success flex flex-col items-center">
