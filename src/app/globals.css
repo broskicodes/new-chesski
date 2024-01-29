@@ -16,18 +16,99 @@
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-}
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Merriweather+Sans:wght@300;400;500&display=swap');
+
+body {
+  background-image: url("/chesski-bg.png");
+  background-size: cover;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.header {
+  font-family: "Arvo", serif;
+  font-weight: 700;
+  font-size: 42px;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.sub-header {
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 400;
+  font-size: 24px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sub-header p {
+  margin: 0;
+}
+
+.sign-up {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin-top: 64px;
+}
+
+.sign-up > :not(:last-child) {
+  margin-right: 24px;
+}
+
+#email {
+  width: 300px;
+  height: 40px;
+  border-radius: 8px;
+  border: none;
+  padding: 0 12px;
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 300;
+  font-size: 16px;
+
+}
+
+.button {
+  background-color: #1B03A3;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #1B03A3;
+  opacity: 0.8;
+}
+
+.error {
+  color: red;
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 500;
+}
+
+.success {
+  color: rgb(0, 255, 0);
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  margin-top: 32px;
 }
