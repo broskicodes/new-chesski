@@ -5,14 +5,31 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "Chesski",
+export const siteConfig = {
+  name: "Chesski",
+  url: "https://chesski.lol",
   description: "Your personal AI chess tutor that coaches you in plain English",
+  ogImage: "/chesski-social.png",
+};
+
+export const metadata: Metadata = {
+  title: siteConfig.name,
+  description: siteConfig.description,
+  metadataBase: new URL("https://chesski.lol"),
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: siteConfig.url,
+    title: siteConfig.name,
+    description: siteConfig.description,
+    siteName: siteConfig.name,
+    images: [siteConfig.ogImage],
+    },
   twitter: {
     card: "summary_large_image",
-    title: "Chesski",
-    description: "Your personal AI chess tutor that coaches you in plain English",
-    images: ["/chesski-social.png"],
+    title: siteConfig.name,
+    description: siteConfig.description,
+    images: [siteConfig.ogImage],
   },
 };
 
