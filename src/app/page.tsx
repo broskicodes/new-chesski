@@ -46,7 +46,7 @@ export default function Home() {
       {validSignup && (
         <div className="success flex flex-col items-center">
           <p>Thank you for signing up!</p>
-          <p>We'll be in touch soon.</p>
+          <p>We&apos;ll be in touch soon.</p>
         </div>
       )}
       {!validSignup && (<form className="sign-up" onSubmit={submit}>
