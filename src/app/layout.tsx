@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Chesski",
     description: "Your personal AI chess tutor that coaches you in plain English",
-    images: ["/chesski-social.svg"],
+    images: ["/chesski-social.png"],
   },
 };
 
