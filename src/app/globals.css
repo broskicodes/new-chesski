@@ -112,3 +112,27 @@ body {
   font-size: 20px;
   margin-top: 32px;
 }
+
+@media screen and (max-width: 600px) {
+  .header {
+    font-size: 36px;
+  }
+
+  .sub-header {
+    font-size: 20px;
+  }
+
+  .sign-up {
+    flex-direction: column;
+  }
+
+  .sign-up > :not(:last-child) {
+    margin-right: 0;
+    margin-bottom: 12px;
+  }
+
+  #email {
+    width: 100%;
+  }
+  
+}
