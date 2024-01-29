@@ -8,6 +8,12 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Chesski",
   description: "Your personal AI chess tutor that coaches you in plain English",
+  twitter: {
+    card: "summary_large_image",
+    title: "Chesski",
+    description: "Your personal AI chess tutor that coaches you in plain English",
+    images: ["/chesski-social.svg"],
+  },
 };
 
 export default function RootLayout({
