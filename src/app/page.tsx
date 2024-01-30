@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEventHandler, use, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 
 export default function Home() {
   const [email, setEmail] = useState("");
