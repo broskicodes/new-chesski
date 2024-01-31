@@ -1,12 +1,14 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createBrowserClient } from '@supabase/ssr'
 
 export default function Home() {
   const [email, setEmail] = useState("");
   const [isValidEmail, setIsValidEmail] = useState(true);
   const [validSignup, setValidSignup] = useState(false);
+
+  const [origin, setOrigin] = useState("");
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -44,9 +46,13 @@ export default function Home() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `http://localhost:3000/auth/callback`,
+        redirectTo: `${origin}/auth/callback`,
       },
     })
+  }, []);
+
+  useEffect(() => {
+    setOrigin(window.location.origin); // 'http://localhost:3000' or 'https://example.com'
   }, []);
 
   return (
