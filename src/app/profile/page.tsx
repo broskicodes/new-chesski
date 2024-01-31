@@ -44,7 +44,7 @@ export default function Profile() {
       <div className="sub-header">
         Link your chess accounts
       </div>
-      <div className="flex flex-col space-y-6 sm:flex-row sm:space-x-12 items-center mx-auto">
+      <div className="flex flex-col space-y-6 sm:space-y-0 sm:flex-row sm:space-x-12 items-center mx-auto">
         <div className="flex flex-col space-y-4">
           <div className="flex flex-row items-center space-x-2 justify-between">
             <p className="label">Chess.com</p>
