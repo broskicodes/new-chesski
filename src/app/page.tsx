@@ -46,7 +46,7 @@ export default function Home() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${"https://staging.chesski.lol"}/auth/callback`,
+        redirectTo: `${origin}/auth/callback`,
       },
     });
   }, [origin]);
