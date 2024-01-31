@@ -27,11 +27,16 @@ export default function Profile() {
   useEffect(() => {
     (async () => {
       const res = await fetch("/profile/save");
-      const data = await res.json();
 
-      console.log(data);
-      setChesscom(data.chesscom_name);
-      setLichess(data.lichess_name);
+      if (res.ok) {
+        const data = await res.json();
+
+        setChesscom(data.chesscom_name);
+        setLichess(data.lichess_name);
+      } else {
+        setChesscom("");
+        setLichess("");
+      }
     })();
   }, []);
 

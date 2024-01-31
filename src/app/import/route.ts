@@ -53,14 +53,20 @@ export const POST = async (req: Request, res: Response) => {
 
   const { data, error } = await supabase.auth.getUser();
 
-  if(error) 
+  if(error) {
+    console.log(error)
     return new Response(JSON.stringify({ error }), { status: 500 });
+  }
 
   const { data: userData, error: userError } = await supabase.from('user_chess_accounts').select().eq('uuid', data.user.id);
 
   if (userError) {
     console.log(userError)
     return new Response(JSON.stringify({ userError }), { status: 500 });
+  }
+
+  if (!userData[0]) {
+    return new Response(JSON.stringify(0), { status: 200 });
   }
 
   const { chesscom_name: chesscom, lichess_name: lichess } = userData[0];

@@ -35,7 +35,7 @@ export const GET = async (req: Request, res: Response) => {
     return new Response(JSON.stringify({ userError }), { status: 500 });
   }
 
-  return new Response(JSON.stringify(userData[0]), { status: 200 });
+  return new Response(JSON.stringify(userData[0] ?? { chesscom_name: "", lichess_name: "" }), { status: 200 });
 }
 
 export const POST = async (req: Request, res: Response) => {
