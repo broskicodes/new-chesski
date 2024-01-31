@@ -1,14 +1,23 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useMemo, useState } from "react";
 import { createBrowserClient } from '@supabase/ssr'
+import { User } from "@supabase/supabase-js";
 
 export default function Home() {
   const [email, setEmail] = useState("");
   const [isValidEmail, setIsValidEmail] = useState(true);
   const [validSignup, setValidSignup] = useState(false);
+  const [sessison, setSession] = useState<User | null>(null);
 
   const [origin, setOrigin] = useState("");
+
+  const supabase = useMemo(() => {
+    return createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+  }, []);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -38,11 +47,6 @@ export default function Home() {
   }, [email]);
 
   const oauth = useCallback(async () => {
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -56,41 +60,42 @@ export default function Home() {
     console.log(window.location.origin);
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setSession(user);
+    })();
+  }, [supabase]);
+
   return (
     <div>
-      <div className="header">
-        CHESSKI
-      </div>
-      <div className="sub-header">
-        <p>Your personal AI chess <i>tutor</i>&nbsp; that coaches you in <i>plain English</i></p>
-      </div>
-      {validSignup && (
-        <div className="success flex flex-col items-center">
-          <p>Thank you for signing up!</p>
-          <p>We&apos;ll be in touch soon.</p>
+      {!sessison && (
+        <div>
+          <div className="header">
+            CHESSKI
+          </div>
+          <div className="sub-header">
+            <p>Your personal AI chess <i>tutor</i>&nbsp; that coaches you in <i>plain English</i></p>
+          </div>
+          {validSignup && (
+            <div className="success flex flex-col items-center">
+              <p>Thank you for signing up!</p>
+              <p>We&apos;ll be in touch soon.</p>
+            </div>
+          )}
+          {!validSignup && (<div className="sign-up">
+            <button className="button" onClick={oauth}>Sign In With Google</button>
+          </div>)}
         </div>
       )}
-      {/* {!validSignup && (<form className="sign-up" onSubmit={submit}>
-        <div className="flex flex-col">
-          <input
-            id="email"
-            value={email}
-            type="text"
-            placeholder="Email address"
-            onChange={({ target }) => {
-              setEmail(target.value);
-              setIsValidEmail(true);
-            }}
-          />
-          {!isValidEmail && <p className="error">Invalid email address</p>}
-        </div>
-        <button className="button" type="submit">
-          Sign up
-        </button>
-      </form>)} */}
-      {!validSignup && (<div className="sign-up">
-        <button className="button" onClick={oauth}>Sign In With Google</button>
-      </div>)}
+      {sessison && (
+        <div>
+
+          <div className="chat">
+            <input className="input" type="text" placeholder="Send a message" />
+          </div>
+        </div> 
+      )}
     </div>
   );
 }
