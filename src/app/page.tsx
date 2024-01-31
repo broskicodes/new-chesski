@@ -49,10 +49,11 @@ export default function Home() {
         redirectTo: `${origin}/auth/callback`,
       },
     })
-  }, []);
+  }, [origin]);
 
   useEffect(() => {
-    setOrigin(window.location.origin); // 'http://localhost:3000' or 'https://example.com'
+    setOrigin(window.location.origin);
+    console.log(window.location.origin);
   }, []);
 
   return (
