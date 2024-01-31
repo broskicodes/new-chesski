@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { createBrowserClient } from '@supabase/ssr'
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -20,7 +21,7 @@ export default function Home() {
       return;
     }
 
-    const res = await fetch("/api/signup", {
+    const res = await fetch("/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -33,6 +34,20 @@ export default function Home() {
 
     setValidSignup(true);
   }, [email]);
+
+  const oauth = useCallback(async () => {
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `http://localhost:3000/auth/callback`,
+      },
+    })
+  }, []);
 
   return (
     <div>
@@ -48,7 +63,7 @@ export default function Home() {
           <p>We&apos;ll be in touch soon.</p>
         </div>
       )}
-      {!validSignup && (<form className="sign-up" onSubmit={submit}>
+      {/* {!validSignup && (<form className="sign-up" onSubmit={submit}>
         <div className="flex flex-col">
           <input
             id="email"
@@ -65,7 +80,10 @@ export default function Home() {
         <button className="button" type="submit">
           Sign up
         </button>
-      </form>)}
+      </form>)} */}
+      {!validSignup && (<div className="sign-up">
+        <button className="button" onClick={oauth}>Sign In With Google</button>
+      </div>)}
     </div>
   );
 }
