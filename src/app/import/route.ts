@@ -55,14 +55,14 @@ export const POST = async (req: Request, res: Response) => {
   const { data, error } = await supabase.auth.getUser();
 
   if(error) {
-    console.log(error)
+    console.log("auth error", error)
     return new Response(JSON.stringify({ error }), { status: 500 });
   }
 
   const { data: userData, error: userError } = await supabase.from('user_chess_accounts').select().eq('uuid', data.user.id);
 
   if (userError) {
-    console.log(userError)
+    console.log("user error", userError)
     return new Response(JSON.stringify({ userError }), { status: 500 });
   }
 
@@ -106,7 +106,7 @@ export const POST = async (req: Request, res: Response) => {
     .select();
         
   if (insertError) { 
-    console.log(insertError);
+    console.log("instert error", insertError);
     return new Response(JSON.stringify({ insertError }), { status: 500 });
   }
 
