@@ -1,12 +1,12 @@
 "use client";
 
-import { use, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createBrowserClient } from '@supabase/ssr'
 import { User } from "@supabase/supabase-js";
-
-import "./styles.css";
 import { useChat, experimental_useAssistant } from "ai/react";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import "./styles.css";
 
 export default function Home() {
   const [sessison, setSession] = useState<User | null>(null);
@@ -19,6 +19,8 @@ export default function Home() {
 
   const [chesscom, setChesscom] = useState("");
   const [lichess, setLichess] = useState("");
+
+  const chatRef = useRef<HTMLDivElement>(null);
 
   const { messages, input, handleInputChange, handleSubmit, isLoading: chatLoading } = useChat({
     api: "/chat"
@@ -164,6 +166,12 @@ export default function Home() {
     })();
   }, [supabase, sessison, gamesImported, playstyleAnalyzed]);
 
+  useEffect(() => {
+    if (chatRef.current) {
+      chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
     <div>
       {!sessison && (
@@ -181,6 +189,9 @@ export default function Home() {
       )}
       {sessison && (
         <div>
+          <div className="header">
+            CHESSKI
+          </div>
           <div className="chat">
             {!accountsLinked && (
               <div>
@@ -200,14 +211,14 @@ export default function Home() {
                 {isLoading && <div className="w-6 h-6 border-4 border-gray-200 border-t-[#1B03A3] rounded-full animate-spin" />}
               </button>
             )}
-            <div className="chat-messages">
+            <div className="chat-messages" ref={chatRef}>
               {messages.map((message, i) => {
                 if (!(message.role === "user" || message.role === "assistant")) return null;
 
                 return (
-                  <div key={i} className="flex flex-row space-x-2 items-center">
+                  <div key={i} className="flex flex-row space-x-2">
                     <span className={`${message.role}-message role`}>{message.role.toUpperCase()}:</span>
-                    <p className="content">{message.content}</p>
+                    <ReactMarkdown className="content">{message.content}</ReactMarkdown>
                   </div>
                 )
               })}
@@ -216,7 +227,6 @@ export default function Home() {
               <input className="input" value={input} onChange={handleInputChange} type="text" placeholder="Send a message" disabled={!playstyleAnalyzed} />
               <button className="button" type="submit" disabled={!playstyleAnalyzed || chatLoading}>
                 Send
-                {/* {chatLoading && <div className="w-6 h-6 border-4 border-gray-200 border-t-[#1B03A3] rounded-full animate-spin" />} */}
               </button>
             </form>
           </div>
