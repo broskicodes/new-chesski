@@ -115,10 +115,10 @@ export default function Home() {
                 )
               })}
             </div>
-            <form onSubmit={handleSubmit} className="flex flex-row items-center space-x-4">
+            {/* <form onSubmit={handleSubmit} className="flex flex-row items-center space-x-4">
               <input className="input" value={input} onChange={handleInputChange} type="text" placeholder="Send a message" />
               <button className="button" type="submit">Send</button>
-            </form>
+            </form> */}
           </div>
         </div> 
       )}
