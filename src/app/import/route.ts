@@ -24,6 +24,7 @@ const parsePGN = (pgn: string) => {
     white_elo: parseInt(pgnData['whiteelo']),
     black_elo: parseInt(pgnData['blackelo']),
     time_control: pgnData['timecontrol'],
+    tags: pgn.split('\n\n')[0],
     moves: pgn.split('\n\n')[1],
   };
 

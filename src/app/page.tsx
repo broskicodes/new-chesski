@@ -4,10 +4,16 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { createBrowserClient } from '@supabase/ssr'
 import { User } from "@supabase/supabase-js";
 
+import "./styles.css";
+import { useChat, experimental_useAssistant } from "ai/react";
+
 export default function Home() {
   const [sessison, setSession] = useState<User | null>(null);
-
   const [origin, setOrigin] = useState("");
+
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+    api: "/chat"
+  });
 
   const supabase = useMemo(() => {
     return createBrowserClient(
@@ -48,6 +54,23 @@ export default function Home() {
 
   }, [sessison]);
 
+  const analyzePlaystyle = useCallback(async () => {
+    if (!sessison) return;
+
+    const res = await fetch("/analyze-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!res.ok) {
+      alert("Error analyzing playstyle");
+      return;
+    }
+
+    // const data = await res.json();
+    alert(`Your playstyle has been analyzed`);
+  }, [sessison]);
+
   useEffect(() => {
     setOrigin(window.location.origin);
     console.log(window.location.origin);
@@ -78,8 +101,24 @@ export default function Home() {
       {sessison && (
         <div>
           <button className="button" onClick={importGames}>Import Games</button>
+          <button className="button" onClick={analyzePlaystyle}>Analyze Playstyle</button>
           <div className="chat">
-            <input className="input" type="text" placeholder="Send a message" />
+            <div className="chat-messages">
+              {messages.map((message, i) => {
+                if (!(message.role === "user" || message.role === "assistant")) return null;
+
+                return (
+                  <div key={i} className="flex flex-row space-x-2 items-center">
+                    <span className={`${message.role}-message role`}>{message.role.toUpperCase()}:</span>
+                    <p className="content">{message.content}</p>
+                  </div>
+                )
+              })}
+            </div>
+            <form onSubmit={handleSubmit} className="flex flex-row items-center space-x-4">
+              <input className="input" value={input} onChange={handleInputChange} type="text" placeholder="Send a message" />
+              <button className="button" type="submit">Send</button>
+            </form>
           </div>
         </div> 
       )}
