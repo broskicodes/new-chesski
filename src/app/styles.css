@@ -37,13 +37,17 @@
 }
 
 @media screen and (max-width: 640px) {
+  body {
+    padding-top: 60px;
+    justify-content: flex-start;
+  }
   .chat {
     padding: 24px 16px;
     margin: 0px 16px;
   }
   .chat-messages {
     width: 100%;
-    height: 420px;
+    height: 400px;
   }
   .role {
     font-size: 14px;
