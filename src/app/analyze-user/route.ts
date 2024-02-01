@@ -2,8 +2,6 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import OpenAI from "openai";
 
-export const runtime = "edge";
-
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
