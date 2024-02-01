@@ -1,17 +1,26 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { use, useCallback, useEffect, useMemo, useState } from "react";
 import { createBrowserClient } from '@supabase/ssr'
 import { User } from "@supabase/supabase-js";
 
 import "./styles.css";
 import { useChat, experimental_useAssistant } from "ai/react";
+import Link from "next/link";
 
 export default function Home() {
   const [sessison, setSession] = useState<User | null>(null);
   const [origin, setOrigin] = useState("");
+  const [accountsLinked, setAccountsLinked] = useState(false);
+  const [gamesImported, setGamesImported] = useState(false);
+  const [playstyleAnalyzed, setPlaystyleAnalyzed] = useState(false);
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [chesscom, setChesscom] = useState("");
+  const [lichess, setLichess] = useState("");
+
+  const { messages, input, handleInputChange, handleSubmit, isLoading: chatLoading } = useChat({
     api: "/chat"
   });
 
@@ -33,6 +42,7 @@ export default function Home() {
 
   const importGames = useCallback(async () => {
     if (!sessison) return;
+    setIsLoading(true);
     
     const res = await fetch("/import", {
       method: "POST",
@@ -41,21 +51,24 @@ export default function Home() {
 
     if (!res.ok) {
       alert("Error importing games");
+      setIsLoading(false);
       return;
     }
 
     const count = await res.json();
     if (count === 0) {
       alert("No games found. Ensure you have linked the correct accounts");
+      setIsLoading(false);
       return;
     } else {
-      alert(`Imported ${count} games`);
+      setGamesImported(true);
+      setIsLoading(false);
     }
-
   }, [sessison]);
 
   const analyzePlaystyle = useCallback(async () => {
     if (!sessison) return;
+    setIsLoading(true);
 
     const res = await fetch("/analyze-user", {
       method: "POST",
@@ -64,16 +77,19 @@ export default function Home() {
 
     if (!res.ok) {
       alert("Error analyzing playstyle");
+      setIsLoading(false);
       return;
     }
 
     // const data = await res.json();
-    alert(`Your playstyle has been analyzed`);
+
+    // alert(`Your playstyle has been analyzed`);
+    setPlaystyleAnalyzed(true);
+    setIsLoading(false);
   }, [sessison]);
 
   useEffect(() => {
     setOrigin(window.location.origin);
-    console.log(window.location.origin);
   }, []);
 
   useEffect(() => {
@@ -82,6 +98,71 @@ export default function Home() {
       setSession(user);
     })();
   }, [supabase]);
+
+  useEffect(() => {
+    if (!sessison) return;
+
+    (async () => {
+      if (!accountsLinked) {
+        const { data } = await supabase.from('user_chess_accounts').select().eq('uuid', sessison.id);
+        if (!data || data.length === 0) {
+          alert("No linked accounts found. Please link your chess accounts");
+          return;
+        }
+
+        const { chesscom_name, lichess_name } = data[0];
+        setChesscom(chesscom_name);
+        setLichess(lichess_name);
+      }
+    })();
+  }, [sessison, supabase, accountsLinked]);
+
+  useEffect(() => {
+    if (chesscom.length > 0 || lichess.length > 0) {
+      setAccountsLinked(true);
+    }
+  }, [chesscom, lichess]);
+
+  useEffect(() => {
+    if (!accountsLinked) return;
+
+    (async () => {
+      if (!gamesImported) {
+        const { data: games } = await supabase
+          .from('game_pgns')
+          .select('*')
+          .or(`white.in.(${chesscom}), black.in.(${chesscom}), white.in.(${lichess}), black.in.(${lichess})`)
+          .limit(10);
+
+        if (!games || games.length < 10) {
+          // alert("No games imported. Please import games");
+          return;
+        }
+
+        setGamesImported(true);
+      }
+    })();
+
+  }, [supabase, chesscom, lichess, accountsLinked, gamesImported]);
+
+  useEffect(() => {
+    if (!gamesImported || !sessison) return;
+
+    (async () => {
+      if (!playstyleAnalyzed) {
+        const { data } = await supabase
+          .from("user_analysis")
+          .select("*")
+          .eq("uuid", sessison.id);
+
+        if (!data || data.length === 0) {
+          return;
+        }
+
+        setPlaystyleAnalyzed(true);
+      }
+    })();
+  }, [supabase, sessison, gamesImported, playstyleAnalyzed]);
 
   return (
     <div>
@@ -100,9 +181,25 @@ export default function Home() {
       )}
       {sessison && (
         <div>
-          <button className="button" onClick={importGames}>Import Games</button>
-          <button className="button" onClick={analyzePlaystyle}>Analyze Playstyle</button>
           <div className="chat">
+            {!accountsLinked && (
+              <div>
+                <p>You must link your chess accounts in order to interact with Chesski.</p>
+                <p>Please visit your <Link href={"/profile"}>profile</Link>.</p>
+              </div>
+            )}
+            {accountsLinked && !gamesImported && (
+              <button className={`button`} onClick={importGames} disabled={isLoading}>
+                {!isLoading && "Import Games"}
+                {isLoading && <div className="w-6 h-6 border-4 border-gray-200 border-t-[#1B03A3] rounded-full animate-spin" />}
+              </button>
+            )}
+            {gamesImported && !playstyleAnalyzed && (
+              <button className={`button`} onClick={analyzePlaystyle} disabled={isLoading}>
+                {!isLoading && "Analyze Playstyle"}
+                {isLoading && <div className="w-6 h-6 border-4 border-gray-200 border-t-[#1B03A3] rounded-full animate-spin" />}
+              </button>
+            )}
             <div className="chat-messages">
               {messages.map((message, i) => {
                 if (!(message.role === "user" || message.role === "assistant")) return null;
@@ -116,8 +213,11 @@ export default function Home() {
               })}
             </div>
             <form onSubmit={handleSubmit} className="flex flex-row items-center space-x-4">
-              <input className="input" value={input} onChange={handleInputChange} type="text" placeholder="Send a message" />
-              <button className="button" type="submit">Send</button>
+              <input className="input" value={input} onChange={handleInputChange} type="text" placeholder="Send a message" disabled={!playstyleAnalyzed} />
+              <button className="button" type="submit" disabled={!playstyleAnalyzed || chatLoading}>
+                Send
+                {/* {chatLoading && <div className="w-6 h-6 border-4 border-gray-200 border-t-[#1B03A3] rounded-full animate-spin" />} */}
+              </button>
             </form>
           </div>
         </div> 

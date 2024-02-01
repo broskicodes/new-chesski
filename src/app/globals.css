@@ -96,6 +96,17 @@ body {
   opacity: 0.8;
 }
 
+button:disabled {
+  background-color: #ccc;
+  cursor: default;
+  opacity: 0.5;
+}
+
+.button:disabled:hover {
+  background-color: #ccc;
+  opacity: 0.5;
+}
+
 .error {
   color: red;
   font-family: "Merriweather Sans", sans-serif;

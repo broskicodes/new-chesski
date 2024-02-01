@@ -32,7 +32,7 @@ const parsePGN = (pgn: string) => {
 }
 
 export const POST = async (req: Request, res: Response) => {
-  const cookieStore = cookies()
+  const cookieStore = cookies();
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -80,22 +80,20 @@ export const POST = async (req: Request, res: Response) => {
   const chesscomarchiveRes = await fetch(`https://api.chess.com/pub/player/${chesscom}/games/archives`);
   const chesscomarchiveData = await chesscomarchiveRes.json();
 
-  const chesscomGames = (await Promise.all(
-    chesscomarchiveData['archives'] 
-      ? chesscomarchiveData['archives'].slice(-3).map(async (archive: string) => {
-          const res = await fetch(archive);
-          const data = await res.json();
+  const chesscomGames = [];
 
-          const pgns = data['games'].map((game: any) => {
-            return game['pgn'];
-          });
-          
-          return pgns;
-        })
-      : []
-  )).flat();
+  for (const archive of chesscomarchiveData['archives'].slice(-5)) {
+    const res = await fetch(archive);
+    const data = await res.json();
 
-  const dbRows = lichessGames.concat(chesscomGames).map((game: string) => {
+    const pgns = data['games'].map((game: any) => {
+      return game['pgn'];
+    });
+
+    chesscomGames.push(pgns);
+  }
+
+  const dbRows = lichessGames.concat(chesscomGames.flat()).map((game: string) => {
     return parsePGN(game);
   });
 
