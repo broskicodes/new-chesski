@@ -1,0 +1,9 @@
+{
+  "functions": {
+    "analyze-user/*ts": {
+      "runtime": "nodejs14.x",
+      "memory": 1024,
+      "maxDuration": 300
+    }
+  }
+}
