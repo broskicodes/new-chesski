@@ -29,7 +29,7 @@ export default function Home() {
         redirectTo: `${origin}/auth/callback`,
       },
     });
-  }, [origin]);
+  }, [origin, supabase]);
 
   const importGames = useCallback(async () => {
     if (!sessison) return;
