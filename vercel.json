@@ -1,6 +1,6 @@
 {
   "functions": {
-    "analyze-user/*ts": {
+    "src/app/analyze-user/*.ts": {
       "maxDuration": 300
     }
   }
