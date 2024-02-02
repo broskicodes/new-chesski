@@ -1,0 +1,11 @@
+
+body {
+  background-image: none;
+  background-color: #FFF;
+  overflow-y: scroll;
+  height: auto;
+}
+
+.doc {
+  width: 720px;
+}

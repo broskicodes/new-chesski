@@ -121,6 +121,13 @@ button:disabled {
   margin-top: 32px;
 }
 
+.custom-text {
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 300;
+  font-size: 16px;
+  color: #fff;
+}
+
 @media screen and (min-width: 480px) and (max-width: 640px) {
   .header {
     font-size: 36px;
@@ -166,8 +173,7 @@ button:disabled {
 
   .input {
     width: 100%;
-  }
-  
+  } 
 }
 
 @media screen and (min-width: 640px) {

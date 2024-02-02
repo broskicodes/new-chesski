@@ -7,6 +7,7 @@ import { useChat, experimental_useAssistant } from "ai/react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import "./styles.css";
+import { Footer } from "@/components/Footer";
 
 export default function Home() {
   const [sessison, setSession] = useState<User | null>(null);
@@ -179,6 +180,7 @@ export default function Home() {
 
   return (
     <div className="h-full">
+      <Footer />
       {!sessison && (
         <div className="flex flex-col justify-center items-center h-full">
           <div className="header">
