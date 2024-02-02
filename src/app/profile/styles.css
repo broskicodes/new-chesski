@@ -1,0 +1,47 @@
+.profile-content {
+  justify-content: center;
+  padding: 32px;
+  border-radius: 20px;
+  background: #F0F1F8;
+}
+
+.header {
+  color: #000;
+  font-family: "Arvo", serif;
+  font-weight: 700;
+  font-size: 24px;
+  text-align: left;
+  margin-bottom: 8px;
+}
+
+.label {
+  color: #000;
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  text-align: left;
+}
+
+.sub-header {
+  color: #000;
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.success {
+  font-size: 16px;
+  margin-top: 12px;
+}
+
+.slim {
+  padding: 6px 16px;
+}
+
+@media screen and (max-width: 640px) {
+  .button {
+    width: 100%;
+  }
+}

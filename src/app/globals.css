@@ -22,8 +22,6 @@
   }
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Merriweather+Sans:wght@300;400;500&display=swap');
-
 body {
   background-image: url("/chesski-bg.png");
   background-size: cover;
@@ -52,7 +50,6 @@ body {
   color: #fff;
   display: flex;
   flex-direction: column;
-  align-items: center;
   text-align: center;
 }
 
@@ -72,7 +69,7 @@ body {
   margin-right: 24px;
 }
 
-#email {
+.input {
   width: 300px;
   height: 40px;
   border-radius: 8px;
@@ -81,7 +78,6 @@ body {
   font-family: "Merriweather Sans", sans-serif;
   font-weight: 300;
   font-size: 16px;
-
 }
 
 .button {
@@ -98,6 +94,17 @@ body {
 .button:hover {
   background-color: #1B03A3;
   opacity: 0.8;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: default;
+  opacity: 0.5;
+}
+
+.button:disabled:hover {
+  background-color: #ccc;
+  opacity: 0.5;
 }
 
 .error {
@@ -133,7 +140,7 @@ body {
     margin-bottom: 12px;
   }
 
-  #email {
+  .input {
     width: 100%;
   }
 }
@@ -157,7 +164,7 @@ body {
     margin-bottom: 12px;
   }
 
-  #email {
+  .input {
     width: 100%;
   }
   
