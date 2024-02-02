@@ -55,4 +55,10 @@
   .content {
     font-size: 14px;
   }
+  .input {
+    height: 32px;
+  }
+  .button {
+    padding: 6px 16px;
+  }
 }

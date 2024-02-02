@@ -41,6 +41,8 @@ export const POST = async (req: Request, res: Response) => {
     return new Response(JSON.stringify({ error }), { status: 500 });
   }
 
+  await supabase.from("sent_msg").upsert({ uuid: data.user.id, sent: true });
+
   const { data: analysis, error: analysisError } = await supabase
     .from("user_analysis")
     .select("*")

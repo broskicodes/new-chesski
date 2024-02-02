@@ -173,9 +173,9 @@ export default function Home() {
   }, [messages]);
 
   return (
-    <div>
+    <div className="h-full">
       {!sessison && (
-        <div>
+        <div className="flex flex-col justify-center items-center h-full">
           <div className="header">
             CHESSKI
           </div>
