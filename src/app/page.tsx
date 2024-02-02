@@ -111,7 +111,6 @@ export default function Home() {
       if (!accountsLinked) {
         const { data } = await supabase.from('user_chess_accounts').select().eq('uuid', sessison.id);
         if (!data || data.length === 0) {
-          alert("No linked accounts found. Please link your chess accounts");
           return;
         }
 
@@ -202,7 +201,7 @@ export default function Home() {
             {!accountsLinked && (
               <div>
                 <p>You must link your chess accounts in order to interact with Chesski.</p>
-                <p>Please visit your <Link href={"/profile"}>profile</Link>.</p>
+                <p>Please update your <Link href={"/profile"} className="underline">profile</Link>.</p>
               </div>
             )}
             {accountsLinked && !gamesImported && (

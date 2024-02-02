@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import "./styles.css";
+import Link from "next/link";
 
 export default function Profile() {
   const [chesscom, setChesscom] = useState("");
@@ -79,7 +80,10 @@ export default function Profile() {
         <button className="button" onClick={saveData} disabled={saved}>Save</button>
       </div>
       {saved && (
-        <p className="success">Account changes saved!</p> 
+        <div className="flex flex-row justify-between items-center pt-2">
+          <p className="success">Account changes saved!</p> 
+          <Link href="/" className="button slim">Start Training</Link>
+        </div>
       )}
     </div>
   );

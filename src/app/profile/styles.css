@@ -36,6 +36,10 @@
   margin-top: 12px;
 }
 
+.slim {
+  padding: 6px 16px;
+}
+
 @media screen and (max-width: 640px) {
   .button {
     width: 100%;
