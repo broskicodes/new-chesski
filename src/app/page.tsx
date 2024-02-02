@@ -22,8 +22,8 @@ export default function Home() {
 
   const chatRef = useRef<HTMLDivElement>(null);
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading: chatLoading } = useChat({
-    api: "/chat"
+  const { messages, input, handleInputChange, handleSubmit, isLoading: chatLoading, setMessages } = useChat({
+    api: "/chat",
   });
 
   const supabase = useMemo(() => {
@@ -86,6 +86,9 @@ export default function Home() {
     // const data = await res.json();
 
     // alert(`Your playstyle has been analyzed`);
+    setMessages([
+      { id: "0", role: "assistant", content: "I have analyzed your playstyle and weaknesses. What would you like to know?" }
+    ]);
     setPlaystyleAnalyzed(true);
     setIsLoading(false);
   }, [sessison]);
@@ -161,6 +164,9 @@ export default function Home() {
           return;
         }
 
+        setMessages([
+          { id: "0", role: "assistant", content: "I have analyzed your playstyle and weaknesses. What would you like to know?" }
+        ]);
         setPlaystyleAnalyzed(true);
       }
     })();
