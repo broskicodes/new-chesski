@@ -188,7 +188,7 @@ export default function Home() {
         </div>
       )}
       {sessison && (
-        <div>
+        <div className="pt-20">
           <div className="header">
             CHESSKI
           </div>

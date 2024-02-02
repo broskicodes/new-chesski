@@ -38,7 +38,6 @@
 
 @media screen and (max-width: 640px) {
   body {
-    padding-top: 60px;
     justify-content: flex-start;
   }
   .chat {
