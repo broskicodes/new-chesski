@@ -76,21 +76,24 @@ export const POST = async (req: Request, res: Response) => {
   const lichessGameData = await lichessGameRes.text();
 
   const lichessGames = lichessGameData.split('\n\n\n').slice(0, -1);
-
-  const chesscomarchiveRes = await fetch(`https://api.chess.com/pub/player/${chesscom}/games/archives`);
-  const chesscomarchiveData = await chesscomarchiveRes.json();
-
+  
   const chesscomGames = [];
 
-  for (const archive of chesscomarchiveData['archives'].slice(-5)) {
-    const res = await fetch(archive);
-    const data = await res.json();
+  if (chesscom.length > 0) {
+    const chesscomarchiveRes = await fetch(`https://api.chess.com/pub/player/${chesscom}/games/archives`);
+    const chesscomarchiveData = await chesscomarchiveRes.json();
 
-    const pgns = data['games'].map((game: any) => {
-      return game['pgn'];
-    });
 
-    chesscomGames.push(pgns);
+    for (const archive of chesscomarchiveData['archives'].slice(-5)) {
+      const res = await fetch(archive);
+      const data = await res.json();
+
+      const pgns = data['games'].map((game: any) => {
+        return game['pgn'];
+      });
+
+      chesscomGames.push(pgns);
+    }
   }
 
   const dbRows = lichessGames.concat(chesscomGames.flat()).map((game: string) => {
