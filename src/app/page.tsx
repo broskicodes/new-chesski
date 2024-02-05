@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createBrowserClient } from '@supabase/ssr'
 import { User } from "@supabase/supabase-js";
 import { useChat, experimental_useAssistant } from "ai/react";
@@ -8,6 +8,11 @@ import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import "./styles.css";
 import { Footer } from "@/components/Footer";
+import { Chessboard } from "@/components/Chessboard";
+import { Puzzle } from "@/utils/types";
+import { useChess } from "@/providers/ChessProvider/context";
+import { Chess } from "chess.js";
+import { usePuzzle } from "@/providers/PuzzleProvider/context";
 
 export default function Home() {
   const [sessison, setSession] = useState<User | null>(null);
@@ -21,8 +26,13 @@ export default function Home() {
   const [chesscom, setChesscom] = useState("");
   const [lichess, setLichess] = useState("");
 
+  // const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
+  // const [puzzlePos, setPuzzlePos] = useState<string>("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+
   const chatRef = useRef<HTMLDivElement>(null);
 
+  const { setPosition, makeMove, game, undo } = useChess();
+  const { setPuzzle, puzzleComplete } = usePuzzle();
   const { messages, input, handleInputChange, handleSubmit, isLoading: chatLoading, setMessages } = useChat({
     api: "/chat",
   });
@@ -92,7 +102,7 @@ export default function Home() {
     ]);
     setPlaystyleAnalyzed(true);
     setIsLoading(false);
-  }, [sessison]);
+  }, [sessison, setMessages]);
 
   useEffect(() => {
     setOrigin(window.location.origin);
@@ -170,7 +180,7 @@ export default function Home() {
         setPlaystyleAnalyzed(true);
       }
     })();
-  }, [supabase, sessison, gamesImported, playstyleAnalyzed]);
+  }, [supabase, sessison, gamesImported, playstyleAnalyzed, setMessages]);
 
   useEffect(() => {
     if (chatRef.current) {
@@ -178,9 +188,12 @@ export default function Home() {
     }
   }, [messages]);
 
+  useEffect(() => {
+    setPuzzle("00008")
+  }, [setPuzzle]);
+
   return (
     <div className="h-full">
-      <Footer />
       {!sessison && (
         <div className="flex flex-col justify-center items-center h-full">
           <div className="header">
@@ -199,7 +212,7 @@ export default function Home() {
           <div className="header">
             CHESSKI
           </div>
-          <div className="chat">
+          {/* <div className="chat">
             {!accountsLinked && (
               <div>
                 <p>You must link your chess accounts in order to interact with Chesski.</p>
@@ -236,9 +249,14 @@ export default function Home() {
                 Send
               </button>
             </form>
-          </div>
+            </div> */}
+          <Chessboard />
+          {puzzleComplete && <button className="button" onClick={() => { setPuzzle("0000D") }}>
+            next
+          </button>}
         </div> 
       )}
+      <Footer />
     </div>
   );
 }
