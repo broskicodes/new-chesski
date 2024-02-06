@@ -1,19 +1,27 @@
 .chat {
   background: #F0F1F8;
-  border-radius: 20px;
-  padding: 32px;
+  border-radius: 12px 12px 0px 0px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: absolute;
+  bottom: 48px;
+  right: 0;
+  z-index: 10;
 }
 
 .chat-messages {
   display: flex;
   flex-direction: column;
   margin-bottom: 16px;
-  width: 720px;
-  height: 540px;
+  width: 324px;
+  height: 400px;
   overflow-y: scroll;
+}
+
+.chat .button {
+  padding: 6px 16px;
 }
 
 .input {

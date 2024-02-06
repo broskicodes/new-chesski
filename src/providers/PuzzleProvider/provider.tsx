@@ -11,17 +11,25 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
   const [moveIdx, setMoveIdx] = useState<number>(-1);
   const [puzzleComplete, setPuzzleComplete] = useState(false);
 
-  const { game, undo, setPosition } = useChess();
+  const { game, orientation, undo, setPosition, swapOrientation, makeMove } = useChess();
 
   const setNewPuzzle = useCallback(async (puzzleId: string) => {
     const res = await fetch(`/api/puzzle/${puzzleId}`);
     const data = await res.json();
+
+    const tempGame = new Chess(data.starting_fen);
+
+    if (tempGame.turn() === 'b' && orientation === 'black' ||
+        tempGame.turn() === 'w' && orientation === 'white'){
+      swapOrientation()
+    } 
 
     setPuzzleComplete(false);
     setPuzzle({
       ...data,
       moves: data.moves.split(" "),
       themes: data.themes.split(" "),
+      opening_tags: data.opening_tags.length > 0 ? data.opening_tags?.split(" ") : null
     });  
   }, []);
 
@@ -59,6 +67,23 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
       setMoveIdx(0);
     }
   }, [puzzle]);
+
+  useEffect(() => {
+    if(!puzzle) return;
+
+    if (moveIdx >= 0 && moveIdx % 2 === 0) {
+      makeMove(puzzle.moves[moveIdx]);
+    }
+  }, [moveIdx, puzzle]);
+
+  // useEffect(() => { 
+  //   if (moveIdx !== 0) return;
+
+    // if (game.turn() === 'b' && orientation === 'white' ||
+    //     game.turn() === 'w' && orientation === 'black'){
+    //   swapOrientation()
+    // } 
+  // }, [game, moveIdx, orientation, swapOrientation])
 
   const value = useMemo(() => ({
     puzzle,

@@ -5,4 +5,5 @@ export interface Puzzle {
   rating: number;
   rating_deviation: number;
   themes: string[];
+  opening_tags: string[] | null;
 }
