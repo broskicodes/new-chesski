@@ -1,19 +1,27 @@
 .chat {
   background: #F0F1F8;
-  border-radius: 20px;
-  padding: 32px;
+  border-radius: 12px 12px 0px 0px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: absolute;
+  bottom: 48px;
+  right: 0;
+  z-index: 10;
 }
 
 .chat-messages {
   display: flex;
   flex-direction: column;
   margin-bottom: 16px;
-  width: 720px;
-  height: 540px;
+  width: 324px;
+  height: 400px;
   overflow-y: scroll;
+}
+
+.chat .button {
+  padding: 6px 16px;
 }
 
 .input {
@@ -34,6 +42,25 @@
   font-weight: 300;
   font-size: 16px;
   text-align: left;
+}
+
+.board-overlay {
+  /* absolute top-0 left-0 z-10 w-full h-full bg-black bg-opacity-30 flex justify-center items-center text-xl */
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
 }
 
 @media screen and (max-width: 640px) {
