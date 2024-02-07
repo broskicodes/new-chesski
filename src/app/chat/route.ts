@@ -43,7 +43,7 @@ const omniModelSystemMessage = {
 }
 
 export const POST = async (req: Request, res: Response) => {
-  const { messages, puzzle, moveIdx } = await req.json();
+  const { messages, puzzle, lastMove } = await req.json();
 
   const lastMessage = messages.at(-1);
 
@@ -117,10 +117,12 @@ export const POST = async (req: Request, res: Response) => {
         ...messages.filter((msg: Message) => !msg.tool_calls),
         {
           role: "assistant",
-          content: `The puzzle the user is currently studying starts in this position: ${puzzle.starting_fen}. The puzzle has the following solution: ${puzzle.moves.join(" ")}. The user is currently on move ${moveIdx + 1}. Respond to the user's query.`
+          content: `The puzzle the user is currently studying starts in this position: ${puzzle.starting_fen}. The puzzle has the following solution: ${puzzle.moves.join(" ")}. The move ${lastMove} has just been played. Respond to the user's query.`
         }
       ],
     });
+
+    console.log(lastMove)
 
     const stream = OpenAIStream(reponse);
     return new StreamingTextResponse(stream);

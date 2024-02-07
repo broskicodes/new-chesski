@@ -37,7 +37,7 @@ export default function Home() {
   const { messages, input, handleInputChange, handleSubmit, isLoading: chatLoading, setMessages, data: chatData } = useChat({
     api: "/chat",
     body: {
-      moveIdx,
+      lastMove: puzzle?.moves[moveIdx - 1],
       puzzle
     },
     experimental_onToolCall: async (msgs: Message[], toolCalls: ToolCall[]) => {
