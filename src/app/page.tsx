@@ -32,9 +32,13 @@ export default function Home() {
   const chatRef = useRef<HTMLDivElement>(null);
 
   const { setPosition, makeMove, game, undo } = useChess();
-  const { setPuzzle, puzzleComplete } = usePuzzle();
-  const { messages, input, handleInputChange, handleSubmit, isLoading: chatLoading, setMessages, data } = useChat({
+  const { setPuzzle, clearPuzzle, puzzleComplete, puzzle, moveIdx } = usePuzzle();
+  const { messages, input, handleInputChange, handleSubmit, isLoading: chatLoading, setMessages, data: chatData } = useChat({
     api: "/chat",
+    body: {
+      moveIdx,
+      puzzle
+    },
     experimental_onToolCall: async (msgs: Message[], toolCalls: ToolCall[]) => {
       // console.log("tool calls", toolCalls);
       return {
@@ -43,10 +47,10 @@ export default function Home() {
       }
     },
     // onFinish: (msg: Message) => {
-    //   console.log("finished", data);
-    //   if (data) {
+    //   console.log("finished", chatData);
+    //   if (chatData) {
     //     // @ts-ignore
-    //     setPuzzleIds(data[0]!["puzzles"].map((p) => p.id));
+    //     setPuzzleIds(chatData[0]!["puzzles"].map((p) => p.id));
     //   }
     // }
   });
@@ -66,6 +70,14 @@ export default function Home() {
       },
     });
   }, [origin, supabase]);
+
+  const setNextPuzzle = useCallback(async () => {
+    await supabase
+      .from("completed_puzzles")
+      .insert({ user_id: sessison!.id, puzzle_id: puzzleIds[puzzleIdx] });
+
+    setPuzzleIdx(puzzleIdx + 1);
+  }, [supabase, sessison, puzzleIds, setPuzzleIdx, puzzleIdx]);
 
   // const importGames = useCallback(async () => {
   //   if (!sessison) return;
@@ -108,7 +120,7 @@ export default function Home() {
   //     return;
   //   }
 
-  //   // const data = await res.json();
+  //   // const chatData = await res.json();
 
   //   // alert(`Your playstyle has been analyzed`);
   //   setMessages([
@@ -120,12 +132,14 @@ export default function Home() {
 
   useEffect(() => {
     // @ts-ignore
-    if (data && data.length > 0 && data.at(-1)["puzzles"][0].id !== puzzleIds[0]) {
+    if (chatData && chatData.length > 0 && chatData.at(-1)["puzzles"][0].id !== puzzleIds[0]) {
       // @ts-ignore
-      setPuzzleIds(data.at(-1)!["puzzles"].map((p) => p.id));
+      // console.log("chat data", chatData.at(-1)["puzzles"].map((p) => p.content));
+      // @ts-ignore
+      setPuzzleIds(chatData.at(-1)!["puzzles"].map((p) => p.id));
       setPuzzleIdx(0);
     }
-  }, [data]);
+  }, [chatData]);
 
   useEffect(() => {
     setOrigin(window.location.origin);
@@ -166,7 +180,7 @@ export default function Home() {
 
   //   (async () => {
   //     if (!gamesImported) {
-  //       const { data: games } = await supabase
+  //       const { chatData: games } = await supabase
   //         .from('game_pgns')
   //         .select('*')
   //         .or(`white.in.(${chesscom}), black.in.(${chesscom}), white.in.(${lichess}), black.in.(${lichess})`)
@@ -188,12 +202,12 @@ export default function Home() {
 
   //   (async () => {
   //     if (!playstyleAnalyzed) {
-  //       const { data } = await supabase
+  //       const { chatData } = await supabase
   //         .from("user_analysis")
   //         .select("*")
   //         .eq("uuid", sessison.id);
 
-  //       if (!data || data.length === 0) {
+  //       if (!chatData || chatData.length === 0) {
   //         return;
   //       }
 
@@ -215,16 +229,18 @@ export default function Home() {
     if (puzzleIds.length === 0) return;
 
     if (puzzleIdx >= puzzleIds.length) {
-      alert("Must load new puzzles");
+      clearPuzzle();
+      setPuzzleIdx(0);
+      setPuzzleIds([]);
       return;
     }
     setPuzzle(puzzleIds[puzzleIdx]);
-  }, [setPuzzle, puzzleIds, puzzleIdx]);
+  }, [setPuzzle, clearPuzzle, puzzleIds, puzzleIdx]);
 
   useEffect(() => {
     if (messages.length === 0) {
       setMessages([
-        { id: "0", role: "assistant", content: "Hi! I'm Chesski, your personal chess assistant. My primary focus is to help you find and practice puzzles. What topics would you like to study?" }
+        { id: "0", role: "assistant", content: "Hi! I'm Chesski, your personal chess assistant. I'm here to help you practice puzzles. What topics would you like to study?" }
       ]);
     }
   }, [setMessages, messages]);
@@ -289,8 +305,15 @@ export default function Home() {
               </button>
             </form>
           </div>
-          <Chessboard />
-          {puzzleComplete && <button className="button" onClick={() => { setPuzzleIdx(puzzleIdx + 1) }}>
+          <div className="relative">
+            {!puzzle && (
+              <div className="board-overlay">
+                <p className="bg-black bg-opacity-50 rounded-sm">Use chat to find puzzles to practice</p>
+              </div>
+            )}
+            <Chessboard />
+          </div>
+          {puzzleComplete && <button className="button" onClick={setNextPuzzle}>
             next
           </button>}
           {/* <button className="button" onClick={async () => {
@@ -302,14 +325,14 @@ export default function Home() {
           }}>
             embed
           </button> */}
-          <button className="button" onClick={async () => {
+          {/* <button className="button" onClick={async () => {
             const res = await fetch("/api/puzzle", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
             })
           }}>
             puzzles
-          </button>
+          </button> */}
         </div> 
       )}
       <Footer />

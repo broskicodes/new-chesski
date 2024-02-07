@@ -13,6 +13,13 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
 
   const { game, orientation, undo, setPosition, swapOrientation, makeMove } = useChess();
 
+  const clearPuzzle = useCallback(() => {
+    setPuzzle(null);
+    setPuzzlePos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    setMoveIdx(-1);
+    setPuzzleComplete(false);
+  }, []);
+
   const setNewPuzzle = useCallback(async (puzzleId: string) => {
     const res = await fetch(`/api/puzzle/${puzzleId}`);
     const data = await res.json();
@@ -89,9 +96,11 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
     puzzle,
     currPos: puzzlePos,
     puzzleComplete: puzzleComplete,
+    moveIdx,
     setPuzzle: setNewPuzzle,
     updatePosition: updatePosition,
-  }), [puzzle, setNewPuzzle, puzzlePos, setPuzzlePos, updatePosition]);
+    clearPuzzle: clearPuzzle
+  }), [puzzle, puzzleComplete, puzzlePos, moveIdx, setNewPuzzle, updatePosition, clearPuzzle, ]);
 
   return (
     <PuzzleContext.Provider value={value}>
