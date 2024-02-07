@@ -15,9 +15,6 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
 
   const clearPuzzle = useCallback(() => {
     setPuzzle(null);
-    setPuzzlePos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    setMoveIdx(-1);
-    setPuzzleComplete(false);
   }, []);
 
   const setNewPuzzle = useCallback(async (puzzleId: string) => {
@@ -38,10 +35,10 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
       themes: data.themes.split(" "),
       opening_tags: data.opening_tags.length > 0 ? data.opening_tags?.split(" ") : null
     });  
-  }, []);
+  }, [swapOrientation, orientation]);
 
   const updatePosition = useCallback(() => {
-    if (!puzzle) {
+    if (!puzzle || moveIdx < 0) {
       return;
     }
 
@@ -72,8 +69,12 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
       setPosition(puzzle.starting_fen);
       setPuzzlePos(puzzle.starting_fen);
       setMoveIdx(0);
+    } else {
+      setPuzzlePos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+      setMoveIdx(-1);
+      setPuzzleComplete(false);
     }
-  }, [puzzle]);
+  }, [puzzle, setPosition]);
 
   useEffect(() => {
     if(!puzzle) return;
@@ -81,7 +82,7 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
     if (moveIdx >= 0 && moveIdx % 2 === 0) {
       makeMove(puzzle.moves[moveIdx]);
     }
-  }, [moveIdx, puzzle]);
+  }, [moveIdx, puzzle, makeMove]);
 
   // useEffect(() => { 
   //   if (moveIdx !== 0) return;

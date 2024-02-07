@@ -73,7 +73,7 @@ export const POST = async (req: Request, res: Response) => {
         const { data: documents } = await supabase.rpc('find_puzzles', {
           user_id: data.user.id,
           query_embedding: embed.data[0].embedding, 
-          match_count: 5, 
+          match_count: 1, 
         });
 
         const streamData = new experimental_StreamData();
@@ -96,8 +96,6 @@ export const POST = async (req: Request, res: Response) => {
             }
           ]
         });
-
-        // console.log(documents);
 
         const stream = OpenAIStream(reponse, {
           experimental_streamData: true

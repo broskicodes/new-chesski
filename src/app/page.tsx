@@ -29,9 +29,10 @@ export default function Home() {
   const [chesscom, setChesscom] = useState("");
   const [lichess, setLichess] = useState("");
 
+  const [chatDataIdx, setChatDataIdx] = useState<number>(0);
+
   const chatRef = useRef<HTMLDivElement>(null);
 
-  const { setPosition, makeMove, game, undo } = useChess();
   const { setPuzzle, clearPuzzle, puzzleComplete, puzzle, moveIdx } = usePuzzle();
   const { messages, input, handleInputChange, handleSubmit, isLoading: chatLoading, setMessages, data: chatData } = useChat({
     api: "/chat",
@@ -77,7 +78,7 @@ export default function Home() {
       .insert({ user_id: sessison!.id, puzzle_id: puzzleIds[puzzleIdx] });
 
     setPuzzleIdx(puzzleIdx + 1);
-  }, [supabase, sessison, puzzleIds, setPuzzleIdx, puzzleIdx]);
+  }, [supabase, sessison, puzzleIds, puzzleIdx]);
 
   // const importGames = useCallback(async () => {
   //   if (!sessison) return;
@@ -132,14 +133,15 @@ export default function Home() {
 
   useEffect(() => {
     // @ts-ignore
-    if (chatData && chatData.length > 0 && chatData.at(-1)["puzzles"][0].id !== puzzleIds[0]) {
+    if (chatData && chatData.length > 0 && chatData.at(chatDataIdx) && chatData.at(chatDataIdx)["puzzles"][0].id !== puzzleIds[0]) {
       // @ts-ignore
-      // console.log("chat data", chatData.at(-1)["puzzles"].map((p) => p.content));
+      // console.log("chat data", chatData.at(chatDataIdx)["puzzles"].map((p) => p.content));
       // @ts-ignore
-      setPuzzleIds(chatData.at(-1)!["puzzles"].map((p) => p.id));
+      setPuzzleIds(chatData.at(chatDataIdx)!["puzzles"].map((p) => p.id));
       setPuzzleIdx(0);
+      setChatDataIdx(chatDataIdx + 1);
     }
-  }, [chatData]);
+  }, [chatData, puzzleIds, puzzleIdx, chatDataIdx]);
 
   useEffect(() => {
     setOrigin(window.location.origin);
@@ -226,14 +228,17 @@ export default function Home() {
   }, [messages]);
 
   useEffect(() => {
-    if (puzzleIds.length === 0) return;
-
-    if (puzzleIdx >= puzzleIds.length) {
-      clearPuzzle();
-      setPuzzleIdx(0);
-      setPuzzleIds([]);
+    if (puzzleIds.length === 0)  {
       return;
     }
+
+    if (puzzleIdx >= puzzleIds.length) {
+      setPuzzleIdx(0);
+      setPuzzleIds([]);
+      clearPuzzle();
+      return;
+    }
+
     setPuzzle(puzzleIds[puzzleIdx]);
   }, [setPuzzle, clearPuzzle, puzzleIds, puzzleIdx]);
 
