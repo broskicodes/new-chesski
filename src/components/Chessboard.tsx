@@ -1,19 +1,29 @@
 import { useChess } from '@/providers/ChessProvider/context';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Chessboard as ReactChessboad } from 'react-chessboard';
 
 
 export const Chessboard = () => {
+  const [boardWidth, setBoardWidth] = useState(512);
   const { game, makeMove, onDrop, addHighlightedSquares, arrows, orientation, highlightedMoves, highlightedSquares, resetHighlightedMoves, addArrows } = useChess();
 
-  // useEffect(() => {
-  //   console.log(game.fen());
-  // }, [game]);
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setBoardWidth(window.innerWidth);
+        return;
+      }
+      setBoardWidth(512);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     // <div>
       <ReactChessboad
-        boardWidth={512}
+        boardWidth={boardWidth}
         position={game.fen()}
         onPieceDrop={onDrop}
         boardOrientation={orientation}

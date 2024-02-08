@@ -131,6 +131,7 @@ button:disabled {
 @media screen and (min-width: 480px) and (max-width: 640px) {
   .header {
     font-size: 36px;
+    margin-bottom: 8px;
   }
 
   .sub-header {
@@ -150,11 +151,16 @@ button:disabled {
   .input {
     width: 100%;
   }
+
+  .custom-text {
+    font-size: 12px;
+  }
 }
 
 @media screen and (max-width: 480px) {
   .header {
     font-size: 36px;
+    margin-bottom: 8px;
   }
 
   .sub-header {
@@ -174,6 +180,10 @@ button:disabled {
   .input {
     width: 100%;
   } 
+
+  .custom-text {
+    font-size: 14px;
+  }
 }
 
 @media screen and (min-width: 640px) {
