@@ -36,12 +36,13 @@ export default function Home() {
 
   const { setPuzzle, clearPuzzle, puzzleComplete, puzzle, moveIdx } = usePuzzle();
   const { initEngine, startSearch } = useStockfish();
-  const { turn, orientation } = useChess();
-  const { messages, input, handleInputChange, handleSubmit, isLoading: chatLoading, setMessages, data: chatData } = useChat({
-    api: "/chat",
+  const { turn, orientation, game } = useChess();
+  const { messages, append,  input, handleInputChange, handleSubmit, isLoading: chatLoading, setMessages, data: chatData } = useChat({
+    api: "/chat/coach",
     body: {
-      lastMove: puzzle?.moves[moveIdx - 1],
-      puzzle
+      // lastMove: puzzle?.moves[moveIdx - 1],
+      // puzzle
+
     },
     experimental_onToolCall: async (msgs: Message[], toolCalls: ToolCall[]) => {
       return {
@@ -81,6 +82,23 @@ export default function Home() {
 
     setPuzzleIdx(puzzleIdx + 1);
   }, [supabase, sessison, puzzleIds, puzzleIdx]);
+
+  useEffect(() => {
+    if (game) {
+      const moves = game.history();
+      const fen = game.fen();
+
+      // console.log(`The user is playing as ${orientation}. The current position is ${fen}. The moves leading up to this position are ${moves.join(" ")}. ${turn === "white" ? "Black" : "White"} just played ${moves.at(-1)}.`);
+      append({
+        role: "assistant",
+        content: `The user is playing as ${orientation}. The current position is ${fen}. The moves leading up to this position are ${moves.join(" ")}. ${turn === "white" ? "Black" : "White"} just played ${moves.at(-1)}.`
+      })
+    }
+  }, [game, orientation, turn]);
+
+  useEffect(() => {
+    console.log(messages.at(-1)?.content);
+  }, [messages]);
 
   // const importGames = useCallback(async () => {
   //   if (!sessison) return;
@@ -235,11 +253,11 @@ export default function Home() {
   //   })();
   // }, [supabase, sessison, gamesImported, playstyleAnalyzed, setMessages]);
 
-  useEffect(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTop = chatRef.current.scrollHeight;
-    }
-  }, [messages]);
+  // useEffect(() => {
+  //   if (chatRef.current) {
+  //     chatRef.current.scrollTop = chatRef.current.scrollHeight;
+  //   }
+  // }, [messages]);
 
   useEffect(() => {
     if (puzzleIds.length === 0)  {
@@ -256,13 +274,13 @@ export default function Home() {
     setPuzzle(puzzleIds[puzzleIdx]);
   }, [setPuzzle, clearPuzzle, puzzleIds, puzzleIdx]);
 
-  useEffect(() => {
-    if (messages.length === 0) {
-      setMessages([
-        { id: "0", role: "assistant", content: "Hi! I'm Chesski, your personal chess assistant. I'm here to help you practice puzzles. What topics would you like to study?" }
-      ]);
-    }
-  }, [setMessages, messages]);
+  // useEffect(() => {
+  //   if (messages.length === 0) {
+  //     setMessages([
+  //       { id: "0", role: "assistant", content: "Hi! I'm Chesski, your personal chess assistant. I'm here to help you practice puzzles. What topics would you like to study?" }
+  //     ]);
+  //   }
+  // }, [setMessages, messages]);
 
   return (
     <div className="h-full">
@@ -284,7 +302,7 @@ export default function Home() {
           <div className="header hidden sm:block">
             CHESSKI
           </div>
-          <div className="chat">
+          {/* <div className="chat"> */}
             {/* {!accountsLinked && (
               <div>
                 <p>You must link your chess accounts in order to interact with Chesski.</p>
@@ -303,7 +321,7 @@ export default function Home() {
                 {isLoading && <div className="w-6 h-6 border-4 border-gray-200 border-t-[#1B03A3] rounded-full animate-spin" />}
               </button>
             )} */}
-            <div className="chat-messages" ref={chatRef}>
+            {/* <div className="chat-messages" ref={chatRef}>
               {messages.map((message, i) => {
                 if (!message.content) return null;
 
@@ -324,14 +342,14 @@ export default function Home() {
               </button>
             </form>
           </div>
-          <div className="relative">
+          <div className="relative"> */}
             {/* {!puzzle && (
               <div className="board-overlay">
                 <p className="bg-black bg-opacity-50 rounded-sm">Use chat to find puzzles to practice</p>
               </div>
             )} */}
             <Chessboard />
-          </div>
+          {/* </div> */}
           {puzzleComplete && <button className="button" onClick={setNextPuzzle}>
             next
           </button>}
