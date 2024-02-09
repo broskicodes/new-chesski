@@ -9,16 +9,17 @@ import ReactMarkdown from "react-markdown";
 import "./styles.css";
 import { Footer } from "@/components/Footer";
 import { Chessboard } from "@/components/Chessboard";
-import { Puzzle } from "@/utils/types";
+import { Puzzle, SkillLevel } from "@/utils/types";
 import { useChess } from "@/providers/ChessProvider/context";
 import { Chess } from "chess.js";
 import { usePuzzle } from "@/providers/PuzzleProvider/context";
 import { FunctionCall, Message, ToolCall } from "ai";
+import { useStockfish } from "@/providers/StockfishProvider/context";
 
 export default function Home() {
   const [sessison, setSession] = useState<User | null>(null);
   const [origin, setOrigin] = useState("");
-  const [accountsLinked, setAccountsLinked] = useState(false);
+  // const [accountsLinked, setAccountsLinked] = useState(false);
   // const [gamesImported, setGamesImported] = useState(false);
   // const [playstyleAnalyzed, setPlaystyleAnalyzed] = useState(false);
   const [puzzleIds, setPuzzleIds] = useState<string[]>([]);
@@ -34,6 +35,8 @@ export default function Home() {
   const chatRef = useRef<HTMLDivElement>(null);
 
   const { setPuzzle, clearPuzzle, puzzleComplete, puzzle, moveIdx } = usePuzzle();
+  const { initEngine, startSearch } = useStockfish();
+  const { turn, orientation } = useChess();
   const { messages, input, handleInputChange, handleSubmit, isLoading: chatLoading, setMessages, data: chatData } = useChat({
     api: "/chat",
     body: {
@@ -41,7 +44,6 @@ export default function Home() {
       puzzle
     },
     experimental_onToolCall: async (msgs: Message[], toolCalls: ToolCall[]) => {
-      // console.log("tool calls", toolCalls);
       return {
         messages: msgs,
         toolCalls: toolCalls
@@ -132,10 +134,14 @@ export default function Home() {
   // }, [sessison, setMessages]);
 
   useEffect(() => {
+    if (turn !== orientation) {
+      startSearch();
+    }
+  }, [turn, orientation, startSearch]);
+
+  useEffect(() => {
     // @ts-ignore
     if (chatData && chatData.length > 0 && chatData.at(chatDataIdx) && chatData.at(chatDataIdx)["puzzles"][0].id !== puzzleIds[0]) {
-      // @ts-ignore
-      // console.log("chat data", chatData.at(chatDataIdx)["puzzles"].map((p) => p.content));
       // @ts-ignore
       setPuzzleIds(chatData.at(chatDataIdx)!["puzzles"].map((p) => p.id));
       setPuzzleIdx(0);
@@ -155,27 +161,35 @@ export default function Home() {
   }, [supabase]);
 
   useEffect(() => {
-    if (!sessison) return;
-
-    (async () => {
-      if (!accountsLinked) {
-        const { data } = await supabase.from('user_chess_accounts').select().eq('uuid', sessison.id);
-        if (!data || data.length === 0) {
-          return;
-        }
-
-        const { chesscom_name, lichess_name } = data[0];
-        setChesscom(chesscom_name);
-        setLichess(lichess_name);
-      }
-    })();
-  }, [sessison, supabase, accountsLinked]);
-
-  useEffect(() => {
-    if (chesscom.length > 0 || lichess.length > 0) {
-      setAccountsLinked(true);
+    if (sessison) {
+      initEngine(SkillLevel.Beginner);
     }
-  }, [chesscom, lichess]);
+  }, [sessison, initEngine]);
+
+  // useEffect(() => {
+  //   if (!sessison) return;
+
+  //   (async () => {
+  //     if (!accountsLinked) {
+  //       const { data } = await supabase.from('user_chess_accounts').select().eq('uuid', sessison.id);
+  //       if (!data || data.length === 0) {
+  //         return;
+  //       }
+
+  //       const { chesscom_name, lichess_name } = data[0];
+  //       setChesscom(chesscom_name);
+  //       setLichess(lichess_name);
+  //     }
+  //   })();
+  // }, [sessison, supabase, accountsLinked]);
+
+  // useEffect(() => {
+  //   if (chesscom.length > 0 || lichess.length > 0) {
+  //     setAccountsLinked(true);
+  //   }
+  // }, [chesscom, lichess]);
+
+
 
   // useEffect(() => {
   //   if (!accountsLinked) return;
@@ -271,12 +285,12 @@ export default function Home() {
             CHESSKI
           </div>
           <div className="chat">
-            {!accountsLinked && (
+            {/* {!accountsLinked && (
               <div>
                 <p>You must link your chess accounts in order to interact with Chesski.</p>
                 <p>Please update your <Link href={"/profile"} className="underline">profile</Link>.</p>
               </div>
-            )}
+            )} */}
             {/* {accountsLinked && !gamesImported && (
               <button className={`button`} onClick={importGames} disabled={isLoading}>
                 {!isLoading && "Import Games"}
@@ -311,16 +325,19 @@ export default function Home() {
             </form>
           </div>
           <div className="relative">
-            {!puzzle && (
+            {/* {!puzzle && (
               <div className="board-overlay">
                 <p className="bg-black bg-opacity-50 rounded-sm">Use chat to find puzzles to practice</p>
               </div>
-            )}
+            )} */}
             <Chessboard />
           </div>
           {puzzleComplete && <button className="button" onClick={setNextPuzzle}>
             next
           </button>}
+          <button className="button" onClick={startSearch}>
+            hint
+          </button>
           {/* <button className="button" onClick={async () => {
              const res = await fetch("/api/puzzle/embed", {
               method: "POST",

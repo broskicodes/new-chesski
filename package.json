@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "yarn stockfish && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "stockfish": "cd public && rm -rf nmrugg_stockfish_js && cp -r ../node_modules/stockfish/src nmrugg_stockfish_js && cd .."
   },
   "dependencies": {
     "@supabase/ssr": "^0.0.10",
@@ -16,10 +17,12 @@
     "chess.js": "^1.0.0-beta.7",
     "next": "14.1.0",
     "openai": "^4.26.0",
+    "posthog-js": "^1.105.6",
     "react": "^18",
     "react-chessboard": "^4.4.0",
     "react-dom": "^18",
-    "react-markdown": "^9.0.1"
+    "react-markdown": "^9.0.1",
+    "stockfish": "^16.0.0"
   },
   "devDependencies": {
     "@types/node": "^20",
