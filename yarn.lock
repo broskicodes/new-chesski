@@ -3160,6 +3160,11 @@ sswr@2.0.0:
   dependencies:
     swrev "^4.0.0"
 
+stockfish@^16.0.0:
+  version "16.0.0"
+  resolved "https://registry.yarnpkg.com/stockfish/-/stockfish-16.0.0.tgz#b643061b0f159fbd2b55da4e3d44515cf0c9fc74"
+  integrity sha512-uu4AqsE2x0tD+SsYzZy4UtqeH4U9zDi1V8loDFDbMwCtvumGXF9j81Pg1ZmIkUgZhwQqPxQAv8IN5oy6hZa7Bw==
+
 streamsearch@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/streamsearch/-/streamsearch-1.1.0.tgz#404dd1e2247ca94af554e841a8ef0eaa238da764"
