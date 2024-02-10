@@ -15,7 +15,6 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
   const onMessage = useCallback((event: MessageEvent<string>) => {
     if (!stockfish) return;
 
-    // console.log("onMessage", event.data);
     if (event.data === "uciok") {
       stockfish.worker.postMessage(`setoption name Skill Level value ${20}`);
       stockfish.worker.postMessage(

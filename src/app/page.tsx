@@ -19,7 +19,6 @@ import { useStockfish } from "@/providers/StockfishProvider/context";
 export default function Home() {
   const [sessison, setSession] = useState<User | null>(null);
   const [origin, setOrigin] = useState("");
-
   const [puzzleIds, setPuzzleIds] = useState<string[]>([]);
   const [puzzleIdx, setPuzzleIdx] = useState<number>(0);
 
@@ -106,6 +105,12 @@ export default function Home() {
       startSearch();
     }
   }, [game, prevFen, orientation, turn, gptProcessing, startSearch, append]);
+
+  useEffect(() => {
+    if (turn !== orientation) {
+      startSearch();
+    }
+  }, [turn, orientation, startSearch]);
 
   useEffect(() => {
     // @ts-ignore
