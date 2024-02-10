@@ -68,10 +68,10 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
     const moves = game.history().join(" ");
     stockfish.worker.postMessage(`position fen ${game.fen()}${moves.length > 0 ? `moves ${moves}` : ""}`);
     stockfish.worker.postMessage(`go ${
-      stockfish.moveTime ? `movetime ${stockfish.moveTime}` : `depth ${MAX_DEPTH}`
+      true ? `movetime ${1500}` : `depth ${MAX_DEPTH}`
     }`);
 
-  }, [stockfish, game, onMessage]);
+  }, [stockfish, game, gameOver, onMessage]);
 
   useEffect(() => {
     if (game.isGameOver()) {

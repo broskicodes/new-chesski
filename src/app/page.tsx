@@ -19,20 +19,22 @@ import { useStockfish } from "@/providers/StockfishProvider/context";
 export default function Home() {
   const [sessison, setSession] = useState<User | null>(null);
   const [origin, setOrigin] = useState("");
-  // const [accountsLinked, setAccountsLinked] = useState(false);
-  // const [gamesImported, setGamesImported] = useState(false);
-  // const [playstyleAnalyzed, setPlaystyleAnalyzed] = useState(false);
+
   const [puzzleIds, setPuzzleIds] = useState<string[]>([]);
   const [puzzleIdx, setPuzzleIdx] = useState<number>(0);
 
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
 
-  const [chesscom, setChesscom] = useState("");
-  const [lichess, setLichess] = useState("");
+  // const [chesscom, setChesscom] = useState("");
+  // const [lichess, setLichess] = useState("");
+
+  const [gptProcessing, setGptProcessing] = useState(false);
+  const [prevFen, setPrevFen] = useState("");
+  const [lastMove, setLastMove] = useState("");
 
   const [chatDataIdx, setChatDataIdx] = useState<number>(0);
 
-  const chatRef = useRef<HTMLDivElement>(null);
+  const logRef = useRef<HTMLDivElement>(null);
 
   const { setPuzzle, clearPuzzle, puzzleComplete, puzzle, moveIdx } = usePuzzle();
   const { initEngine, startSearch } = useStockfish();
@@ -50,13 +52,14 @@ export default function Home() {
         toolCalls: toolCalls
       }
     },
-    // onFinish: (msg: Message) => {
-    //   console.log("finished", chatData);
-    //   if (chatData) {
-    //     // @ts-ignore
-    //     setPuzzleIds(chatData[0]!["puzzles"].map((p) => p.id));
-    //   }
-    // }
+    onFinish: (msg: Message) => {
+      // console.log("finished", chatData);
+      // if (chatData) {
+      //   // @ts-ignore
+      //   setPuzzleIds(chatData[0]!["puzzles"].map((p) => p.id));
+      // }
+      setGptProcessing(false);
+    }
   });
 
   const supabase = useMemo(() => {
@@ -84,78 +87,25 @@ export default function Home() {
   }, [supabase, sessison, puzzleIds, puzzleIdx]);
 
   useEffect(() => {
-    if (game) {
+    let gonnaProcess = false;
+
+    if (game.fen() !== prevFen) {
       const moves = game.history();
       const fen = game.fen();
 
-      // console.log(`The user is playing as ${orientation}. The current position is ${fen}. The moves leading up to this position are ${moves.join(" ")}. ${turn === "white" ? "Black" : "White"} just played ${moves.at(-1)}.`);
+      gonnaProcess = true;
+      setGptProcessing(true);
+      setPrevFen(fen);
       append({
         role: "assistant",
         content: `The user is playing as ${orientation}. The current position is ${fen}. The moves leading up to this position are ${moves.join(" ")}. ${turn === "white" ? "Black" : "White"} just played ${moves.at(-1)}.`
-      })
+      });
     }
-  }, [game, orientation, turn]);
 
-  useEffect(() => {
-    console.log(messages.at(-1)?.content);
-  }, [messages]);
-
-  // const importGames = useCallback(async () => {
-  //   if (!sessison) return;
-  //   setIsLoading(true);
-    
-  //   const res = await fetch("/import", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //   });
-
-  //   if (!res.ok) {
-  //     alert("Error importing games");
-  //     setIsLoading(false);
-  //     return;
-  //   }
-
-  //   const count = await res.json();
-  //   if (count === 0) {
-  //     alert("No games found. Ensure you have linked the correct accounts");
-  //     setIsLoading(false);
-  //     return;
-  //   } else {
-  //     setGamesImported(true);
-  //     setIsLoading(false);
-  //   }
-  // }, [sessison]);
-
-  // const analyzePlaystyle = useCallback(async () => {
-  //   if (!sessison) return;
-  //   setIsLoading(true);
-
-  //   const res = await fetch("/analyze-user", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //   });
-
-  //   if (!res.ok) {
-  //     alert("Error analyzing playstyle");
-  //     setIsLoading(false);
-  //     return;
-  //   }
-
-  //   // const chatData = await res.json();
-
-  //   // alert(`Your playstyle has been analyzed`);
-  //   setMessages([
-  //     { id: "0", role: "assistant", content: "I have analyzed your playstyle and weaknesses. What would you like to know?" }
-  //   ]);
-  //   setPlaystyleAnalyzed(true);
-  //   setIsLoading(false);
-  // }, [sessison, setMessages]);
-
-  useEffect(() => {
-    if (turn !== orientation) {
+    if (turn !== orientation && !gptProcessing && !gonnaProcess) {
       startSearch();
     }
-  }, [turn, orientation, startSearch]);
+  }, [game, prevFen, orientation, turn, gptProcessing, startSearch, append]);
 
   useEffect(() => {
     // @ts-ignore
@@ -184,81 +134,6 @@ export default function Home() {
     }
   }, [sessison, initEngine]);
 
-  // useEffect(() => {
-  //   if (!sessison) return;
-
-  //   (async () => {
-  //     if (!accountsLinked) {
-  //       const { data } = await supabase.from('user_chess_accounts').select().eq('uuid', sessison.id);
-  //       if (!data || data.length === 0) {
-  //         return;
-  //       }
-
-  //       const { chesscom_name, lichess_name } = data[0];
-  //       setChesscom(chesscom_name);
-  //       setLichess(lichess_name);
-  //     }
-  //   })();
-  // }, [sessison, supabase, accountsLinked]);
-
-  // useEffect(() => {
-  //   if (chesscom.length > 0 || lichess.length > 0) {
-  //     setAccountsLinked(true);
-  //   }
-  // }, [chesscom, lichess]);
-
-
-
-  // useEffect(() => {
-  //   if (!accountsLinked) return;
-
-  //   (async () => {
-  //     if (!gamesImported) {
-  //       const { chatData: games } = await supabase
-  //         .from('game_pgns')
-  //         .select('*')
-  //         .or(`white.in.(${chesscom}), black.in.(${chesscom}), white.in.(${lichess}), black.in.(${lichess})`)
-  //         .limit(10);
-
-  //       if (!games || games.length < 10) {
-  //         // alert("No games imported. Please import games");
-  //         return;
-  //       }
-
-  //       setGamesImported(true);
-  //     }
-  //   })();
-
-  // }, [supabase, chesscom, lichess, accountsLinked, gamesImported]);
-
-  // useEffect(() => {
-  //   if (!gamesImported || !sessison) return;
-
-  //   (async () => {
-  //     if (!playstyleAnalyzed) {
-  //       const { chatData } = await supabase
-  //         .from("user_analysis")
-  //         .select("*")
-  //         .eq("uuid", sessison.id);
-
-  //       if (!chatData || chatData.length === 0) {
-  //         return;
-  //       }
-
-  //       setMessages([
-  //         { id: "0", role: "assistant", content: "I have analyzed your playstyle and weaknesses. What would you like to know?" }
-  //       ]);
-  //       setPlaystyleAnalyzed(true);
-  //     }
-  //   })();
-  // }, [supabase, sessison, gamesImported, playstyleAnalyzed, setMessages]);
-
-  // useEffect(() => {
-  //   if (chatRef.current) {
-  //     chatRef.current.scrollTop = chatRef.current.scrollHeight;
-  //   }
-  // }, [messages]);
-
   useEffect(() => {
     if (puzzleIds.length === 0)  {
       return;
@@ -274,13 +149,11 @@ export default function Home() {
     setPuzzle(puzzleIds[puzzleIdx]);
   }, [setPuzzle, clearPuzzle, puzzleIds, puzzleIdx]);
 
-  // useEffect(() => {
-  //   if (messages.length === 0) {
-  //     setMessages([
-  //       { id: "0", role: "assistant", content: "Hi! I'm Chesski, your personal chess assistant. I'm here to help you practice puzzles. What topics would you like to study?" }
-  //     ]);
-  //   }
-  // }, [setMessages, messages]);
+  useEffect(() => {
+    if (logRef.current) {
+      logRef.current.scrollTop = logRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   return (
     <div className="h-full">
@@ -321,7 +194,7 @@ export default function Home() {
                 {isLoading && <div className="w-6 h-6 border-4 border-gray-200 border-t-[#1B03A3] rounded-full animate-spin" />}
               </button>
             )} */}
-            {/* <div className="chat-messages" ref={chatRef}>
+            {/* <div className="chat-messages" ref={logRef}>
               {messages.map((message, i) => {
                 if (!message.content) return null;
 
@@ -348,31 +221,27 @@ export default function Home() {
                 <p className="bg-black bg-opacity-50 rounded-sm">Use chat to find puzzles to practice</p>
               </div>
             )} */}
-            <Chessboard />
-          {/* </div> */}
-          {puzzleComplete && <button className="button" onClick={setNextPuzzle}>
-            next
-          </button>}
-          <button className="button" onClick={startSearch}>
-            hint
-          </button>
-          {/* <button className="button" onClick={async () => {
-             const res = await fetch("/api/puzzle/embed", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-            });
+          <div className="page-content">
+            <div>
+              <Chessboard />
+            </div>
+            <div className="logs">
+              <div className="log-content" ref={logRef}>
+              {messages.filter((_, i) => i % 2 == 1).map((message, i) => {
+                if (!message.content) return null;
 
-          }}>
-            embed
-          </button> */}
-          {/* <button className="button" onClick={async () => {
-            const res = await fetch("/api/puzzle", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-            })
-          }}>
-            puzzles
-          </button> */}
+                if (!(message.role === "user" || message.role === "assistant")) return null;
+
+                return (
+                  <div key={i} className="flex flex-col">
+                    <span className={`${message.role}-message role`}>{message.role.toUpperCase()}:</span>
+                    <ReactMarkdown className="content">{message.content}</ReactMarkdown>
+                  </div>
+                )
+              })}
+              </div>
+            </div>
+          </div>
         </div> 
       )}
       <Footer />
