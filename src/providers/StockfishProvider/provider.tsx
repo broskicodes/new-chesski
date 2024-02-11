@@ -1,76 +1,95 @@
 import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
-import { Stockfish, StockfishProviderContext } from "./context";
+import { StockfishProviderContext } from "./context";
 import { SkillLevel, SkillLevelMap } from "@/utils/types";
 import { useChess } from "../ChessProvider/context";
 
 const MAX_DEPTH = 12;
 
 export const StockfishProvider = ({ children }: PropsWithChildren) => {
-  const [stockfish, setStockfish] = useState<Stockfish | null>(null);
   const [isInit, setIsInit] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [bestMove, setBestMove] = useState<string | null>(null);
+  const [skillLvl, setSkillLvl] = useState<SkillLevel>(SkillLevel.Beginner);
+  const [cp, setCp] = useState<number>(0);
+  const [evaluated, setEvaluated] = useState(false);
 
-   const { game, makeMove } = useChess();
-
-  const onMessage = useCallback((event: MessageEvent<string>) => {
-    if (!stockfish) return;
-
-    if (event.data === "uciok") {
-      stockfish.worker.postMessage(`setoption name Skill Level value ${20}`);
-      stockfish.worker.postMessage(
-        `setoption name UCI_LimitStrength value ${true}`,
-      );
-      stockfish.worker.postMessage(
-        `setoption name UCI_ELO value ${SkillLevelMap[stockfish.skillLvl][1]}`,
-      );
-      stockfish.worker.postMessage("ucinewgame");
-      stockfish.worker.postMessage("isready");
-      setIsInit(true);
-    } else if (event.data === "readyok") {
-      setStockfish({ ...stockfish, isReady: true });
-    } else if (event.data.startsWith("bestmove")) {
-      const bestMove = event.data.split(" ")[1];
-      setStockfish({ ...stockfish, isSearching: false, bestMove });
-      makeMove(bestMove);
-    }
-  }, [stockfish, makeMove]);
-
-  const initEngine = useCallback((skillLvl: SkillLevel) => {
-    if (stockfish) {
-      return;
-    }
+  const worker = useMemo(() => {
     if (typeof window === "undefined") {
       return;
     }
 
-    const worker = new Worker("/nmrugg_stockfish_js/stockfish-nnue-16.js");
+    return new Worker("/nmrugg_stockfish_js/stockfish-nnue-16.js");
+  }, []);
 
-    setStockfish({
-      name: "Stockfish",
-      worker,
-      isReady: false,
-      isSearching: false,
-      skillLvl,
-      bestMove: null,
-    });
-  }, [stockfish]);
+   const { game, turn, orientation, makeMove } = useChess();
+
+  const onMessage = useCallback((event: MessageEvent<string>) => {
+    if (!worker) return;
+
+    // console.log("stockfish message", event.data);
+    if (event.data === "uciok") {
+      worker.postMessage(`setoption name Skill Level value ${20}`);
+      worker.postMessage(
+        `setoption name UCI_LimitStrength value ${true}`,
+      );
+      worker.postMessage(
+        `setoption name UCI_ELO value ${SkillLevelMap[skillLvl][1]}`,
+      );
+      worker.postMessage("ucinewgame");
+      worker.postMessage("isready");
+      setIsInit(true);
+    } else if (event.data === "readyok") {
+      setIsReady(true);
+    } else if (event.data.includes("multipv")) {
+      const res = event.data.split("cp ")[1];
+      const cp = parseInt(res.split(" ")[0]);
+      
+      // console.log("cp", cp);
+      setCp(cp);
+    } else if (event.data.startsWith("bestmove")) {
+      const bestMove = event.data.split(" ")[1];
+      setIsSearching(false);
+      setBestMove(bestMove);
+      setEvaluated(true);
+
+      if (turn !== orientation) {
+        makeMove(bestMove);
+      }
+    }
+  }, [worker, makeMove]);
+
+  const initEngine = useCallback((skillLvl?: SkillLevel) => {
+    if (!worker) {
+      console.log("no worker");
+      return;
+    }
+
+    skillLvl && setSkillLvl(skillLvl);
+  }, [worker]);
 
   const startSearch = useCallback(() => {
-    if (!stockfish || stockfish.isSearching || !stockfish.isReady || gameOver) {
+    if (!worker || isSearching || !isReady || gameOver) {
       return;
     }
         
-    setStockfish({ ...stockfish, isSearching: true });
-
-    stockfish.worker.onmessage = onMessage;
+    setEvaluated(false);
+    setIsSearching(true);
+    
+    worker.onmessage = onMessage;
 
     const moves = game.history().join(" ");
-    stockfish.worker.postMessage(`position fen ${game.fen()}${moves.length > 0 ? `moves ${moves}` : ""}`);
-    stockfish.worker.postMessage(`go ${
-      true ? `movetime ${1500}` : `depth ${MAX_DEPTH}`
+    worker.postMessage(`position fen ${game.fen()}${moves.length > 0 ? `moves ${moves}` : ""}`);
+    worker.postMessage(`go ${
+      true ? `movetime ${2000}` : `depth ${MAX_DEPTH}`
     }`);
 
-  }, [stockfish, game, gameOver, onMessage]);
+  }, [isSearching, isReady, worker, game, gameOver, onMessage]);
+
+  const clearBestMove = useCallback(() => {
+    setBestMove(null);
+  }, []);
 
   useEffect(() => {
     if (game.isGameOver()) {
@@ -81,19 +100,23 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
   }, [game]);
 
   useEffect(() => {
-    if (isInit || !stockfish) {
+    if (isInit || !worker) {
       return;
     }
 
-    stockfish.worker.onmessage = onMessage;
-    stockfish.worker.postMessage("uci");    
-  }, [stockfish, isInit, onMessage]);
+    worker.onmessage = onMessage;
+    worker.postMessage("uci");    
+  }, [worker, isInit, onMessage]);
 
   const value = useMemo(() => ({ 
-    stockfish,
+    isInit,
+    cp,
+    bestMove,
+    evaluated,
     initEngine,
     startSearch,
-  }), [stockfish, initEngine, startSearch]);
+    clearBestMove
+  }), [isInit, bestMove, evaluated, cp, initEngine, startSearch, clearBestMove]);
 
   return (
     <StockfishProviderContext.Provider value={value}>

@@ -1,30 +1,31 @@
 import { SkillLevel } from "@/utils/types";
 import { createContext, useContext } from "react";
 
-export interface Stockfish {
-  name: string;
-  worker: Worker;
-  isReady: boolean;
-  isSearching: boolean;
-  skillLvl: SkillLevel;
-  // numPVs: number;
-  moveTime?: number;
-  bestMove: string | null;
-  // pvs: { [key: number]: PV } | null;
-}
 
 export interface StockfishProviderContext {
-  stockfish: Stockfish | null;
+  // stockfish: Stockfish | null;
+  isInit: boolean;
+  bestMove: string | null;
+  cp: number;
+  evaluated: boolean;
   initEngine: (skillLvl: SkillLevel) => void;
   startSearch: () => void;
+  clearBestMove: () => void;
 }
 
 export const StockfishProviderContext = createContext<StockfishProviderContext>({
-  stockfish: null,
+  // stockfish: null,
+  isInit: false,
+  bestMove: null,
+  cp: 0,
+  evaluated: false,
   initEngine: () => {
     throw new Error("StockfishProvider not initialized");
   },
   startSearch: () => {
+    throw new Error("StockfishProvider not initialized");
+  },
+  clearBestMove: () => {
     throw new Error("StockfishProvider not initialized");
   },
 });

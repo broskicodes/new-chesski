@@ -16,17 +16,17 @@ export const POST = async (req: Request, res: Response) => {
 
   const reponse = await openai.chat.completions.create({
     model: "gpt-4-turbo-preview",
-    stream: true,
+    // stream: true,
     messages: [
       coachSystemMessage,
       messages.at(-1),
     ],
     max_tokens: 64,
-    temperature: 1
+    temperature: 0
   });
 
-  const stream = OpenAIStream(reponse);
-  return new StreamingTextResponse(stream);
+  // const stream = OpenAIStream(reponse);
+  // return new StreamingTextResponse(stream);
 
-  // return new Response(reponse.choices.at(-1)?.message.content);
+  return new Response(reponse.choices.at(-1)?.message.content);
 }
