@@ -117,7 +117,7 @@ export default function Home() {
         </div>
       )}
       {sessison && (
-        <div className="sm:pt-20">
+        <div className="sm:pt-20 not-footer">
           <div className="header hidden sm:block">
             CHESSKI
           </div>

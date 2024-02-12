@@ -10,7 +10,10 @@ export const Chessboard = () => {
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 640) {
-        setBoardWidth(window.innerWidth);
+        setBoardWidth(window.innerWidth > 480 ? 480 : window.innerWidth);
+        return;
+      } else if (window.innerWidth < 1024) {
+        setBoardWidth(480);
         return;
       }
       setBoardWidth(512);
