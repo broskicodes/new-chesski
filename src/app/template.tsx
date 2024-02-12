@@ -2,6 +2,7 @@
 
 import { ChessProvider } from "@/providers/ChessProvider/provider";
 import { PuzzleProvider } from "@/providers/PuzzleProvider/provider";
+import { StockfishProvider } from "@/providers/StockfishProvider/provider";
 import { PropsWithChildren } from "react";
 import posthog from 'posthog-js'
 import { PostHogProvider } from 'posthog-js/react'
@@ -24,10 +25,12 @@ export default function Template({ children }: PropsWithChildren) {
   return (
     <PostHogProvider client={posthog}>
       <ChessProvider>
-        <PuzzleProvider>
-          <PostHogPageView />
-          {children}
-        </PuzzleProvider>
+        <StockfishProvider>
+          <PuzzleProvider>
+            <PostHogPageView />
+            {children}
+          </PuzzleProvider>
+        </StockfishProvider>
       </ChessProvider>
     </PostHogProvider>
   );
