@@ -125,6 +125,7 @@
     width: 100%;
     max-width: 480px;
     height: 100%;
+    overflow-y: scroll;
   }
   .page-content {
     flex-direction: column;
