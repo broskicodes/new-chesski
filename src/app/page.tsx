@@ -48,13 +48,10 @@ export default function Home() {
   }, [origin, supabase]);
 
   useEffect(() => {
-    let gonnaProcess = false;
-
     if (game.fen() !== prevFen && isInit) {
       const moves = game.history();
       const fen = game.fen();
 
-      gonnaProcess = true;
       setGptProcessing(true);
       setPrevFen(fen);
       append({
@@ -62,11 +59,13 @@ export default function Home() {
         content: `The user is playing as ${orientation}. The current position is ${fen}. The moves leading up to this position are ${moves.join(" ")}. ${turn === "white" ? "Black" : "White"} just played ${moves.at(-1)}.`
       });
     }
+  }, [game, prevFen, orientation, turn, isInit, append]);
 
-    if (turn !== orientation && !gptProcessing && !gonnaProcess) {
+  useEffect(() => {
+    if (!gptProcessing && messages.at(-1)?.role === "assistant") {
       startSearch();
     }
-  }, [game, prevFen, orientation, turn, gptProcessing, startSearch, append]);
+  }, [gptProcessing, messages, startSearch]);
 
   useEffect(() => {
     if (game.fen() !== prevFen) {

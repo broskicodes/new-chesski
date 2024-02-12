@@ -58,7 +58,7 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
         makeMove(bestMove);
       }
     }
-  }, [worker, makeMove]);
+  }, [worker, orientation, skillLvl, turn, makeMove]);
 
   const initEngine = useCallback((skillLvl?: SkillLevel) => {
     if (!worker) {
