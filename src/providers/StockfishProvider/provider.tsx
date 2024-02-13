@@ -82,7 +82,7 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
     const moves = game.history().join(" ");
     worker.postMessage(`position fen ${game.fen()}${moves.length > 0 ? `moves ${moves}` : ""}`);
     worker.postMessage(`go ${
-      true ? `movetime ${2000}` : `depth ${MAX_DEPTH}`
+      true ? `movetime ${1500}` : `depth ${MAX_DEPTH}`
     }`);
 
   }, [isSearching, isReady, worker, game, gameOver, onMessage]);
