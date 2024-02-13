@@ -12,6 +12,7 @@ import { SkillLevel } from "@/utils/types";
 import { useChess } from "@/providers/ChessProvider/context";
 import { Message } from "ai";
 import { useStockfish } from "@/providers/StockfishProvider/context";
+import { Feedback } from "@/components/Feedback";
 
 export default function Home() {
   const [sessison, setSession] = useState<User | null>(null);
@@ -19,6 +20,7 @@ export default function Home() {
   const [gptProcessing, setGptProcessing] = useState(false);
   const [prevFen, setPrevFen] = useState("");
   const [lastMove, setLastMove] = useState("");
+  const [showFeedback, setShowFeedback] = useState(false);
 
   const logRef = useRef<HTMLDivElement>(null);
 
@@ -100,6 +102,20 @@ export default function Home() {
     }
   }, [messages]);
 
+  useEffect(() => {
+    (async () => {
+      if (sessison) {
+        const { data, error } = await supabase.from('feedback').select().eq('uuid', sessison.id);
+
+        if (!data || data.length === 0) {
+          setTimeout(() => {
+            setShowFeedback(true);
+          }, 1000 * 90);
+        }
+      }
+    })();
+  }, [sessison, supabase]);
+
   return (
     <div className="h-full">
       {!sessison && (
@@ -120,29 +136,6 @@ export default function Home() {
           <div className="header hidden sm:block">
             CHESSKI
           </div>
-          {/* <div className="chat"> */}
-            {/* <div className="chat-messages" ref={logRef}>
-              {messages.map((message, i) => {
-                if (!message.content) return null;
-
-                if (!(message.role === "user" || message.role === "assistant")) return null;
-
-                return (
-                  <div key={i} className="flex flex-col">
-                    <span className={`${message.role}-message role`}>{message.role.toUpperCase()}:</span>
-                    <ReactMarkdown className="content">{message.content}</ReactMarkdown>
-                  </div>
-                )
-              })}
-            </div>
-            <form onSubmit={handleSubmit} className="flex flex-row items-center space-x-4 w-full">
-              <input className="input" value={input} onChange={handleInputChange} placeholder="Send a message" />
-              <button className="button" type="submit" disabled={chatLoading}>
-                Send
-              </button>
-            </form>
-          </div>
-          <div className="relative"> */}
           <div className="page-content">
             <div>
               <Chessboard />
@@ -166,6 +159,7 @@ export default function Home() {
           </div>
         </div> 
       )}
+      <Feedback session={sessison} show={showFeedback} close={() => setShowFeedback(false)} />
       <Footer />
     </div>
   );
