@@ -10,6 +10,9 @@
     "stockfish": "cd public && rm -rf nmrugg_stockfish_js && cp -r ../node_modules/stockfish/src nmrugg_stockfish_js && cd .."
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.5.1",
+    "@fortawesome/free-solid-svg-icons": "^6.5.1",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@supabase/ssr": "^0.0.10",
     "@supabase/supabase-js": "^2.39.3",
     "@vercel/analytics": "^1.1.2",
@@ -22,7 +25,8 @@
     "react-chessboard": "^4.4.0",
     "react-dom": "^18",
     "react-markdown": "^9.0.1",
-    "stockfish": "^16.0.0"
+    "stockfish": "^16.0.0",
+    "tippy.js": "^6.3.7"
   },
   "devDependencies": {
     "@types/node": "^20",

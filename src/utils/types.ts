@@ -33,3 +33,5 @@ export interface Puzzle {
   themes: string[];
   opening_tags: string[] | null;
 }
+
+export const SanRegex = /(O-O(-O)?|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](=[QRBN])?[\+#]?|([a-h]x)?[a-h][1-8](=[QRBN])?[\+#]?)/g;

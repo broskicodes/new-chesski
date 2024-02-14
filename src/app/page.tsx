@@ -8,11 +8,14 @@ import ReactMarkdown from "react-markdown";
 import "./styles.css";
 import { Footer } from "@/components/Footer";
 import { Chessboard } from "@/components/Chessboard";
-import { SkillLevel } from "@/utils/types";
+import { SanRegex, SkillLevel } from "@/utils/types";
 import { useChess } from "@/providers/ChessProvider/context";
 import { Message } from "ai";
 import { useStockfish } from "@/providers/StockfishProvider/context";
 import { Feedback } from "@/components/Feedback";
+import { BoardControl } from "@/components/BoardControl";
+import { match } from "assert";
+import { GameLogs } from "@/components/GameLogs";
 
 export default function Home() {
   const [sessison, setSession] = useState<User | null>(null);
@@ -22,11 +25,9 @@ export default function Home() {
   const [lastMove, setLastMove] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
 
-  const logRef = useRef<HTMLDivElement>(null);
-
   const { isInit, bestMove, cp, initEngine, startSearch } = useStockfish();
   const { turn, orientation, game } = useChess();
-  const { messages, append} = useChat({
+  const { messages, append, setMessages } = useChat({
     api: "/chat/coach",
     onFinish: (msg: Message) => {
       setGptProcessing(false);
@@ -97,12 +98,6 @@ export default function Home() {
   }, [sessison, initEngine]);
 
   useEffect(() => {
-    if (logRef.current) {
-      logRef.current.scrollTop = logRef.current.scrollHeight;
-    }
-  }, [messages]);
-
-  useEffect(() => {
     (async () => {
       if (sessison) {
         const { data, error } = await supabase.from('feedback').select().eq('uuid', sessison.id);
@@ -137,25 +132,11 @@ export default function Home() {
             CHESSKI
           </div>
           <div className="page-content">
-            <div>
+            <div className="flex flex-col space-y-4">
               <Chessboard />
+              <BoardControl setMessages={setMessages} />
             </div>
-            <div className="logs">
-              <div className="log-content" ref={logRef}>
-                {messages.map((message, i) => {
-                  if (!message.content) return null;
-
-                  if (!(message.role === "assistant")) return null;
-
-                  return (
-                    <div key={i} className="flex flex-col">
-                      <span className={`${message.role}-message role`}>{message.role.toUpperCase()}:</span>
-                      <ReactMarkdown className="content">{message.content}</ReactMarkdown>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
+            <GameLogs messages={messages} />
           </div>
         </div> 
       )}
