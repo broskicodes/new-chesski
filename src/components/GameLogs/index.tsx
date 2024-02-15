@@ -1,15 +1,18 @@
 import { useChess } from "@/providers/ChessProvider/context";
 import { SanRegex } from "@/utils/types";
-import { Message } from "ai";
 import { Chess, Square } from "chess.js";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useStockfish } from "@/providers/StockfishProvider/context";
+import { useCoach } from "@/providers/CoachProvider/context";
 
-interface GameLogsProps {
-  messages: Message[];
-}
+import "./styles.css";
 
-export const GameLogs = ({ messages }: GameLogsProps) => {
-  const { game, addHighlightedSquares, addArrows } = useChess();
+export const GameLogs = () => {
+  const [prevFen, setPrevFen] = useState("");
+
+  const { isInit, startSearch } = useStockfish();
+  const { game, turn, orientation, addHighlightedSquares, addArrows } = useChess();
+  const { gameMessages, processing, queries, appendGameMessage, getExplantion } = useCoach();
 
   const logRef = useRef<HTMLDivElement>(null);
 
@@ -29,15 +32,40 @@ export const GameLogs = ({ messages }: GameLogsProps) => {
 
 
   useEffect(() => {
+    if (game.fen() !== prevFen && isInit) {
+      const moves = game.history();
+      const fen = game.fen();
+
+      setPrevFen(fen);
+      appendGameMessage({
+        role: "user",
+        content: `The user is playing as ${orientation}. The current position is ${fen}. The moves leading up to this position are ${moves.join(" ")}. ${turn === "white" ? "Black" : "White"} just played ${moves.at(-1)}.`
+      });
+    }
+  }, [game, prevFen, orientation, turn, isInit, appendGameMessage]);
+
+  useEffect(() => {
+    if (!processing && gameMessages.at(-1)?.role === "assistant") {
+      startSearch();
+    }
+  }, [processing, gameMessages, startSearch]);
+
+  useEffect(() => {
+    if (game.fen() !== prevFen) {
+      startSearch();
+    }
+  }, [game, prevFen, startSearch]);
+
+  useEffect(() => {
     if (logRef.current) {
       logRef.current.scrollTop = logRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [gameMessages, processing]);
 
   return (
     <div className="logs">
       <div className="log-content" ref={logRef}>
-        {messages.map((message, i) => {
+        {gameMessages.map((message, i) => {
           if (!message.content) return null;
 
           if (!(message.role === "assistant")) return null;
@@ -57,6 +85,14 @@ export const GameLogs = ({ messages }: GameLogsProps) => {
             </div>
           )
         })}
+        <div className={`queries ${!processing ? "flex" : "hidden"}`}>
+          {queries.map((query, i) => (
+            <button key={i} className="button inverted-button thin-button" onClick={() => getExplantion(query.query) }>{query.title}</button>
+          ))}
+        </div>
+        <div className={`justify-center pt-2 ${processing ? "flex" : "hidden"}`}>
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1B03A3]" />
+        </div>
       </div>
     </div>
   )

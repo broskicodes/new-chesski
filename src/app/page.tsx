@@ -20,19 +20,9 @@ import { GameLogs } from "@/components/GameLogs";
 export default function Home() {
   const [sessison, setSession] = useState<User | null>(null);
   const [origin, setOrigin] = useState("");
-  const [gptProcessing, setGptProcessing] = useState(false);
-  const [prevFen, setPrevFen] = useState("");
-  const [lastMove, setLastMove] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
 
-  const { isInit, bestMove, cp, initEngine, startSearch } = useStockfish();
-  const { turn, orientation, game } = useChess();
-  const { messages, append, setMessages } = useChat({
-    api: "/chat/coach",
-    onFinish: (msg: Message) => {
-      setGptProcessing(false);
-    }
-  });
+  const { initEngine } = useStockfish();  
 
   const supabase = useMemo(() => {
     return createBrowserClient(
@@ -49,32 +39,6 @@ export default function Home() {
       },
     });
   }, [origin, supabase]);
-
-  useEffect(() => {
-    if (game.fen() !== prevFen && isInit) {
-      const moves = game.history();
-      const fen = game.fen();
-
-      setGptProcessing(true);
-      setPrevFen(fen);
-      append({
-        role: "user",
-        content: `The user is playing as ${orientation}. The current position is ${fen}. The moves leading up to this position are ${moves.join(" ")}. ${turn === "white" ? "Black" : "White"} just played ${moves.at(-1)}.`
-      });
-    }
-  }, [game, prevFen, orientation, turn, isInit, append]);
-
-  useEffect(() => {
-    if (!gptProcessing && messages.at(-1)?.role === "assistant") {
-      startSearch();
-    }
-  }, [gptProcessing, messages, startSearch]);
-
-  useEffect(() => {
-    if (game.fen() !== prevFen) {
-      startSearch();
-    }
-  }, [game, prevFen, startSearch]);
 
   useEffect(() => {
     setOrigin(window.location.origin);
@@ -134,9 +98,9 @@ export default function Home() {
           <div className="page-content">
             <div className="flex flex-col space-y-4">
               <Chessboard />
-              <BoardControl setMessages={setMessages} />
+              <BoardControl />
             </div>
-            <GameLogs messages={messages} />
+            <GameLogs />
           </div>
         </div> 
       )}
