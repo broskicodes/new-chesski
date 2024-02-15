@@ -107,6 +107,29 @@ button:disabled {
   opacity: 0.5;
 }
 
+.inverted-button {
+  background-color: #fff;
+  color: #1B03A3;
+  border: 1px solid #1B03A3;
+}
+
+.inverted-button:hover {
+  background-color: rgba(27, 3, 163, 0.7);
+  color: #fff;
+}
+
+.inverted-button:disabled {
+  background-color: #fff;
+  color: #777;
+  border: 1px solid #777;
+}
+
+.inverted-button:disabled:hover {
+  background-color: #fff;
+  color: #777;
+  border: 1px solid #777;
+}
+
 .error {
   color: red;
   font-family: "Merriweather Sans", sans-serif;

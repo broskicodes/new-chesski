@@ -29,6 +29,7 @@ export const Chessboard = () => {
       position={game.fen()}
       onPieceDrop={onDrop}
       boardOrientation={orientation}
+      customArrows={arrows}
       onSquareRightClick={(sqr) => {
         addHighlightedSquares([sqr], false);
       }}

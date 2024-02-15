@@ -1,6 +1,7 @@
-import { Chess, Move, Square } from "chess.js";
+import { Chess, Move } from "chess.js";
 import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 import { ChessContext, ChessProviderContext } from "./context";
+import { Arrow, Square } from "react-chessboard/dist/chessboard/types";
 
 export enum Player {
   White = "white",
@@ -13,7 +14,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
   const [turn, setTurn] = useState<Player>(Player.White);
   const [highlightedSquares, setHighlightedSquares] = useState<Square[]>([]);
   const [highlightedMoves, setHighlightedMoves] = useState<Move[]>([]);
-  const [arrows, setArrows] = useState<Square[][]>([]);
+  const [arrows, setArrows] = useState<Arrow[]>([]);
 
   const makeMove = useCallback(
     (
@@ -128,8 +129,8 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
   }, [orientation]);
 
   const addArrows = useCallback(
-    (newArrows: Square[][], reset: boolean) => {
-      const newArr = reset ? newArrows : [...arrows, ...newArrows];
+    (newArrows: Arrow[], reset: boolean) => {
+      const newArr: Arrow[] = reset ? newArrows : [...arrows, ...newArrows];
       setArrows(newArr);
     },
     [arrows],

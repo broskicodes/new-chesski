@@ -1,5 +1,6 @@
 import { Chess, Move, Square } from "chess.js";
 import { createContext, useContext } from "react";
+import { Arrow } from "react-chessboard/dist/chessboard/types";
 
 export enum Player {
   White = "white",
@@ -12,7 +13,7 @@ export interface ChessProviderContext {
   orientation: Player;
   highlightedSquares: Square[];
   highlightedMoves: Move[];
-  arrows: Square[][];
+  arrows: Arrow[];
   onDrop: (sourceSquare: Square, targetSquare: Square) => boolean;
   makeMove: (
     move:
@@ -27,7 +28,7 @@ export interface ChessProviderContext {
   undo: () => Move | null;
   reset: () => void;
   swapOrientation: () => void;
-  addArrows: (arrows: Square[][], reset: boolean) => void;
+  addArrows: (arrows: Arrow[], reset: boolean) => void;
   addHighlightedSquares: (sqrs: Square[], reset: boolean) => void;
   resetHighlightedMoves: (moves: Move[]) => void;
 }

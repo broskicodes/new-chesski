@@ -36,7 +36,7 @@ export const Feedback = ({ session, show, close }: FeedbackProps) => {
       setFeedbackId(data[0].id);
     }
 
-  }, [rating, supabase]);
+  }, [rating, supabase, session]);
 
   return (
     <div id='feedback-modal' className={`relative ${!show && "invisible"}`}>
