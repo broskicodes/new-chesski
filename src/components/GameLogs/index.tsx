@@ -90,7 +90,7 @@ export const GameLogs = () => {
             <button key={i} className="button inverted-button thin-button" onClick={() => getExplantion(query.query) }>{query.title}</button>
           ))}
         </div>
-        <div className={`justify-center pt-2 ${processing ? "flex" : "hidden"}`}>
+        <div className={`justify-center pt-2 ${processing && gameMessages.length > 0 ? "flex" : "hidden"}`}>
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1B03A3]" />
         </div>
       </div>
