@@ -1,4 +1,4 @@
-import { getSupabaseCilent } from "@/utils/helpers";
+import { getSupabaseCilent } from "@/utils/serverHelpers";
 import { Message, OpenAIStream, StreamingTextResponse, experimental_StreamData } from "ai";
 import OpenAI from "openai";
 import { ChatCompletionTool } from "openai/resources/index.mjs";

@@ -1,6 +1,4 @@
-import { getSupabaseCilent } from "@/utils/helpers";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { getSupabaseCilent } from "@/utils/serverHelpers";
 
 export const GET = async (req: Request, { params }: { params: { id: string }}) => {
   const { id } = params;

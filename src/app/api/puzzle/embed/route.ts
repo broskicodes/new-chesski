@@ -1,4 +1,4 @@
-import { getChessRatingCategory, getSupabaseCilent } from "@/utils/helpers"
+import { getChessRatingCategory, getSupabaseCilent } from "@/utils/serverHelpers"
 import OpenAI from "openai";
 
 const openai = new OpenAI({

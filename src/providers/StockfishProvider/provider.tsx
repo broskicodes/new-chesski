@@ -3,17 +3,21 @@ import { StockfishProviderContext } from "./context";
 import { SkillLevel, SkillLevelMap } from "@/utils/types";
 import { useChess } from "../ChessProvider/context";
 
-const MAX_DEPTH = 12;
+const MAX_DEPTH = 17;
 
 export const StockfishProvider = ({ children }: PropsWithChildren) => {
   const [isInit, setIsInit] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [bestMove, setBestMove] = useState<string | null>(null);
+  // const [bestMove, setBestMove] = useState<string | null>(null);
   const [skillLvl, setSkillLvl] = useState<SkillLevel>(SkillLevel.Beginner);
-  const [cp, setCp] = useState<number>(0);
+  // const [cp, setCp] = useState<number>(0);
+  // const [mate, setMate] = useState(0);
   const [evaluated, setEvaluated] = useState(false);
+
+  const [limitStrength, setLimitStrength] = useState(false);
+  const [moveTime, setMoveTime] = useState(0);
 
   const worker = useMemo(() => {
     if (typeof window === "undefined") {
@@ -28,52 +32,103 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
   const onMessage = useCallback((event: MessageEvent<string>) => {
     if (!worker) return;
 
-    // console.log("stockfish message", event.data);
+    // console.log(event.data);
     if (event.data === "uciok") {
-      worker.postMessage(`setoption name Skill Level value ${20}`);
-      worker.postMessage(
-        `setoption name UCI_LimitStrength value ${true}`,
-      );
-      worker.postMessage(
-        `setoption name UCI_ELO value ${SkillLevelMap[skillLvl][1]}`,
-      );
+      // worker.postMessage(`setoption name Skill Level value ${20}`);
+      if (limitStrength) {
+        worker.postMessage(
+          `setoption name UCI_LimitStrength value ${true}`,
+        );
+        worker.postMessage(
+          `setoption name UCI_ELO value ${SkillLevelMap[skillLvl][1]}`,
+        );
+      }
       worker.postMessage("ucinewgame");
       worker.postMessage("isready");
       setIsInit(true);
     } else if (event.data === "readyok") {
       setIsReady(true);
     } else if (event.data.includes("multipv")) {
-      const res = event.data.split("cp ")[1];
-      const cp = parseInt(res.split(" ")[0]);
-      
-      // console.log("cp", cp);
-      setCp(cp);
+      if (event.data.includes(` depth ${MAX_DEPTH}`)) {
+        const res = event.data.split(" pv ")[1];
+        const bestMove = res.split(" ")[0];
+
+        if (event.data.includes(" cp ")) {
+          const res = event.data.split(" cp ")[1];
+          const cp = parseInt(res.split(" ")[0]);
+
+          const customEvent = new CustomEvent("setEval", {
+            detail: {
+              bestMove: bestMove,
+              cp: turn === orientation 
+                ? orientation === "white" ? cp : -cp 
+                : orientation === "white" ? -cp : cp,
+              // cp: cp,
+              mate: 0
+            },
+          });
+    
+          window.dispatchEvent(customEvent);
+          
+          // setCp(turn === orientation ? cp : -cp);
+          // setMate(0);
+        } else if (event.data.includes(" mate ")) {
+          const res = event.data.split(" mate ")[1];
+          const mate = parseInt(res.split(" ")[0]);
+
+          const customEvent = new CustomEvent("setEval", {
+            detail: {
+              bestMove: bestMove,
+              cp: 0,
+              mate: turn === orientation ? mate : -mate
+            },
+          });
+    
+          window.dispatchEvent(customEvent);
+          // setMate(turn === orientation ? mate : -mate);
+        }
+      }
     } else if (event.data.startsWith("bestmove")) {
       const bestMove = event.data.split(" ")[1];
       setIsSearching(false);
-      setBestMove(bestMove);
+      // setBestMove(bestMove);
       setEvaluated(true);
 
+      // const customEvent = new CustomEvent("newBestMove", {
+      //   detail: {
+      //     bestMove: bestMove,
+      //     // cp: cp,
+      //     // mate: mate
+      //   },
+      // });
+
+      // window.dispatchEvent(customEvent);
+
       if (turn !== orientation) {
-        makeMove(bestMove);
+        // makeMove(bestMove);
       }
     }
-  }, [worker, orientation, skillLvl, turn, makeMove]);
+  }, [worker, orientation, skillLvl, turn, limitStrength]);
 
-  const initEngine = useCallback((skillLvl?: SkillLevel) => {
+  const initEngine = useCallback((limitStrength: boolean,  skillLvl?: SkillLevel, moveTime?: number) => {
     if (!worker) {
       console.log("no worker");
       return;
     }
 
+    setLimitStrength(limitStrength);
     skillLvl && setSkillLvl(skillLvl);
+    moveTime && setMoveTime(moveTime);
   }, [worker]);
 
   const startSearch = useCallback(() => {
+    // console.log(!worker, isSearching, !isReady, gameOver)
     if (!worker || isSearching || !isReady || gameOver) {
-      return;
+      return false;
     }
-        
+    // console.log("huh")
+
+
     setEvaluated(false);
     setIsSearching(true);
     
@@ -82,14 +137,15 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
     const moves = game.history().join(" ");
     worker.postMessage(`position fen ${game.fen()}${moves.length > 0 ? `moves ${moves}` : ""}`);
     worker.postMessage(`go ${
-      true ? `movetime ${1500}` : `depth ${MAX_DEPTH}`
+      moveTime ? `movetime ${moveTime}` : `depth ${MAX_DEPTH}`
     }`);
 
-  }, [isSearching, isReady, worker, game, gameOver, onMessage]);
+    return true;
+  }, [isSearching, isReady, worker, game, gameOver, onMessage, moveTime]);
 
-  const clearBestMove = useCallback(() => {
-    setBestMove(null);
-  }, []);
+  // const clearBestMove = useCallback(() => {
+  //   setBestMove(null);
+  // }, []);
 
   useEffect(() => {
     if (game.isGameOver()) {
@@ -110,13 +166,14 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
 
   const value = useMemo(() => ({ 
     isInit,
-    cp,
-    bestMove,
+    isReady,
+    // cp,
+    // bestMove,
     evaluated,
     initEngine,
     startSearch,
-    clearBestMove
-  }), [isInit, bestMove, evaluated, cp, initEngine, startSearch, clearBestMove]);
+    // clearBestMove
+  }), [isInit, isReady, evaluated, initEngine, startSearch]);
 
   return (
     <StockfishProviderContext.Provider value={value}>

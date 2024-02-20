@@ -35,7 +35,7 @@ const functions: ChatCompletionTool[] = [
             "maxItems": 3
           }
         },
-        "required": ["queries", "query_titles"],
+        "required": ["queries"],
       },
     },
   },

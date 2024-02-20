@@ -16,55 +16,25 @@ import { Feedback } from "@/components/Feedback";
 import { BoardControl } from "@/components/BoardControl";
 import { match } from "assert";
 import { GameLogs } from "@/components/GameLogs";
+import { useAuth } from "@/providers/AuthProvider/context";
 
 export default function Home() {
-  const [sessison, setSession] = useState<User | null>(null);
-  const [origin, setOrigin] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
 
+  const { session, supabase, signInWithOAuth } = useAuth();
   const { initEngine } = useStockfish();  
 
-  const supabase = useMemo(() => {
-    return createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-  }, []);
-
-  const oauth = useCallback(async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${origin}/auth/callback`,
-      },
-    });
-  }, [origin, supabase]);
 
   useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
-
-  // useEffect(() => {
-  //   console.log("bestMove", bestMove);
-  // }, [bestMove]);
-
-  useEffect(() => {
-    (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setSession(user);
-    })();
-  }, [supabase]);
-
-  useEffect(() => {
-    if (sessison) {
-      initEngine(SkillLevel.Beginner);
+    if (session) {
+      initEngine(true, SkillLevel.Beginner, 1500);
     }
-  }, [sessison, initEngine]);
+  }, [session, initEngine]);
 
   useEffect(() => {
     (async () => {
-      if (sessison) {
-        const { data, error } = await supabase.from('feedback').select().eq('uuid', sessison.id);
+      if (session && supabase) {
+        const { data, error } = await supabase.from('feedback').select().eq('uuid', session.id);
 
         if (!data || data.length === 0) {
           setTimeout(() => {
@@ -73,11 +43,11 @@ export default function Home() {
         }
       }
     })();
-  }, [sessison, supabase]);
+  }, [session, supabase]);
 
   return (
     <div className="h-full">
-      {!sessison && (
+      {!session && (
         <div className="flex flex-col justify-center items-center h-full">
           <div className="header">
             CHESSKI
@@ -86,11 +56,11 @@ export default function Home() {
             <p>Your personal AI chess <i>tutor</i>&nbsp; that coaches you in <i>plain English</i></p>
           </div>
           <div className="sign-up">
-            <button className="button" onClick={oauth}>Sign In With Google</button>
+            <button className="button" onClick={signInWithOAuth}>Sign In With Google</button>
           </div>
         </div>
       )}
-      {sessison && (
+      {session && (
         <div className="sm:pt-20 not-footer">
           <div className="header hidden sm:block">
             CHESSKI
@@ -104,7 +74,7 @@ export default function Home() {
           </div>
         </div> 
       )}
-      <Feedback session={sessison} show={showFeedback} close={() => setShowFeedback(false)} />
+      <Feedback session={session} show={showFeedback} close={() => setShowFeedback(false)} />
       <Footer />
     </div>
   );

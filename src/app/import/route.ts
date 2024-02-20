@@ -1,4 +1,4 @@
-import { getSupabaseCilent } from "@/utils/helpers";
+import { getSupabaseCilent } from "@/utils/serverHelpers";
 
 const parsePGN = (pgn: string) => {
   const metaDataRegex = /\[([A-Za-z]+)\s"([^"]*)"\]/g;

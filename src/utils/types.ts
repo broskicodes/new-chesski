@@ -35,3 +35,15 @@ export interface Puzzle {
 }
 
 export const SanRegex = /(O-O(-O)?|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](=[QRBN])?[\+#]?|([a-h]x)?[a-h][1-8](=[QRBN])?[\+#]?)/g;
+
+export interface PgnData {
+  black: string;
+  black_elo: number;
+  moves: string;
+  played_at: Date;
+  result: string;
+  tags: string;
+  time_control: string;
+  white: string;
+  white_elo: number;
+}

@@ -1,0 +1,86 @@
+body {
+  background-color: #14131A;
+  background-image: none;
+  color: #fff;
+}
+
+.move-list {
+  height: 400px;
+  width: 256px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #F0F1F8;
+  color: #000;
+  overflow-y: auto;
+}
+
+.move {
+  width: 128px;
+  cursor: pointer;
+}
+
+.best {
+  color: #000;
+}
+
+.excellent {
+  color: #bfff8a;
+}
+
+.good {
+  color: #000;
+}
+
+.inaccuracy {
+  color: #f7ed6a;
+}
+
+.mistake {
+  color: #ff9481;
+}
+
+.blunder {
+  color: #ff1414;
+}
+
+.content {
+  overflow-y: auto;
+  width: 100%;
+  height: 100%;
+}dk
+
+::-webkit-scrollbar {
+  width: 5px; 
+  height: 5px; 
+}
+
+::-webkit-scrollbar-thumb {
+  background: #aaa; 
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #888; 
+}
+
+@media screen and (max-width: 640px) {
+  .move-list {
+    width: 100%;
+    max-width: 480px;
+    height: 100%;
+    overflow-y: auto;
+  }
+}
+
+@media screen and (min-width: 641px) and (max-width: 1024px) {
+  .move-list {
+    width: 400px;
+    height: 500px;
+  }
+}
+
+@media screen and (min-width: 1025px) and (max-width: 1280px) {
+  .move-list {
+    width: 440px;
+  }
+}

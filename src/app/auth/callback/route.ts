@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getSupabaseCilent } from '@/utils/helpers';
+import { getSupabaseCilent } from '@/utils/serverHelpers';
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
