@@ -37,6 +37,20 @@
   margin-right: 8px;
 }
 
+.san {
+  cursor: pointer;
+  /* text-decoration: underline; */
+  font-weight: 600;
+  /* color: #1B03A3; */
+  background-color: rgb(27, 3, 163, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.san:hover {
+  background-color: rgb(27, 3, 163, 0.1);
+}
+
 ::-webkit-scrollbar {
   width: 5px; /* for vertical scroll */
   height: 5px; /* for horizontal scroll */
