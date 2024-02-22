@@ -62,17 +62,6 @@ export const Feedback = ({ session, show, close }: FeedbackProps) => {
             <h2>Anything else to say?</h2>
             <h2>Reach out: <Link href={"mailto:braeden@chesski.lol"} className="underline semi-bold">braeden@chesski.lol</Link></h2>
           </div>
-          {/* <div className='flex flex-col space-y-2'>
-            <h2>Wanna provide more feedback?</h2>
-            <div className='flex flex-row space-x-2'>
-              <button className='button grow' onClick={() => {}}>
-                Yes
-              </button>
-              <button className='button grow' onClick={() => {}}>
-                No
-              </button>
-            </div>
-          </div> */}
         </div>
       )}
     </div>
