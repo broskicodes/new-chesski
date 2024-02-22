@@ -3,6 +3,7 @@ import './styles.css';
 import { Star } from '../Star';
 import { createBrowserClient } from '@supabase/ssr';
 import { User } from '@supabase/supabase-js';
+import Link from 'next/link';
 
 interface FeedbackProps {
   session: User | null;
@@ -55,8 +56,12 @@ export const Feedback = ({ session, show, close }: FeedbackProps) => {
         </div>
       )}
       {feedbackId && (
-        <div className='flex flex-col items-center space-y-4'>
+        <div className='flex flex-col items-center space-y-3'>
           <h1>Thanks for rating Chesski!</h1>
+          <div className='flex flex-col items-center'>
+            <h2>Anything else to say?</h2>
+            <h2>Reach out: <Link href={"mailto:braeden@chesski.lol"} className="underline semi-bold">braeden@chesski.lol</Link></h2>
+          </div>
           {/* <div className='flex flex-col space-y-2'>
             <h2>Wanna provide more feedback?</h2>
             <div className='flex flex-row space-x-2'>
