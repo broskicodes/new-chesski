@@ -1,11 +1,14 @@
 import { useChess } from '@/providers/ChessProvider/context';
 import { useEffect, useState } from 'react';
 import { Chessboard as ReactChessboad } from 'react-chessboard';
+import { PromotionPieceOption, Square } from 'react-chessboard/dist/chessboard/types';
 
 
 export const Chessboard = () => {
   const [boardWidth, setBoardWidth] = useState(512);
   const { game, makeMove, onDrop, addHighlightedSquares, arrows, orientation, highlightedMoves, highlightedSquares, resetHighlightedMoves, addArrows } = useChess();
+  const [moveTo, setMoveTo] = useState<Square | null>(null)
+  const [showPromotionDialog, setShowPromotionDialog] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -30,12 +33,49 @@ export const Chessboard = () => {
       onPieceDrop={onDrop}
       boardOrientation={orientation}
       customArrows={arrows}
+      promotionToSquare={moveTo}
+      showPromotionDialog={showPromotionDialog}
+      onPromotionPieceSelect={(piece: PromotionPieceOption | undefined) => {
+        if (piece) {
+          makeMove({ from: highlightedMoves[0].from, to: moveTo!, promotion: piece[1].toLowerCase() ?? "q" })
+        }
+        
+        resetHighlightedMoves([]);
+        addHighlightedSquares([], true);
+        addArrows([], true);
+        setShowPromotionDialog(false);
+
+        return true;
+      }}
       onSquareRightClick={(sqr) => {
         addHighlightedSquares([sqr], false);
       }}
       onSquareClick={(sqr) => {
         if (highlightedMoves.length > 0) {
-          makeMove({ from: highlightedMoves[0].from, to: sqr })
+          setMoveTo(sqr)
+          
+          const moves = game.moves({
+            verbose: true,
+            square: highlightedMoves[0].from
+          });
+
+          const foundMove = moves.find(
+            (m) => m.from ===  highlightedMoves[0].from && m.to === sqr
+          );
+
+          if (foundMove && foundMove.to === sqr && (
+            (foundMove.color === "w" &&
+              foundMove.piece === "p" &&
+              sqr[1] === "8") ||
+            (foundMove.color === "b" &&
+              foundMove.piece === "p" &&
+              sqr[1] === "1"))
+          ) {
+            setShowPromotionDialog(true);
+            return;
+          }
+          
+          makeMove({ from: highlightedMoves[0].from, to: sqr, promotion: "q" })
         }
 
         resetHighlightedMoves(game.moves({ square: sqr, verbose: true }));
