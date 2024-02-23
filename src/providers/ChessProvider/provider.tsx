@@ -2,6 +2,7 @@ import { Chess, Move } from "chess.js";
 import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 import { ChessContext, ChessProviderContext } from "./context";
 import { Arrow, Square } from "react-chessboard/dist/chessboard/types";
+import posthog from "posthog-js";
 
 export enum Player {
   White = "white",
@@ -107,6 +108,8 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
       });
 
       if (!move) return false;
+
+      posthog.capture("user_played_move");
 
       return true;
     },

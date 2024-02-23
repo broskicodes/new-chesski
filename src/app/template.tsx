@@ -9,6 +9,7 @@ import { PostHogProvider } from 'posthog-js/react'
 
 import dynamic from 'next/dynamic'
 import { CoachProvider } from "@/providers/CoachProvider/provider";
+import { AuthProvider } from "@/providers/AuthProvider/provider";
 
 const PostHogPageView = dynamic(() => import('../components/PostHogPageView'), {
   ssr: false,
@@ -25,16 +26,18 @@ export default function Template({ children }: PropsWithChildren) {
 
   return (
     <PostHogProvider client={posthog}>
-      <ChessProvider>
-        <StockfishProvider>
-          <PuzzleProvider>
-            <CoachProvider>
-              <PostHogPageView />
-              {children}
-            </CoachProvider>
-          </PuzzleProvider>
-        </StockfishProvider>
-      </ChessProvider>
+      <AuthProvider>
+        <ChessProvider>
+          <StockfishProvider>
+            <PuzzleProvider>
+              <CoachProvider>
+                <PostHogPageView />
+                {children}
+              </CoachProvider>
+            </PuzzleProvider>
+          </StockfishProvider>
+        </ChessProvider>
+      </AuthProvider>
     </PostHogProvider>
   );
 }

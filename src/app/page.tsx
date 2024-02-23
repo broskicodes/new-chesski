@@ -1,70 +1,34 @@
 "use client";
 
-import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { createBrowserClient } from '@supabase/ssr'
-import { User } from "@supabase/supabase-js";
-import { useChat } from "ai/react";
-import ReactMarkdown from "react-markdown";
-import "./styles.css";
+import { useEffect, useState } from "react";
 import { Footer } from "@/components/Footer";
 import { Chessboard } from "@/components/Chessboard";
-import { SanRegex, SkillLevel } from "@/utils/types";
-import { useChess } from "@/providers/ChessProvider/context";
-import { Message } from "ai";
+import { SkillLevel } from "@/utils/types";
 import { useStockfish } from "@/providers/StockfishProvider/context";
 import { Feedback } from "@/components/Feedback";
 import { BoardControl } from "@/components/BoardControl";
-import { match } from "assert";
 import { GameLogs } from "@/components/GameLogs";
+import { useAuth } from "@/providers/AuthProvider/context";
+
+import "./styles.css";
 
 export default function Home() {
-  const [sessison, setSession] = useState<User | null>(null);
-  const [origin, setOrigin] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
 
+  const { session, supabase, signInWithOAuth } = useAuth();
   const { initEngine } = useStockfish();  
 
-  const supabase = useMemo(() => {
-    return createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-  }, []);
-
-  const oauth = useCallback(async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${origin}/auth/callback`,
-      },
-    });
-  }, [origin, supabase]);
 
   useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
-
-  // useEffect(() => {
-  //   console.log("bestMove", bestMove);
-  // }, [bestMove]);
-
-  useEffect(() => {
-    (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setSession(user);
-    })();
-  }, [supabase]);
-
-  useEffect(() => {
-    if (sessison) {
+    if (session) {
       initEngine(SkillLevel.Beginner);
     }
-  }, [sessison, initEngine]);
+  }, [session, initEngine]);
 
   useEffect(() => {
     (async () => {
-      if (sessison) {
-        const { data, error } = await supabase.from('feedback').select().eq('uuid', sessison.id);
+      if (session && supabase) {
+        const { data, error } = await supabase.from('feedback').select().eq('uuid', session.id);
 
         if (!data || data.length === 0) {
           setTimeout(() => {
@@ -73,11 +37,12 @@ export default function Home() {
         }
       }
     })();
-  }, [sessison, supabase]);
+  }, [session, supabase]);
+
 
   return (
     <div className="h-full">
-      {!sessison && (
+      {!session && (
         <div className="flex flex-col justify-center items-center h-full">
           <div className="header">
             CHESSKI
@@ -86,11 +51,11 @@ export default function Home() {
             <p>Your personal AI chess <i>tutor</i>&nbsp; that coaches you in <i>plain English</i></p>
           </div>
           <div className="sign-up">
-            <button className="button" onClick={oauth}>Sign In With Google</button>
+            <button className="button" onClick={signInWithOAuth}>Sign In With Google</button>
           </div>
         </div>
       )}
-      {sessison && (
+      {session && (
         <div className="sm:pt-20 not-footer">
           <div className="header hidden sm:block">
             CHESSKI
@@ -104,7 +69,7 @@ export default function Home() {
           </div>
         </div> 
       )}
-      <Feedback session={sessison} show={showFeedback} close={() => setShowFeedback(false)} />
+      <Feedback show={showFeedback} close={() => setShowFeedback(false)} />
       <Footer />
     </div>
   );

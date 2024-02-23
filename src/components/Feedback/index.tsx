@@ -1,29 +1,22 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import './styles.css';
 import { Star } from '../Star';
-import { createBrowserClient } from '@supabase/ssr';
-import { User } from '@supabase/supabase-js';
 import Link from 'next/link';
+import { useAuth } from '@/providers/AuthProvider/context';
 
 interface FeedbackProps {
-  session: User | null;
   show: boolean;
   close: () => void;
 }
 
-export const Feedback = ({ session, show, close }: FeedbackProps) => {
+export const Feedback = ({ show, close }: FeedbackProps) => {
   const [rating, setRating] = useState<number>(0);
   const [feedbackId, setFeedbackId] = useState<string | null>(null);
 
-  const supabase = useMemo(() => {
-    return createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-  }, []);
+  const { session, supabase } = useAuth();
 
   const submitRaing = useCallback(async () => {
-    if (rating === 0 || !rating) return;
+    if (!supabase || rating === 0 || !rating) return;
 
     const { data, error } = await supabase.from('feedback')
       .upsert({ uuid: session?.id, rating: rating })
