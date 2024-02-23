@@ -2,7 +2,7 @@ import { useChess } from '@/providers/ChessProvider/context';
 import { useEffect, useState } from 'react';
 import { Chessboard as ReactChessboad } from 'react-chessboard';
 import { PromotionPieceOption, Square } from 'react-chessboard/dist/chessboard/types';
-
+import posthog from 'posthog-js';
 
 export const Chessboard = () => {
   const [boardWidth, setBoardWidth] = useState(512);
@@ -44,6 +44,7 @@ export const Chessboard = () => {
         addHighlightedSquares([], true);
         addArrows([], true);
         setShowPromotionDialog(false);
+        posthog.capture("user_played_move");
 
         return true;
       }}
@@ -75,7 +76,9 @@ export const Chessboard = () => {
             return;
           }
           
-          makeMove({ from: highlightedMoves[0].from, to: sqr, promotion: "q" })
+          if (makeMove({ from: highlightedMoves[0].from, to: sqr, promotion: "q" })) {
+            posthog.capture("user_played_move");
+          }
         }
 
         resetHighlightedMoves(game.moves({ square: sqr, verbose: true }));
