@@ -6,6 +6,7 @@ import { useStockfish } from "@/providers/StockfishProvider/context";
 import { useCoach } from "@/providers/CoachProvider/context";
 
 import "./styles.css";
+import posthog from "posthog-js";
 
 export const GameLogs = () => {
   const [prevFen, setPrevFen] = useState("");
@@ -87,7 +88,10 @@ export const GameLogs = () => {
         })}
         <div className={`queries ${!processing ? "flex" : "hidden"}`}>
           {queries.map((query, i) => (
-            <button key={i} className="button inverted-button thin-button" onClick={() => getExplantion(query.query) }>{query.title}</button>
+            <button key={i} className="button inverted-button thin-button" onClick={() => {
+              posthog.capture("position_queried")
+              getExplantion(query.query) 
+            }}>{query.title}</button>
           ))}
         </div>
         <div className={`justify-center pt-2 ${processing && gameMessages.length > 0 ? "flex" : "hidden"}`}>
