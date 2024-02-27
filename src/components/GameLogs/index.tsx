@@ -1,5 +1,5 @@
 import { useChess } from "@/providers/ChessProvider/context";
-import { SanRegex } from "@/utils/types";
+import { Evaluation, SanRegex } from "@/utils/types";
 import { Chess, Square } from "chess.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useStockfish } from "@/providers/StockfishProvider/context";
@@ -10,9 +10,10 @@ import posthog from "posthog-js";
 
 export const GameLogs = () => {
   const [prevFen, setPrevFen] = useState("");
+  const [evals, setEvals] = useState<{ [key: number]: Evaluation }[]>([]);
 
   const { isInit, startSearch } = useStockfish();
-  const { game, turn, orientation, addHighlightedSquares, addArrows } = useChess();
+  const { game, turn, orientation, addHighlightedSquares, addArrows, makeMove } = useChess();
   const { gameMessages, processing, queries, appendGameMessage, getExplantion } = useCoach();
 
   const logRef = useRef<HTMLDivElement>(null);
@@ -33,35 +34,77 @@ export const GameLogs = () => {
 
 
   useEffect(() => {
-    if (game.fen() !== prevFen && isInit) {
+    if (!processing && game.fen() !== prevFen && orientation === turn && isInit) {
       const moves = game.history();
       const fen = game.fen();
+
+      // console.log(evals);
+      const latestEval = evals.length > 0 ? evals.at(-1)![1] : undefined;
+
+      console.log(latestEval);
 
       setPrevFen(fen);
       appendGameMessage({
         role: "user",
-        content: `The user is playing as ${orientation}. The current position is ${fen}. The moves leading up to this position are ${moves.join(" ")}. ${turn === "white" ? "Black" : "White"} just played ${moves.at(-1)}.`
+        content: `The user is playing as ${orientation}. The current position is ${fen}. The moves leading up to this position are ${moves.join(" ")}. ${turn === "white" ? "Black" : "White"} just played ${moves.at(-1)}.\n\nStockfish gives the position an evaluation of ${latestEval?.eval} centipawns. The best engine line is ${latestEval?.pv.join(" ")}.`
+      });
+
+      setEvals((prev) => {
+        return [...prev, {}]
       });
     }
-  }, [game, prevFen, orientation, turn, isInit, appendGameMessage]);
+  }, [processing, game, prevFen, orientation, turn, isInit, evals, appendGameMessage]);
 
   useEffect(() => {
-    if (!processing && gameMessages.at(-1)?.role === "assistant") {
+    if (!processing 
+      // && gameMessages.at(-1)?.role === "assistant" 
+      && orientation !== turn) {
       startSearch();
     }
-  }, [processing, gameMessages, startSearch]);
+  }, [processing, gameMessages, startSearch, orientation, turn]);
 
-  useEffect(() => {
-    if (game.fen() !== prevFen) {
-      startSearch();
-    }
-  }, [game, prevFen, startSearch]);
+  // useEffect(() => {
+  //   if (game.fen() !== prevFen) {
+  //     startSearch();
+  //   }
+  // }, [game, prevFen, startSearch]);
 
   useEffect(() => {
     if (logRef.current) {
       logRef.current.scrollTop = logRef.current.scrollHeight;
     }
   }, [gameMessages, processing]);
+
+  // useEffect(() => {
+  //   console.log(evals)
+  // }, [evals])
+
+  useEffect(() => {
+    const evalHandler = (event: Event) => {
+      const { cp, mate, pv, multiPv } = (event as CustomEvent).detail;
+
+      setEvals((prev) => {
+        prev.at(-1)![multiPv] = { fen: game.fen(), eval: mate ? mate : cp, pv: pv, mate: mate !== 0 };
+
+        return prev;
+      });
+      // console.log(multiPv, pv);
+    }
+
+    window.addEventListener("setEval", evalHandler);
+
+    const moveHandler = (event: Event) => {
+      const { bestMove } = (event as CustomEvent).detail;
+
+      makeMove(bestMove);
+    }
+
+    window.addEventListener("setBestMove", moveHandler);
+    return () => {
+      window.removeEventListener("setEval", evalHandler);
+      window.removeEventListener("setBestMove", moveHandler);
+    }
+  }, [game, evals, makeMove, appendGameMessage])
 
   return (
     <div className="logs">

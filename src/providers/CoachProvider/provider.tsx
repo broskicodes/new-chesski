@@ -31,10 +31,30 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
 
   const { messages: gameMessages, append, setMessages } = useChat({
     api: "/chat/coach/moves",
-    onFinish: (msg: Message) => {
-      // setProcessing(false);
-      findQueries(msg);
-    }
+    // onFinish: (msg: Message) => {
+    //   // setProcessing(false);
+    //   findQueries(msg);
+    // }
+    experimental_onToolCall: async (_msgs: Message[], toolCalls: ToolCall[]) => {
+      if (toolCalls.length > 0) {
+        const call = toolCalls.at(-1);
+
+        if (call?.function.name !== "advise") {
+          return;
+        }
+
+        const args = JSON.parse(call?.function.arguments);
+        setMessages([...gameMessages, {
+          id: Math.random().toString(36).substring(7),
+          role: "assistant",
+          content: args.advice
+        }]);
+        setQueries(args.queries);
+        setProcessing(false);
+
+        console.log(args)
+      }
+    },
   });
   
   const { append: appendExplanationContext, setMessages: addExplanationContext, reload } = useChat({

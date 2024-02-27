@@ -1,4 +1,5 @@
 "use client";
+import "./styles.css";
 
 import { useEffect, useState } from "react";
 import { Footer } from "@/components/Footer";
@@ -9,19 +10,19 @@ import { Feedback } from "@/components/Feedback";
 import { BoardControl } from "@/components/BoardControl";
 import { GameLogs } from "@/components/GameLogs";
 import { useAuth } from "@/providers/AuthProvider/context";
-
-import "./styles.css";
+import { useChess } from "@/providers/ChessProvider/context";
 
 export default function Home() {
   const [showFeedback, setShowFeedback] = useState(false);
 
   const { session, supabase, signInWithOAuth } = useAuth();
   const { initEngine } = useStockfish();  
+  const { game, makeMove } = useChess();
 
 
   useEffect(() => {
     if (session) {
-      initEngine(SkillLevel.Beginner);
+      initEngine(true, SkillLevel.Beginner, 2000);
     }
   }, [session, initEngine]);
 
