@@ -2,6 +2,8 @@ import { StreamingTextResponse, OpenAIStream } from "ai";
 import OpenAI from "openai";
 import { ChatCompletionTool } from "openai/resources/index.mjs";
 
+export const runtime = 'edge';
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
