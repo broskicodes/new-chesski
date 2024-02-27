@@ -1,7 +1,3 @@
 {
-  "functions": {
-    "src/chat/coach/**/*.ts": {
-      "maxDuration": 30
-    }
-  }
+  "functions": {}
 }
