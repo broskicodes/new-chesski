@@ -93,6 +93,7 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
               mate: turn === orientation 
               ? orientation === "white" ? mate : -mate 
               : orientation === "white" ? -mate : mate,
+              fen: game.fen()
             },
           });
     
@@ -109,16 +110,13 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
       const customEvent = new CustomEvent("setBestMove", {
         detail: {
           bestMove: bestMove,
+          fen: game.fen()
         },
       });
 
       window.dispatchEvent(customEvent);
-
-      if (turn !== orientation) {
-        // makeMove(bestMove);
-      }
     }
-  }, [worker, orientation, skillLvl, turn, limitStrength]);
+  }, [worker, orientation, skillLvl, turn, limitStrength, game]);
 
   const initEngine = useCallback((limitStrength: boolean,  skillLvl?: SkillLevel, moveTime?: number) => {
     if (!worker) {
@@ -134,7 +132,6 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
   }, [worker, onMessage]);
 
   const startSearch = useCallback(() => {
-    // console.log(!worker, isSearching, !isReady, gameOver)
     if (!worker || isSearching || !isReady || gameOver) {
       return false;
     }

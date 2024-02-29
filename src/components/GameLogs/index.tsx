@@ -10,7 +10,7 @@ import posthog from "posthog-js";
 
 export const GameLogs = () => {
   const [prevFen, setPrevFen] = useState("");
-  const [evals, setEvals] = useState<{ [key: number]: Evaluation }[]>([]);
+  const [evals, setEvals] = useState<{ [key: number]: Evaluation }[]>([{}]);
 
   const { isInit, startSearch } = useStockfish();
   const { game, turn, orientation, addHighlightedSquares, addArrows, makeMove } = useChess();
@@ -34,12 +34,18 @@ export const GameLogs = () => {
 
 
   useEffect(() => {
-    if (!processing && game.fen() !== prevFen && orientation === turn && isInit) {
+    const fen = game.fen();
+
+    if (!processing && fen !== prevFen && orientation === turn && isInit) {
+      const latestEval = evals.length > 1 ? evals.at(-2)![1] : undefined;
+      if (!latestEval || (latestEval && latestEval.fen !== fen)) {
+        // console.log(latestEval?.fen, fen)
+        return;
+      }
+
       const moves = game.history();
-      const fen = game.fen();
 
       // console.log(evals);
-      const latestEval = evals.length > 0 ? evals.at(-1)![1] : undefined;
 
       console.log(latestEval);
 
@@ -55,13 +61,15 @@ export const GameLogs = () => {
     }
   }, [processing, game, prevFen, orientation, turn, isInit, evals, appendGameMessage]);
 
-  useEffect(() => {
-    if (!processing 
-      // && gameMessages.at(-1)?.role === "assistant" 
-      && orientation !== turn) {
-      startSearch();
-    }
-  }, [processing, gameMessages, startSearch, orientation, turn]);
+  // useEffect(() => {
+  //   if (!processing 
+  //     && (gameMessages.at(-1)?.role === "assistant" || !gameMessages.at(-1))
+  //     && game.fen() !== prevFen
+  //     ) {
+  //     setPrevFen(game.fen());
+  //     startSearch();
+  //   }
+  // }, [processing, gameMessages, startSearch, game, prevFen]);
 
   // useEffect(() => {
   //   if (game.fen() !== prevFen) {
@@ -75,9 +83,11 @@ export const GameLogs = () => {
     }
   }, [gameMessages, processing]);
 
-  // useEffect(() => {
-  //   console.log(evals)
-  // }, [evals])
+  useEffect(() => {
+    // if (evals.at(-2) && evals.at(-2)![1]) {
+    //   console.log(evals.at(-2)![1].eval)
+    // }
+  }, [evals])
 
   useEffect(() => {
     const evalHandler = (event: Event) => {
@@ -96,7 +106,12 @@ export const GameLogs = () => {
     const moveHandler = (event: Event) => {
       const { bestMove } = (event as CustomEvent).detail;
 
-      makeMove(bestMove);
+      if (turn !== orientation) {
+        makeMove(bestMove);
+      }
+      setEvals((prev) => {
+        return [...prev, {}]
+      });
     }
 
     window.addEventListener("setBestMove", moveHandler);
@@ -104,7 +119,7 @@ export const GameLogs = () => {
       window.removeEventListener("setEval", evalHandler);
       window.removeEventListener("setBestMove", moveHandler);
     }
-  }, [game, evals, makeMove, appendGameMessage])
+  }, [game, evals, makeMove])
 
   return (
     <div className="logs">

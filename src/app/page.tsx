@@ -11,6 +11,7 @@ import { BoardControl } from "@/components/BoardControl";
 import { GameLogs } from "@/components/GameLogs";
 import { useAuth } from "@/providers/AuthProvider/context";
 import { useChess } from "@/providers/ChessProvider/context";
+import { EvalBar } from "@/components/EvalBar";
 
 export default function Home() {
   const [showFeedback, setShowFeedback] = useState(false);
@@ -63,12 +64,15 @@ export default function Home() {
           </div>
           <div className="page-content">
             <div className="flex flex-col space-y-4">
-              <Chessboard />
+              <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0">
+                <EvalBar />
+                <Chessboard />
+              </div>
               <BoardControl />
             </div>
             <GameLogs />
           </div>
-        </div> 
+        </div>
       )}
       <Feedback show={showFeedback} close={() => setShowFeedback(false)} />
       <Footer />
