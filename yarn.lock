@@ -2123,6 +2123,11 @@ longest-streak@^3.0.0:
   resolved "https://registry.yarnpkg.com/longest-streak/-/longest-streak-3.1.0.tgz#62fa67cd958742a1574af9f39866364102d90cd4"
   integrity sha512-9Ri+o0JYgehTaVBBDoMqIl8GXtbWg711O3srftcHhZ0dqnETqLaoIK0x17fUw9rFSlK/0NlsKe0Ahhyl5pXE2g==
 
+loops@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/loops/-/loops-0.3.0.tgz#1fa98ac3d0c3c683fa30bd91009b3ad3c7869896"
+  integrity sha512-XBB5dKQHFn+liHRVNNLHTcwYRIyUGccfy3ZM0l7NclRDHf3J0hbRchIPus8q2tqFE5SQYnil959kPtQOLUgRcg==
+
 loose-envify@^1.1.0, loose-envify@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/loose-envify/-/loose-envify-1.4.0.tgz#71ee51fa7be4caec1a63839f7e682d8132d30caf"
