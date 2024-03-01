@@ -1,3 +1,5 @@
+import { Move } from "chess.js";
+
 export enum SkillLevel {
   Newb = "Newb",
   Beginner = "Beginner",
@@ -12,16 +14,16 @@ export enum SkillLevel {
 }
 
 export const SkillLevelMap: { [key in SkillLevel]: [number, number] } = {
-  [SkillLevel.Newb]: [0, 499], // Assuming ratings start at 0 for simplicity
-  [SkillLevel.Beginner]: [500, 1199],
-  [SkillLevel.Intermediate]: [1200, 1799],
-  [SkillLevel.Advanced]: [1800, 1999],
-  [SkillLevel.Expert]: [2000, 2199],
-  [SkillLevel.Master]: [2200, 2399],
-  [SkillLevel.InternationalMaster]: [2400, 2499],
-  [SkillLevel.Grandmaster]: [2500, 2699],
-  [SkillLevel.SuperGrandmaster]: [2700, 2799],
-  [SkillLevel.Elite]: [2800, Infinity], // Using Infinity for ratings above 2800
+  [SkillLevel.Newb]: [1, 500], // Assuming ratings start at 0 for simplicity
+  [SkillLevel.Beginner]: [501, 1200],
+  [SkillLevel.Intermediate]: [1201, 1800],
+  [SkillLevel.Advanced]: [1801, 2000],
+  [SkillLevel.Expert]: [2001, 2200],
+  [SkillLevel.Master]: [2201, 2400],
+  [SkillLevel.InternationalMaster]: [2401, 2500],
+  [SkillLevel.Grandmaster]: [2501, 2700],
+  [SkillLevel.SuperGrandmaster]: [2701, 2800],
+  [SkillLevel.Elite]: [2801, Infinity], // Using Infinity for ratings above 2800
 };
 
 export interface Puzzle {
@@ -33,5 +35,14 @@ export interface Puzzle {
   themes: string[];
   opening_tags: string[] | null;
 }
+
+export interface Evaluation {
+  fen: string;
+  eval: number;
+  // move: string | null;
+  pv: Move[];
+  mate: boolean;
+}
+
 
 export const SanRegex = /(O-O(-O)?|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](=[QRBN])?[\+#]?|([a-h]x)?[a-h][1-8](=[QRBN])?[\+#]?)/g;

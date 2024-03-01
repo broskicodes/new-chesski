@@ -1,7 +1,1 @@
-{
-  "functions": {
-    "src/app/analyze-user/*.ts": {
-      "maxDuration": 10
-    }
-  }
-}
+{}
