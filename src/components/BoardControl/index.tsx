@@ -4,6 +4,7 @@ import { Tooltip } from "@/components/Tooltip";
 import { useChess } from "@/providers/ChessProvider/context";
 import { useCallback } from "react";
 import { useCoach } from "@/providers/CoachProvider/context";
+import { Button } from "../ui/button";
 
 export const BoardControl = () => {
   const { undo, swapOrientation, reset } = useChess();
@@ -26,33 +27,33 @@ export const BoardControl = () => {
     <div className="flex flex-row justify-between">
       <div className="flex flex-row space-x-2">
         <Tooltip content="Flip Board">
-          <button className="button" onClick={handleFlip}>
+          <Button size="icon" onClick={handleFlip}>
             <FontAwesomeIcon icon={faRetweet} />
-          </button>
+          </Button>
         </Tooltip>
         <Tooltip content="Reset Game">
-          <button className="button" onClick={handleReset}>
+          <Button size="icon" onClick={handleReset}>
           <FontAwesomeIcon icon={faRefresh} />
-          </button>
+          </Button>
         </Tooltip>
         <Tooltip content="Undo Move">
-          <button className="button" onClick={handleUndo}>
+          <Button size="icon" onClick={handleUndo}>
             <FontAwesomeIcon icon={faReply} />
-          </button>
+          </Button>
         </Tooltip>
         {/* <div className={`${}`}>
         <Tooltip content="Next Move">
-          <button className="button" onClick={handleUndo}>
+          <Button size="icon" onClick={handleUndo}>
             <FontAwesomeIcon icon={faRightLong} />
-          </button>
+          </Button>
         </Tooltip>
         </div> */}
       </div>
       {/* <div>
         <Tooltip content="Gameplay Settings">
-          <button className="button">
+          <Button size="icon">
             <FontAwesomeIcon icon={faGear} />
-          </button>
+          </Button>
         </Tooltip>
       </div> */}
     </div>

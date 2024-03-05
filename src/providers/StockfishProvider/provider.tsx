@@ -20,6 +20,7 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
   const [moveTime, setMoveTime] = useState(0);
   const [skillLvl, setSkillLvl] = useState<SkillLevel>(SkillLevel.Beginner);
 
+  const { game, turn, orientation, makeMove } = useChess();
 
   const worker = useMemo(() => {
     if (typeof window === "undefined") {
@@ -29,7 +30,6 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
     return new Worker("/nmrugg_stockfish_js/stockfish-nnue-16.js");
   }, []);
 
-   const { game, turn, orientation, makeMove } = useChess();
 
   const onMessage = useCallback((event: MessageEvent<string>) => {
     if (!worker) return;
@@ -116,7 +116,7 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
 
       window.dispatchEvent(customEvent);
     }
-  }, [worker, orientation, skillLvl, turn, limitStrength, game]);
+  }, [worker, orientation, skillLvl, turn, limitStrength, game, moveTime]);
 
   const initEngine = useCallback((limitStrength: boolean,  skillLvl?: SkillLevel, moveTime?: number) => {
     if (!worker) {
@@ -129,7 +129,7 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
     setLimitStrength(limitStrength);
 
     setIsInit(true);
-  }, [worker, onMessage]);
+  }, [worker]);
 
   const startSearch = useCallback(() => {
     if (!worker || isSearching || !isReady || gameOver) {

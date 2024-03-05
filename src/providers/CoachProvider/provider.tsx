@@ -52,7 +52,7 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
         setQueries(args.queries);
         setProcessing(false);
 
-        console.log(args)
+        // console.log(args)
       }
     },
   });

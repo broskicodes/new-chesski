@@ -1,9 +1,17 @@
+.role {
+  color: #000;
+  font-family: "Arvo", serif;
+  font-weight: 700;
+  font-size: 16px;
+  text-align: left;
+}
+
 .logs {
   height: 600px;
   width: 480px;
   padding: 16px;
   border-radius: 12px;
-  background: #F0F1F8;
+  background: #fff;
 }
 
 .log-content {
@@ -67,6 +75,10 @@
 
 
 @media screen and (max-width: 640px) {
+  .role {
+    font-size: 14px;
+  }
+  
   .logs {
     width: 100%;
     max-width: 480px;

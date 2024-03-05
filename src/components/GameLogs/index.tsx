@@ -47,7 +47,7 @@ export const GameLogs = () => {
 
       // console.log(evals);
 
-      console.log(latestEval);
+      // console.log(latestEval);
 
       setPrevFen(fen);
       appendGameMessage({
@@ -119,7 +119,7 @@ export const GameLogs = () => {
       window.removeEventListener("setEval", evalHandler);
       window.removeEventListener("setBestMove", moveHandler);
     }
-  }, [game, evals, makeMove])
+  }, [game, evals, orientation, turn, makeMove])
 
   return (
     <div className="logs">
@@ -138,7 +138,7 @@ export const GameLogs = () => {
           });
           return (
             <div key={i} className="flex flex-col">
-              <span className={`${message.role}-message role`}>{message.role.toUpperCase()}:</span>
+              <span className={`${message.role}-message role`}>CHESSKI:</span>
               {/* <ReactMarkdown className="content">{elems}</ReactMarkdown> */}
               <div className="content">{elems}</div>
             </div>
