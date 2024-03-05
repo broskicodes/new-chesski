@@ -70,13 +70,13 @@ export default function Home() {
         <div className="-mt-20 sm:-mt-12">
           <Image className="lp-img" src="/chesski-lp.png" alt="chess pieces" width={picSize} height={picSize} />
         </div>
-        <div className="header -mt-12 sm:-mt-8">
+        <div className="header -mt-8 sm:-mt-8">
           Your guide to <span className="emph">chess mastery</span>
         </div>
         <div className="sub-header mt-0 sm:mt-4">
           <p>Chesski is an <span className="emph">AI chess coach</span> that adapts to your playstyle and gives you <span className="emph">personalized advice</span>.</p>
         </div>
-        <div className="sign-up mt-4 sm:mt-8">
+        <div className="sign-up mt-6 sm:mt-12">
           {!onboarded && (
             <Drawer shouldScaleBackground={false}>
               <DrawerTrigger>
