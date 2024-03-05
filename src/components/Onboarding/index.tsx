@@ -58,7 +58,7 @@ export const Onboarding = () => {
 
     localStorage.setItem("userData", JSON.stringify(userData));
     router.push("/play");
-  }, [experience, goal, chesscom, lichess])
+  }, [experience, goal, chesscom, lichess, router])
 
   return (
     <div>
@@ -209,7 +209,7 @@ export const Onboarding = () => {
               Congrats!
             </h1>
             <h2 className='font-medium text-2xl'>
-              Onboarding is finished. Let's get you practicing!
+              {"Onboarding is finished. Let's get you practicing!"}
             </h2>
           </div>
           <DrawerFooter>
