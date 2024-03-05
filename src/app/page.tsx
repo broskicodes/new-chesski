@@ -18,6 +18,7 @@ import { ONBOARDING_UPDATE_DATE } from "@/utils/types";
 
 export default function Home() {  
   const [onboarded, setOnboarded] = useState(false);
+  const [picSize, setPicSize] = useState(540);
 
   const router = useRouter();
   const { session, supabase } = useAuth();
@@ -49,19 +50,33 @@ export default function Home() {
     })();
   }, [session, supabase]);
 
+  useEffect(() => {
+    const resizeHandler = () => {
+      if (window.innerWidth < 640) {
+        setPicSize(360)
+      } else {
+        setPicSize(540)
+      }
+    }
+
+    resizeHandler();
+    window.addEventListener("resize", resizeHandler);
+    return () => window.removeEventListener("resize", resizeHandler);
+  }, [])
+
   return (
     <div className="h-full">
       <div className="flex flex-col justify-center items-center h-full">
-        <div className="-mt-32 sm:-mt-12">
-          <Image className="lp-img" src="/chesski-lp.png" alt="chess pieces" width={540} height={540} />
+        <div className="-mt-20 sm:-mt-12">
+          <Image className="lp-img" src="/chesski-lp.png" alt="chess pieces" width={picSize} height={picSize} />
         </div>
-        <div className="header">
+        <div className="header -mt-12 sm:-mt-8">
           Your guide to <span className="emph">chess mastery</span>
         </div>
-        <div className="sub-header">
+        <div className="sub-header mt-0 sm:mt-4">
           <p>Chesski is an <span className="emph">AI chess coach</span> that adapts to your playstyle and gives you <span className="emph">personalized advice</span>.</p>
         </div>
-        <div className="sign-up">
+        <div className="sign-up mt-4 sm:mt-8">
           {!onboarded && (
             <Drawer shouldScaleBackground={false}>
               <DrawerTrigger>
