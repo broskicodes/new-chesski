@@ -70,19 +70,19 @@ export const Onboarding = () => {
               <DrawerDescription>This will help Chesski personalize its coaching.</DrawerDescription>
             </div>
           </DrawerHeader>
-          <div className="grid grid-cols-2 grid-rows-2 gap-4 sm:grid-rows-1 sm:grid-cols-4 sm:gap-8 py-8 px-8 sm:px-0">
+          <div className="grid grid-cols-2 grid-rows-2 gap-4 sm:grid-rows-1 sm:grid-cols-4 sm:gap-8 sm:py-8 px-8 sm:px-0">
             {Object.entries(Experience).filter(([val]) => isNaN(parseInt(val))).map(([val, exp], i) => {
               return (
                 <Card key={exp} className={`flex flex-col items-center sm:space-y-6 cursor-pointer hover:bg-[#1B03A3]/20 ${exp === experience ? "bg-[#1B03A3]/10" : ""}`} onClick={() => { setExperience(exp as Experience) }}>
                   {/* <CardHeader /> */}
-                  <div className='mb-6'/>
-                  <CardContent>
+                  <div className='mb-2'/>
+                  <CardContent className='pb-2'>
                     <Avatar>
                       <AvatarImage src={`/pieces/${exp}.png`} />
                       <AvatarFallback>{val}</AvatarFallback>
                     </Avatar>
                   </CardContent>
-                  <CardFooter className="flex flex-col space-y-0 text-center">
+                  <CardFooter className="flex flex-col space-y-0 text-center pb-2">
                     <span className="font-medium text-sm">Level {i + 1}</span>
                     <span className="font-bold text-xl">{val}</span>
                   </CardFooter>
@@ -91,7 +91,7 @@ export const Onboarding = () => {
             })}
           </div>
           <DrawerFooter>
-            <div className="flex flex-col space-y-6">
+            <div className="flex flex-col sm:space-y-6">
               <div className="mx-auto">
                 <Button onClick={() => setStep(step + 1)} disabled={experience === null}>Next</Button>
               </div>
@@ -155,12 +155,12 @@ export const Onboarding = () => {
               <DrawerDescription>Give Chesski access to your historical game data.</DrawerDescription>
             </div>
           </DrawerHeader>
-          <div className="flex flex-col space-y-8 justify-center py-8 px-8 sm:px-0 mx-auto max-w-2xl min-h-[484px] sm:min-h-[370px]">
+          <div className="flex flex-col space-y-8 justify-center py-8 px-8 sm:px-0 mx-auto max-w-2xl min-h-[324px] sm:min-h-[370px]">
             <Input placeholder="Chess.com" value={chesscom} onChange={({ target }) => setChesscom(target.value) } />
             <Input placeholder="Lichess" value={lichess} onChange={({ target }) => setLichess(target.value) }/>
           </div>
           <DrawerFooter>
-            <div className="flex flex-col space-y-6">
+            <div className="flex flex-col sm:space-y-6">
               <div className="mx-auto">
                 <Button onClick={() => setStep(step + 1)}>{chesscom.length > 0 || lichess.length > 0 ? "Next" : "Skip"}</Button>
               </div>
@@ -204,7 +204,7 @@ export const Onboarding = () => {
               <DrawerDescription>No more delays. Start using Chesski now!</DrawerDescription>
             </div>
           </DrawerHeader>
-          <div className="flex flex-col space-y-8 justify-center items-center py-8 px-8 sm:px-0 mx-auto max-w-2xl min-h-[484px] sm:min-h-[370px]">
+          <div className="flex flex-col space-y-8 justify-center items-center py-8 px-8 sm:px-0 mx-auto max-w-2xl min-h-[324px] sm:min-h-[370px]">
             <h1 className='font-bold text-4xl'>
               Congrats!
             </h1>
@@ -213,7 +213,7 @@ export const Onboarding = () => {
             </h2>
           </div>
           <DrawerFooter>
-            <div className="flex flex-col space-y-6">
+            <div className="flex flex-col sm:space-y-6">
               <div className="mx-auto">
                 <Button onClick={finishOnboarding}>Let&apos;s go!</Button>
               </div>
