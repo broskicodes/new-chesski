@@ -98,15 +98,12 @@
   body {
     justify-content: flex-start;
   }
-  /* .chat {
-    padding: 24px 16px;
-    margin: 0px 16px;
-    height: calc(100vw - 32px - 54px);
-    bottom: 32px;
+  .header{
+    font-size: 2.4rem;
   }
-  .chat-messages {
-    width: 100%;
-  } */
+  .sub-header {
+    font-size: 1.1rem;
+  }
   .content {
     font-size: 14px;
   }

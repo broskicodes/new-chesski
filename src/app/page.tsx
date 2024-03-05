@@ -40,7 +40,6 @@ export default function Home() {
           }
         }
       } else {
-        console.log('d')
         const item = localStorage.getItem('userData');
 
         if (item) {
@@ -57,7 +56,7 @@ export default function Home() {
           <Image className="lp-img" src="/chesski-lp.png" alt="chess pieces" width={540} height={540} />
         </div>
         <div className="header">
-          Master chess with ease. <span className="emph">Chesski</span> will guide you
+          Your guide to <span className="emph">chess mastery</span>
         </div>
         <div className="sub-header">
           <p>Chesski is an <span className="emph">AI chess coach</span> that adapts to your playstyle and gives you <span className="emph">personalized advice</span>.</p>

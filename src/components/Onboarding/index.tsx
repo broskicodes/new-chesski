@@ -44,7 +44,7 @@ export const Onboarding = () => {
   const [chesscom, setChesscom] = useState("")
   const [lichess, setLichess] = useState("")
 
-  const maxSteps = useMemo(() => 3, []);
+  const maxSteps = useMemo(() => 2, []);
 
   const router = useRouter();
 
@@ -52,7 +52,7 @@ export const Onboarding = () => {
     const userData: UserData = {
       chesscom_name: chesscom,
       lichess_name: lichess,
-      learning_goal: goal!,
+      learning_goal: goal ?? Goal.Casual,
       skill_level: experience!
     }
 
@@ -70,12 +70,12 @@ export const Onboarding = () => {
               <DrawerDescription>This will help Chesski personalize its coaching.</DrawerDescription>
             </div>
           </DrawerHeader>
-          <div className="flex flex-row space-x-8 justify-center py-8">
+          <div className="grid grid-cols-2 grid-rows-2 gap-4 sm:grid-rows-1 sm:grid-cols-4 sm:gap-8 py-8 px-8 sm:px-0">
             {Object.entries(Experience).filter(([val]) => isNaN(parseInt(val))).map(([val, exp], i) => {
               return (
-                <Card key={exp} className={`flex flex-col items-center space-y-6 cursor-pointer hover:bg-[#1B03A3]/20 ${exp === experience ? "bg-[#1B03A3]/10" : ""}`} onClick={() => { setExperience(exp as Experience) }}>
+                <Card key={exp} className={`flex flex-col items-center sm:space-y-6 cursor-pointer hover:bg-[#1B03A3]/20 ${exp === experience ? "bg-[#1B03A3]/10" : ""}`} onClick={() => { setExperience(exp as Experience) }}>
                   {/* <CardHeader /> */}
-                  <div />
+                  <div className='mb-6'/>
                   <CardContent>
                     <Avatar>
                       <AvatarImage src={`/pieces/${exp}.png`} />
@@ -103,7 +103,7 @@ export const Onboarding = () => {
           </DrawerFooter>
         </div>
       )}
-      {step === 1 && (
+      {/* {step === 1 && (
         <div>
           <DrawerHeader>
             <div className="flex flex-col space-y-1">
@@ -146,8 +146,8 @@ export const Onboarding = () => {
             </div>
           </DrawerFooter>
         </div>
-      )}
-      {step === 2 && (
+      )} */}
+      {step === 1 && (
         <div>
           <DrawerHeader>
             <div className="flex flex-col space-y-1">
@@ -155,7 +155,7 @@ export const Onboarding = () => {
               <DrawerDescription>Give Chesski access to your historical game data.</DrawerDescription>
             </div>
           </DrawerHeader>
-          <div className="flex flex-col space-y-8 justify-center py-8 mx-auto max-w-2xl min-h-[370px]">
+          <div className="flex flex-col space-y-8 justify-center py-8 px-8 sm:px-0 mx-auto max-w-2xl min-h-[484px] sm:min-h-[370px]">
             <Input placeholder="Chess.com" value={chesscom} onChange={({ target }) => setChesscom(target.value) } />
             <Input placeholder="Lichess" value={lichess} onChange={({ target }) => setLichess(target.value) }/>
           </div>
@@ -196,7 +196,7 @@ export const Onboarding = () => {
           </DrawerFooter>
         </div>
       )} */}
-      {step === 3 && (
+      {step === 2 && (
         <div>
           <DrawerHeader>
             <div className="flex flex-col space-y-1">
@@ -204,11 +204,11 @@ export const Onboarding = () => {
               <DrawerDescription>No more delays. Start using Chesski now!</DrawerDescription>
             </div>
           </DrawerHeader>
-          <div className="flex flex-col space-y-8 justify-center items-center py-8 mx-auto max-w-2xl min-h-[370px]">
+          <div className="flex flex-col space-y-8 justify-center items-center py-8 px-8 sm:px-0 mx-auto max-w-2xl min-h-[484px] sm:min-h-[370px]">
             <h1 className='font-bold text-4xl'>
               Congrats!
             </h1>
-            <h2 className='font-medium text-2xl'>
+            <h2 className='font-medium text-2xl text-center'>
               {"Onboarding is finished. Let's get you practicing!"}
             </h2>
           </div>

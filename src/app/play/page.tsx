@@ -97,7 +97,7 @@ export default function Play() {
           </CardFooter>
         </Card>
       </div>
-      <Button onClick={() => { signOut(); router.push("/"); }}>sign out</Button>
+      {/* <Button onClick={() => { signOut(); router.push("/"); }}>sign out</Button> */}
       <div className="page-content">
         <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0">
           <Tooltip content="Evaluation Bar">

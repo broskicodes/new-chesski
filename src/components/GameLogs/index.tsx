@@ -14,7 +14,7 @@ export const GameLogs = () => {
 
   const { isInit, startSearch } = useStockfish();
   const { game, turn, orientation, addHighlightedSquares, addArrows, makeMove } = useChess();
-  const { gameMessages, processing, queries, appendGameMessage, getExplantion } = useCoach();
+  const { gameMessages, processing, queries, addGameMessage, appendGameMessage, getExplantion } = useCoach();
 
   const logRef = useRef<HTMLDivElement>(null);
 
@@ -32,6 +32,15 @@ export const GameLogs = () => {
     
   }, [addArrows, addHighlightedSquares, game]);
 
+  useEffect(() => {
+    if (gameMessages.length === 0) {
+      addGameMessage({
+        id: Math.random().toString(32).substring(7),
+        role: "assistant",
+        content: "Hi I'm Chesski. I'll be giving you advice as you play moves on the board. The loading circle means I'm thinking!"
+      })
+    }
+  }, [gameMessages, addGameMessage]);
 
   useEffect(() => {
     const fen = game.fen();
