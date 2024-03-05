@@ -46,3 +46,4 @@ export interface Evaluation {
 
 
 export const SanRegex = /(O-O(-O)?|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](=[QRBN])?[\+#]?|([a-h]x)?[a-h][1-8](=[QRBN])?[\+#]?)/g;
+export const ONBOARDING_UPDATE_DATE = new Date("2024-03-04 22:00:34.202959+00");

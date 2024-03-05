@@ -12,6 +12,7 @@ import { useAuth } from '@/providers/AuthProvider/context';
 import { useChess } from '@/providers/ChessProvider/context';
 import { useStockfish } from '@/providers/StockfishProvider/context';
 import { SkillLevel } from '@/utils/types';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function Play() {
@@ -19,9 +20,41 @@ export default function Play() {
   const [pastFen, setPastFen] = useState("");
   const [disabled, setDisabled] = useState(false);
 
-  const { session, signInWithOAuth } = useAuth();
+  const { session, supabase, signInWithOAuth, signOut } = useAuth();
   const { initEngine } = useStockfish();
   const { game } = useChess();
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (session) {
+      const item = localStorage.getItem('userData');
+
+      if (item) {
+        const userData = JSON.parse(item);
+
+        (async () => {
+          const { data } = await supabase!.from('user_data')
+            .select()
+            .eq("uuid", session.id);
+
+          const prevData = data && data[0] ? data[0] : {}
+          const { error, data: d } = await supabase!.from("user_data")
+            .upsert({
+              uuid: session.id,
+              ...prevData,
+              ...userData,
+              updated_at: new Date()
+            })
+            .select();
+            
+          if (!error) {
+            localStorage.removeItem("userData")
+          }
+        })();
+      }
+    }
+  }, [session, supabase])
 
   useEffect(() => {
     if (!session && game.fen() !== pastFen) {
@@ -64,6 +97,7 @@ export default function Play() {
           </CardFooter>
         </Card>
       </div>
+      <Button onClick={() => { signOut(); router.push("/"); }}>sign out</Button>
       <div className="page-content">
         <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0">
           <Tooltip content="Evaluation Bar">

@@ -1,0 +1,11 @@
+.lg-row {
+  /* flex flex-row justify-between cursor-pointer w-full  */
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  cursor: pointer;
+  width: 100%;
+  /* background-color: #e2e2e2; */
+  padding: 4px 8px;
+  border-radius: 8px;
+}
