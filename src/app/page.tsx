@@ -52,7 +52,7 @@ export default function Home() {
   return (
     <div className="h-full">
       <div className="flex flex-col justify-center items-center h-full">
-        <div>
+        <div className="-mt-32 sm:-mt-12">
           <Image className="lp-img" src="/chesski-lp.png" alt="chess pieces" width={540} height={540} />
         </div>
         <div className="header">

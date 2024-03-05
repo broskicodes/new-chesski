@@ -47,7 +47,7 @@
 .lp-img {
   /* width: 36rem; */
   animation: float 3s ease-in-out infinite;
-  margin-top: -1rem;
+  /* margin-top: -1rem; */
 }
 
 .header {
