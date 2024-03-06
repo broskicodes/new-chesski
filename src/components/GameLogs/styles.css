@@ -12,6 +12,7 @@
   padding: 16px;
   border-radius: 12px;
   background: #fff;
+  overflow-y: scroll;
 }
 
 .log-content {
@@ -82,8 +83,12 @@
   .logs {
     width: 100%;
     max-width: 480px;
-    height: 100%;
-    overflow-y: scroll;
+    height: calc(100% - 20px);
+    /* background-color: aqua; */
+  }
+
+  .log-content {
+    /* height: calc(100% - 20px); */
   }
 }
 
