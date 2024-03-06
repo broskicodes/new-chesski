@@ -127,7 +127,7 @@ export default function Play() {
             <BoardControl />
           </div>
         </div>
-        <div ref={divRef}>
+        <div className='sm:w-fit sm:h-fit' ref={divRef}>
           <GameLogs />
         </div>
       </div>

@@ -84,7 +84,6 @@
     width: 100%;
     max-width: 480px;
     height: 100%;
-    background-color: aqua;
   }
 }
 
@@ -100,14 +99,3 @@
     width: 440px;
   }
 }
-
-/* @media screen and (max-width: 640px) and (max-height: ){
-  .role {
-    font-size: 14px;
-  }
-  
-  .logs {
-    width: 100%;
-    max-width: 480px;
-  }
-} */
