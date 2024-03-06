@@ -52,7 +52,7 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
         setQueries(args.queries);
         setProcessing(false);
 
-        console.log(args)
+        // console.log(args)
       }
     },
   });
@@ -65,6 +65,10 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
       findQueries(msg);
     }
   });
+
+  const addGameMessage = useCallback((msg: Message) => {
+    setMessages([...gameMessages, msg]);
+  }, [setMessages, gameMessages]);
 
   const appendGameMessage = useCallback((msg: Message | CreateMessage) => {
     setProcessing(true);
@@ -106,10 +110,11 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
     processing,
     queries,
     gameMessages: gameMessages,
+    addGameMessage: addGameMessage,
     appendGameMessage: appendGameMessage,
     clearGameMessages: clearGameMessages,
     getExplantion: getExplantion,
-  }), [processing, gameMessages, queries, appendGameMessage, clearGameMessages, getExplantion]);
+  }), [processing, gameMessages, queries, appendGameMessage, addGameMessage, clearGameMessages, getExplantion]);
 
   return (
     <CoachContext.Provider value={value}>

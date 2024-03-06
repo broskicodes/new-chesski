@@ -42,17 +42,17 @@ export const EvalBar = () => {
     fillRef.current?.style.setProperty(`${mobile ? "height" : "width"}`, `100%`);
     barRef.current?.style.setProperty(`${mobile ? "height" : "width"}`, `24px`);
     barRef.current?.style.setProperty(`${mobile ? "width" : "height"}`, `${barLength}px`)
-  }, [evaluation, orientation, mobile]);
+  }, [evaluation, orientation, mobile, barLength, mate]);
 
   useEffect(() => {
     if (isReady && game.fen() !== evaledFen) {
       startSearch();
     }
-  }, [game, evaledFen, isReady]);
+  }, [game, evaledFen, isReady, startSearch]);
 
   useEffect(() => {
     barRef.current?.style.setProperty(`${mobile ? "width" : "height"}`, `${barLength}px`)
-  }, [barLength])
+  }, [barLength, mobile])
 
   useEffect(() => {
     const evalHandler = (event: Event) => {
