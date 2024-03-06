@@ -62,6 +62,10 @@
   z-index: 1;
 }
 
+.arvo {
+  font-family: "Arvo", serif;
+}
+
 .sub-header {
   font-family: "Poppins", sans-serif;
   font-weight: 600;

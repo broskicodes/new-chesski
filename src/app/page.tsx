@@ -67,14 +67,15 @@ export default function Home() {
   return (
     <div className="h-full">
       <div className="flex flex-col justify-center items-center h-full">
-        <div className="-mt-20 sm:-mt-12">
+        <div className="header arvo">CHESSKI</div>
+        <div className="-mt-8 sm:-mt-12">
           <Image className="lp-img" src="/chesski-lp.png" alt="chess pieces" width={picSize} height={picSize} />
         </div>
-        <div className="header -mt-8 sm:-mt-8">
-          Your guide to <span className="emph">chess mastery</span>
+        <div className="header -mt-12 sm:-mt-8">
+          Get better at chess.
         </div>
         <div className="sub-header mt-0 sm:mt-4">
-          <p>Chesski is an <span className="emph">AI chess coach</span> that adapts to your playstyle and gives you <span className="emph">personalized advice</span>.</p>
+          <p>Chesski helps you <span className="emph">improve your chess skills</span> with adaptive <span className="emph">AI coaching</span>.</p>
         </div>
         <div className="sign-up mt-6 sm:mt-12">
           {!onboarded && (
