@@ -128,7 +128,7 @@ export const GameLogs = () => {
       window.removeEventListener("setEval", evalHandler);
       window.removeEventListener("setBestMove", moveHandler);
     }
-  }, [game, evals, orientation, turn, makeMove])
+  }, [game, evals, orientation, turn, makeMove]);
 
   return (
     <div className="logs">

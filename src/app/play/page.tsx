@@ -13,7 +13,7 @@ import { useChess } from '@/providers/ChessProvider/context';
 import { useStockfish } from '@/providers/StockfishProvider/context';
 import { SkillLevel } from '@/utils/types';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Play() {
   const [gameStateChanged, setGameStateChanged] = useState(0);
@@ -25,6 +25,9 @@ export default function Play() {
   const { game } = useChess();
 
   const router = useRouter();
+  const contentRef = useRef<HTMLDivElement>(null);
+  const chessRef = useRef<HTMLDivElement>(null);
+  const divRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (session) {
@@ -79,6 +82,22 @@ export default function Play() {
     initEngine(true, SkillLevel.Beginner, 2000);
   }, [initEngine]);
 
+  useEffect(() => {
+    const resizeHandler = () => {
+      console.log(contentRef.current!.offsetHeight, chessRef.current!.offsetHeight)
+      if (window.innerWidth < 640) {
+        divRef.current!.style.height = `${contentRef.current!.offsetHeight - chessRef.current!.offsetHeight - 8}px`;
+        divRef.current!.style.width = `${window.innerWidth > 480 ? 480 : window.innerWidth}px`
+      } else {
+
+      }
+    }
+
+    resizeHandler();
+    window.addEventListener("resize", resizeHandler);
+    return () => window.removeEventListener("resize", resizeHandler);
+  }, [contentRef.current, chessRef.current, divRef.current])
+
   return (
     <div className="sm:pt-20">
       <div className={`${disabled ? "board-overlay" : "hidden"}`}>
@@ -98,8 +117,8 @@ export default function Play() {
         </Card>
       </div>
       {/* <Button onClick={() => { signOut(); router.push("/"); }}>sign out</Button> */}
-      <div className="page-content">
-        <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0">
+      <div className="page-content" ref={contentRef}>
+        <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0" ref={chessRef}>
           <Tooltip content="Evaluation Bar">
             <EvalBar />
           </Tooltip>
@@ -108,7 +127,7 @@ export default function Play() {
             <BoardControl />
           </div>
         </div>
-        <div className='h-full w-full overflow-y-hidden'>
+        <div ref={divRef}>
           <GameLogs />
         </div>
       </div>
