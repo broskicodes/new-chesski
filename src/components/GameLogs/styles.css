@@ -83,7 +83,7 @@
   .logs {
     width: 100%;
     max-width: 480px;
-    height: calc(100% - 40px);
+    height: calc(100% - 80px);
     /* background-color: aqua; */
   }
 }
