@@ -103,12 +103,14 @@ export default function Play() {
           <Tooltip content="Evaluation Bar">
             <EvalBar />
           </Tooltip>
-          <div className="flex flex-col space-y-4">
+          <div className="flex flex-col space-y-2">
             <Chessboard />
             <BoardControl />
           </div>
         </div>
-        <GameLogs />
+        <div className='h-full w-full overflow-y-hidden'>
+          <GameLogs />
+        </div>
       </div>
     </div>
   )
