@@ -83,8 +83,7 @@
   .logs {
     width: 100%;
     max-width: 480px;
-    height: calc(100% - 80px);
-    /* background-color: aqua; */
+    height: calc(100% - 1rem);
   }
 }
 
@@ -100,3 +99,14 @@
     width: 440px;
   }
 }
+
+/* @media screen and (max-width: 640px) and (max-height: ){
+  .role {
+    font-size: 14px;
+  }
+  
+  .logs {
+    width: 100%;
+    max-width: 480px;
+  }
+} */
