@@ -36,6 +36,7 @@
   }
   .page-content {
     flex-direction: column;
+    justify-content: flex-start;
     /* height: 100vh; */
   }
   .page-content > :not(:last-child) {
