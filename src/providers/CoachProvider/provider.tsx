@@ -3,6 +3,7 @@ import { CoachContext, Query } from "./context";
 import { useChat } from "ai/react";
 import { CreateMessage, Message, ToolCall } from "ai";
 import { useChess } from "../ChessProvider/context";
+import posthog from "posthog-js";
 
 export const CoachProvider = ({ children }: PropsWithChildren) => {
   const [processing, setProcessing] = useState(false);
@@ -24,17 +25,16 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
         setQueries(args.queries);
       }
     },
-    onFinish: (msg: Message) => {
+    onFinish: (_msg: Message) => {
       setProcessing(false);
     }
   });
 
   const { messages: gameMessages, append, setMessages } = useChat({
     api: "/chat/coach/moves",
-    // onFinish: (msg: Message) => {
-    //   // setProcessing(false);
-    //   findQueries(msg);
-    // }
+    onFinish: (_msg: Message) => {
+      posthog.capture("ai_msg_sent");
+    },
     experimental_onToolCall: async (_msgs: Message[], toolCalls: ToolCall[]) => {
       if (toolCalls.length > 0) {
         const call = toolCalls.at(-1);
@@ -60,7 +60,7 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
   const { append: appendExplanationContext, setMessages: addExplanationContext, reload } = useChat({
     api: "/chat/coach/explanations",
     onFinish: (msg: Message) => {
-      // setProcessing(false);
+      posthog.capture("ai_msg_sent");
       setMessages([...gameMessages, msg]);
       findQueries(msg);
     }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseCilent } from '@/utils/helpers';
 import LoopsClient from 'loops';
+import posthog from "posthog-js";
 
 const loops = new LoopsClient(process.env.LOOPS_API_KEY!);
 
@@ -15,6 +16,7 @@ export async function GET(request: Request) {
 
     const { error, data: { user } } = await supabase.auth.exchangeCodeForSession(code);
     if (!error && user) {
+      posthog.capture("user_signup")
       const [first, last] = user.user_metadata.full_name.replace(" ", "@").split("@");
 
       const res = await loops.createContact(user.email!, {
