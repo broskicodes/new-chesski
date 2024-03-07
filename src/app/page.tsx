@@ -30,7 +30,6 @@ export default function Home() {
           .select()
           .eq("uuid", session.id);
 
-        // console.log(userData);
         if (userData && userData[0]) {
           const updateDate = new Date(userData[0].updated_at);
 

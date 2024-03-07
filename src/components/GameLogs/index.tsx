@@ -48,15 +48,10 @@ export const GameLogs = () => {
     if (!processing && fen !== prevFen && orientation === turn && isInit) {
       const latestEval = evals.length > 1 ? evals.at(-2)![1] : undefined;
       if (!latestEval || (latestEval && latestEval.fen !== fen)) {
-        // console.log(latestEval?.fen, fen)
         return;
       }
 
       const moves = game.history();
-
-      // console.log(evals);
-
-      // console.log(latestEval);
 
       setPrevFen(fen);
       appendGameMessage({
@@ -70,33 +65,11 @@ export const GameLogs = () => {
     }
   }, [processing, game, prevFen, orientation, turn, isInit, evals, appendGameMessage]);
 
-  // useEffect(() => {
-  //   if (!processing 
-  //     && (gameMessages.at(-1)?.role === "assistant" || !gameMessages.at(-1))
-  //     && game.fen() !== prevFen
-  //     ) {
-  //     setPrevFen(game.fen());
-  //     startSearch();
-  //   }
-  // }, [processing, gameMessages, startSearch, game, prevFen]);
-
-  // useEffect(() => {
-  //   if (game.fen() !== prevFen) {
-  //     startSearch();
-  //   }
-  // }, [game, prevFen, startSearch]);
-
   useEffect(() => {
     if (logRef.current) {
       logRef.current.scrollTop = logRef.current.scrollHeight;
     }
   }, [gameMessages, processing]);
-
-  useEffect(() => {
-    // if (evals.at(-2) && evals.at(-2)![1]) {
-    //   console.log(evals.at(-2)![1].eval)
-    // }
-  }, [evals])
 
   useEffect(() => {
     const evalHandler = (event: Event) => {
@@ -107,7 +80,6 @@ export const GameLogs = () => {
 
         return prev;
       });
-      // console.log(multiPv, pv);
     }
 
     window.addEventListener("setEval", evalHandler);

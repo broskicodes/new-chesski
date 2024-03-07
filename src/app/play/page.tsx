@@ -84,7 +84,6 @@ export default function Play() {
 
   useEffect(() => {
     const resizeHandler = () => {
-      console.log(contentRef.current!.offsetHeight, chessRef.current!.offsetHeight)
       if (window.innerWidth < 640) {
         divRef.current!.style.height = `${window.innerHeight - chessRef.current!.offsetHeight - 8}px`;
         divRef.current!.style.width = `${window.innerWidth > 480 ? 480 : window.innerWidth}px`
