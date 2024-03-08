@@ -21,7 +21,7 @@ export default function Play() {
   const [disabled, setDisabled] = useState(false);
 
   const { session, supabase, signInWithOAuth, signOut } = useAuth();
-  const { initEngine } = useStockfish();
+  const { initEngine, isReady } = useStockfish();
   const { game } = useChess();
 
   const router = useRouter();
@@ -122,7 +122,14 @@ export default function Play() {
             <EvalBar />
           </Tooltip>
           <div className="flex flex-col space-y-2">
-            <Chessboard />
+            <div className='relative'>
+              {/* {!isReady && (
+                <div className='board-overlay'>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1B03A3]" />
+                </div>
+              )} */}
+              <Chessboard />
+            </div>
             <BoardControl />
           </div>
         </div>

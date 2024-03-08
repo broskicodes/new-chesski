@@ -2,12 +2,21 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faReply, faRefresh, faRetweet, faGear, faRightLong } from '@fortawesome/free-solid-svg-icons';
 import { Tooltip } from "@/components/Tooltip";
 import { useChess } from "@/providers/ChessProvider/context";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useCoach } from "@/providers/CoachProvider/context";
 import { Button } from "../ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Slider } from "../ui/slider";
+import { Label } from "../ui/label";
+import { useStockfish } from "@/providers/StockfishProvider/context";
+import { getChessRatingCategory } from "@/utils/clientHelpers";
 
 export const BoardControl = () => {
+  const [engineSkill, setEngineSkill] = useState(1200);
+
   const { undo, swapOrientation, reset } = useChess();
+  const { updateEngine, skillLvl } = useStockfish();
   const { clearGameMessages } = useCoach();
 
   const handleFlip = useCallback(() => {
@@ -49,13 +58,40 @@ export const BoardControl = () => {
         </Tooltip>
         </div> */}
       </div>
-      {/* <div>
-        <Tooltip content="Gameplay Settings">
-          <Button size="icon">
-            <FontAwesomeIcon icon={faGear} />
-          </Button>
-        </Tooltip>
-      </div> */}
+      <div>
+        <Popover>
+          <PopoverTrigger>
+            <Tooltip content="Gameplay Settings">
+              <Button size="icon">
+                <FontAwesomeIcon icon={faGear} />
+              </Button>
+            </Tooltip>
+          </PopoverTrigger>
+          <PopoverContent>
+            <div className="flex flex-col space-y-1 mb-3">
+              <CardTitle>Gameplay Settings</CardTitle>
+              <CardDescription>{"Edit Chesski's behaviour and skill"}</CardDescription>
+            </div>
+            <div>
+              <div className="flex flex-row space-x-2">
+                <Label htmlFor="skill-slider" className="whitespace-nowrap">Skill Level</Label>
+                  <Slider 
+                    id="skill-slider"
+                    max={2800}
+                    min={1200}
+                    defaultValue={[1200]}
+                    step={100}
+                    value={[engineSkill]}
+                    onValueChange={(arr) => {
+                      setEngineSkill(arr[0]);
+                      updateEngine(true, getChessRatingCategory(arr[0]));
+                    }}
+                    />
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
     </div>
   )
 }

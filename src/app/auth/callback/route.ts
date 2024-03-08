@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getSupabaseCilent } from '@/utils/helpers';
+import { getSupabaseCilent } from '@/utils/serverHelpers';
 import LoopsClient from 'loops';
 import posthog from "posthog-js";
 

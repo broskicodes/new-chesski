@@ -131,6 +131,17 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
     setIsInit(true);
   }, [worker]);
 
+  const updateEngine = useCallback((limitStrength: boolean,  skillLvl?: SkillLevel, moveTime?: number) => {
+    if (!worker) {
+      console.log("no worker");
+      return;
+    }
+
+    initEngine(limitStrength, skillLvl, moveTime);
+
+    setUciOk(false);
+  }, [initEngine, worker]);
+
   const startSearch = useCallback(() => {
     if (!worker || isSearching || !isReady || gameOver) {
       return false;
@@ -169,6 +180,7 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
       return;
     }
 
+    setIsReady(false);
     worker.onmessage = onMessage;
     worker.postMessage("uci");    
   }, [worker, isInit, uciOk, onMessage]);
@@ -176,13 +188,12 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
   const value = useMemo(() => ({ 
     isInit,
     isReady,
-    // cp,
-    // bestMove,
     evaluated,
+    skillLvl,
     initEngine,
+    updateEngine,
     startSearch,
-    // clearBestMove
-  }), [isInit, isReady, evaluated, initEngine, startSearch]);
+  }), [isInit, isReady, evaluated, skillLvl, initEngine, updateEngine, startSearch]);
 
   return (
     <StockfishProviderContext.Provider value={value}>
