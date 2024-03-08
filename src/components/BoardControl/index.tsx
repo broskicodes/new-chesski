@@ -70,7 +70,7 @@ export const BoardControl = () => {
           <PopoverContent>
             <div className="flex flex-col space-y-1 mb-3">
               <CardTitle>Gameplay Settings</CardTitle>
-              <CardDescription>Edit Chesski's behaviour and skill</CardDescription>
+              <CardDescription>{"Edit Chesski's behaviour and skill"}</CardDescription>
             </div>
             <div>
               <div className="flex flex-row space-x-2">
