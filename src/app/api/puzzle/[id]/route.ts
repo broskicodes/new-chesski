@@ -1,4 +1,4 @@
-import { getSupabaseCilent } from "@/utils/helpers";
+import { getSupabaseCilent } from "@/utils/serverHelpers";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 

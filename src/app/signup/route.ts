@@ -1,4 +1,4 @@
-import { getSupabaseCilent } from '@/utils/helpers';
+import { getSupabaseCilent } from '@/utils/serverHelpers';
 
 export const POST = async (req: Request, res: Response) => {
   const { email } = await req.json();
