@@ -81,7 +81,7 @@ export const Chessboard = () => {
           
       }
     }
-  }, [evals, setLastMoveHighlightColor, evaluateMoveQuality, game]);
+  }, [evals, setLastMoveHighlightColor, game]);
 
   useEffect(() => {
     const handleResize = () => {
