@@ -1,6 +1,6 @@
 import { Chess, Move } from "chess.js";
 import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
-import { ChessContext, ChessProviderContext } from "./context";
+import { ChessContext, ChessProviderContext, SquareHighlight } from "./context";
 import { Arrow, Square } from "react-chessboard/dist/chessboard/types";
 import posthog from "posthog-js";
 
@@ -13,9 +13,12 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
   const [game, setGame] = useState<Chess>(new Chess());
   const [orientation, setOrientation] = useState<Player>(Player.White);
   const [turn, setTurn] = useState<Player>(Player.White);
-  const [highlightedSquares, setHighlightedSquares] = useState<Square[]>([]);
+  const [highlightedSquares, setHighlightedSquares] = useState<SquareHighlight[]>([]);
   const [highlightedMoves, setHighlightedMoves] = useState<Move[]>([]);
   const [arrows, setArrows] = useState<Arrow[]>([]);
+  const [lastMoveHighlight, setLastMoveHighlight] = useState<[SquareHighlight, SquareHighlight] | null>(null)
+  const [aiLastMoveHighlight, setAILastMoveHighlight] = useState<[SquareHighlight, SquareHighlight] | null>(null)
+
 
   const makeMove = useCallback(
     (
@@ -34,13 +37,26 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
         if (res) {
           setGame(tempGame);
           setTurn(turn === Player.White ? Player.Black : Player.White);
+
+          if (turn === orientation) {
+            setLastMoveHighlight([
+              { square: res.from, color: "#F9DC5C" },
+              { square: res.to, color: "#F9DC5C" }
+            ]);
+            setAILastMoveHighlight(null)
+          } else {
+            setAILastMoveHighlight([
+              { square: res.from, color: "#F9DC5C" },
+              { square: res.to, color: "#F9DC5C" }
+            ]);
+          }
         }
         return res;
       } catch (e) {
         return null;
       }
     },
-    [game, turn],
+    [game, turn, orientation],
   );
 
   const setPosition = useCallback((fen: string) => {
@@ -86,6 +102,12 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
       if (res) {
         setGame(tempGame);
         setTurn(turn === Player.White ? Player.Black : Player.White);
+
+        setHighlightedMoves([]);
+        setHighlightedSquares([]);
+        setLastMoveHighlight(null);
+        setAILastMoveHighlight(null);
+        setArrows([]);
       }
       return res;
     } catch (e) {
@@ -97,6 +119,12 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
     const tempGame = new Chess();
     setGame(tempGame);
     setTurn(Player.White);
+
+    setHighlightedMoves([]);
+    setHighlightedSquares([]);
+    setLastMoveHighlight(null);
+    setAILastMoveHighlight(null);
+    setArrows([]);
   }, []);
 
   const onDrop = useCallback(
@@ -110,6 +138,8 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
       if (!move) return false;
 
       posthog.capture("user_played_move");
+      setArrows([]);
+      setHighlightedMoves([]);
 
       return true;
     },
@@ -140,7 +170,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
   );
 
   const addHighlightedSquares = useCallback(
-    (newSqrs: Square[], reset: boolean) => {
+    (newSqrs: SquareHighlight[], reset: boolean) => {
       const newArr = reset ? newSqrs : [...highlightedSquares, ...newSqrs];
       setHighlightedSquares(newArr);
     },
@@ -151,6 +181,20 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
     setHighlightedMoves(moves);
   }, []);
 
+  const setLastMoveHighlightColor = useCallback((color: string) => {
+
+    setLastMoveHighlight((prev) => {
+      if (!prev) {
+        return null;
+      }
+
+      return [
+        { ...prev[0], color },
+        { ...prev[1], color }
+      ]
+    })
+  }, []);
+
   const value: ChessProviderContext = useMemo(
     () => ({
       game,
@@ -159,6 +203,8 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
       arrows,
       highlightedSquares,
       highlightedMoves,
+      lastMoveHighlight,
+      aiLastMoveHighlight,
       makeMove,
       playContinuation,
       setPosition,
@@ -170,6 +216,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
       addArrows,
       addHighlightedSquares,
       resetHighlightedMoves,
+      setLastMoveHighlightColor
     }),
     [
       game,
@@ -178,6 +225,8 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
       arrows,
       highlightedMoves,
       highlightedSquares,
+      lastMoveHighlight,
+      aiLastMoveHighlight,
       makeMove,
       playContinuation,
       setPosition,
@@ -189,6 +238,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
       addArrows,
       addHighlightedSquares,
       resetHighlightedMoves,
+      setLastMoveHighlightColor
     ],
   );
 
