@@ -7,12 +7,19 @@ export enum Player {
   Black = "black",
 }
 
+export interface SquareHighlight {
+  square: Square;
+  color: string;
+}
+
 export interface ChessProviderContext {
   game: Chess;
   turn: Player;
   orientation: Player;
-  highlightedSquares: Square[];
+  highlightedSquares: SquareHighlight[];
   highlightedMoves: Move[];
+  lastMoveHighlight: [SquareHighlight, SquareHighlight] | null;
+  aiLastMoveHighlight: [SquareHighlight, SquareHighlight] | null;
   arrows: Arrow[];
   onDrop: (sourceSquare: Square, targetSquare: Square) => boolean;
   makeMove: (
@@ -29,8 +36,9 @@ export interface ChessProviderContext {
   reset: () => void;
   swapOrientation: () => void;
   addArrows: (arrows: Arrow[], reset: boolean) => void;
-  addHighlightedSquares: (sqrs: Square[], reset: boolean) => void;
+  addHighlightedSquares: (sqrs: SquareHighlight[], reset: boolean) => void;
   resetHighlightedMoves: (moves: Move[]) => void;
+  setLastMoveHighlightColor: (color: string) => void;
 }
 
 export const ChessContext = createContext<ChessProviderContext>({
@@ -40,6 +48,8 @@ export const ChessContext = createContext<ChessProviderContext>({
   highlightedSquares: [],
   highlightedMoves: [],
   arrows: [],
+  lastMoveHighlight: null,
+  aiLastMoveHighlight: null,
   onDrop: (_src, _tgt) => {
     throw new Error("ChessboardProvider not initialized");
   },
@@ -65,6 +75,9 @@ export const ChessContext = createContext<ChessProviderContext>({
     throw new Error("ChessboardProvider not initialized");
   },
   resetHighlightedMoves: (_moves) => {
+    throw new Error("ChessboardProvider not initialized");
+  },
+  setLastMoveHighlightColor: (_color) => {
     throw new Error("ChessboardProvider not initialized");
   },
 });

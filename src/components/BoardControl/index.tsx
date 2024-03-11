@@ -11,6 +11,7 @@ import { Slider } from "../ui/slider";
 import { Label } from "../ui/label";
 import { useStockfish } from "@/providers/StockfishProvider/context";
 import { getChessRatingCategory } from "@/utils/clientHelpers";
+import { useEvaluation } from "@/providers/EvaluationProvider/context";
 
 export const BoardControl = () => {
   const [engineSkill, setEngineSkill] = useState(1200);
@@ -18,6 +19,7 @@ export const BoardControl = () => {
   const { undo, swapOrientation, reset } = useChess();
   const { updateEngine, skillLvl } = useStockfish();
   const { clearGameMessages } = useCoach();
+  const { clearEvaluations } = useEvaluation();
 
   const handleFlip = useCallback(() => {
     swapOrientation();
@@ -29,8 +31,9 @@ export const BoardControl = () => {
 
   const handleReset = useCallback(() => {
     reset();
+    clearEvaluations();
     clearGameMessages();
-  }, [reset, clearGameMessages]);
+  }, [reset, clearGameMessages, clearEvaluations]);
 
   return (
     <div className="flex flex-row justify-between">

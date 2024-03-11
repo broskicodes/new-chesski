@@ -10,6 +10,7 @@ import { PostHogProvider } from 'posthog-js/react'
 import dynamic from 'next/dynamic'
 import { CoachProvider } from "@/providers/CoachProvider/provider";
 import { AuthProvider } from "@/providers/AuthProvider/provider";
+import { EvaluationProvider } from "@/providers/EvaluationProvider/provider";
 
 const PostHogPageView = dynamic(() => import('../components/PostHogPageView'), {
   ssr: false,
@@ -29,12 +30,14 @@ export default function Template({ children }: PropsWithChildren) {
       <AuthProvider>
         <ChessProvider>
           <StockfishProvider>
-            <PuzzleProvider>
-              <CoachProvider>
-                <PostHogPageView />
-                {children}
-              </CoachProvider>
-            </PuzzleProvider>
+            <EvaluationProvider>
+              <PuzzleProvider>
+                <CoachProvider>
+                  <PostHogPageView />
+                  {children}
+                </CoachProvider>
+              </PuzzleProvider>
+            </EvaluationProvider>
           </StockfishProvider>
         </ChessProvider>
       </AuthProvider>

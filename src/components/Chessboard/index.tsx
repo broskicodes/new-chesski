@@ -1,14 +1,107 @@
 import { useChess } from '@/providers/ChessProvider/context';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Chessboard as ReactChessboad } from 'react-chessboard';
 import { PromotionPieceOption, Square } from 'react-chessboard/dist/chessboard/types';
 import posthog from 'posthog-js';
+import { PositionEval, useEvaluation } from '@/providers/EvaluationProvider/context';
+import { Chess } from 'chess.js';
+// import { toast } from 'sonner';
+import { useToast } from "@/components/ui/use-toast";
+
 
 export const Chessboard = () => {
   const [boardWidth, setBoardWidth] = useState(512);
-  const { game, makeMove, onDrop, addHighlightedSquares, arrows, orientation, highlightedMoves, highlightedSquares, resetHighlightedMoves, addArrows } = useChess();
   const [moveTo, setMoveTo] = useState<Square | null>(null)
   const [showPromotionDialog, setShowPromotionDialog] = useState(false);
+  
+  const { evals } = useEvaluation();
+  const { toast } = useToast();
+  const { game, makeMove, onDrop, addHighlightedSquares, setLastMoveHighlightColor, arrows, turn, orientation, aiLastMoveHighlight, highlightedMoves, highlightedSquares, lastMoveHighlight, resetHighlightedMoves, addArrows } = useChess();
+  
+  const evaluateMoveQuality = useCallback((prevPosition: PositionEval, currentPosition: PositionEval): string | null => {
+    let evalDiff = currentPosition.evaluation - prevPosition.evaluation;
+
+    const chess = new Chess(prevPosition.evaledFen);
+    try {
+    const res = chess.move({ from: lastMoveHighlight![0].square, to: lastMoveHighlight![1].square });
+    } catch (err) {
+      return null;
+    }
+    
+    if (`${lastMoveHighlight![0].square}${lastMoveHighlight![1].square}` === prevPosition.bestMove) {
+      return 'Best';
+    }
+
+    if (turn == "black") {
+      evalDiff = -evalDiff;
+    }
+
+    if (evalDiff <= -150) {
+      return 'Blunder';
+    } else if (evalDiff <= -50) {
+      return 'Mistake';
+    } else if (evalDiff < -25) {
+      return 'Inaccuracy';
+    } else {
+      return 'Good';
+    }
+  }, [turn, lastMoveHighlight]);
+
+  useEffect(() => {
+    // if (orientation)
+    if (evals.length >= 2) {
+      const prev = evals.at(-2);
+      const curr = evals.at(-1);
+
+      if (game.fen() !== curr?.evaledFen && turn === orientation) {
+
+        console.log(game.history().at(-2));
+        const moveStrength = evaluateMoveQuality(prev!, curr!);
+
+        if (!moveStrength) {
+          return;
+        }
+
+        let color: string;
+        let msg: string;
+        switch (moveStrength) {
+          case "Best":
+            color = "#59C9A5";
+            msg = "Best Move"
+            break;
+          case "Good":
+            color = "#bfff8a";
+            msg = "Good Move";
+            break;
+          case "Inaccuracy":
+            color = "#f7ed6a";
+            msg = "Inaccurate";
+            break;
+          case "Mistake":
+            color = "#ff9481";
+            msg = "Mistake";
+            break;
+          case "Blunder":
+            color = "#ff1414";
+            msg = "Blunder";
+            break;
+          default: 
+            color = "#F7A28D"
+            msg = "Trash"
+        }
+        setLastMoveHighlightColor(color);
+
+        const { dismiss } = toast({
+          title: msg,
+          description: `You played ${game.history().at(-2)}.`
+        });
+
+        setTimeout(() => {
+          dismiss();
+        }, 2000)
+      }
+    }
+  }, [evals, setLastMoveHighlightColor, game, turn, orientation]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -49,9 +142,10 @@ export const Chessboard = () => {
         return true;
       }}
       onSquareRightClick={(sqr) => {
-        addHighlightedSquares([sqr], false);
+        addHighlightedSquares([{ square: sqr, color: "#F7A28D" }], false);
       }}
       onSquareClick={(sqr) => {
+        let resetHighlights = true;
         if (highlightedMoves.length > 0) {
           setMoveTo(sqr)
           
@@ -78,18 +172,32 @@ export const Chessboard = () => {
           
           if (makeMove({ from: highlightedMoves[0].from, to: sqr, promotion: "q" })) {
             posthog.capture("user_played_move");
-          }
+            // addHighlightedSquares([{ square: sqr, color: "#000000" }], true);
+            // console.log(evals.at(-1)?.bestMove)
+
+            // resetHighlights = false;
+          } 
         }
 
         resetHighlightedMoves(game.moves({ square: sqr, verbose: true }));
-        addHighlightedSquares([], true);
+        resetHighlights && addHighlightedSquares([], true);
         addArrows([], true);
       }}
       customSquareStyles={(() => {
         const sqrStyles: { [key: string]: {} } = {};
-        highlightedSquares.forEach((sqr) => {
-          sqrStyles[sqr] = {
-            background: "#F7A28D",
+        highlightedSquares.forEach(({ square, color }) => {
+          sqrStyles[square] = {
+            background: color,
+          };
+        });
+        lastMoveHighlight?.forEach(({ square, color }) => {
+          sqrStyles[square] = {
+            background: color,
+          };
+        });
+        aiLastMoveHighlight?.forEach(({ square, color }) => {
+          sqrStyles[square] = {
+            background: color,
           };
         });
         highlightedMoves.forEach((sqr) => {

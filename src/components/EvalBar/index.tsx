@@ -3,12 +3,10 @@ import "./styles.css";
 import { useEffect, useRef, useState } from "react";
 import { useChess } from "@/providers/ChessProvider/context";
 import { useStockfish } from "@/providers/StockfishProvider/context";
+import { useEvaluation } from "@/providers/EvaluationProvider/context";
 
 export const EvalBar = () => {
-  const [evaluation, setEvaluation] = useState<number>(0);
   const [barLength, setBarLength] = useState<number>(512);
-  const [evaledFen, setEvaledFen] = useState<string>("");
-  const [mate, setMate] = useState(false);
   const [mobile, setMobile] = useState(false);
 
   const barRef = useRef<HTMLDivElement>(null);
@@ -16,6 +14,7 @@ export const EvalBar = () => {
   
   const { game, orientation } = useChess();
   const { startSearch, isReady } = useStockfish();
+  const { evals } = useEvaluation();
 
   useEffect(() => {
     if (orientation === "white") {
@@ -28,55 +27,32 @@ export const EvalBar = () => {
   }, [orientation]);
 
   useEffect(() => {
-    // console.log(evaluation);
+    const evaluation = evals.at(-1);
+
     let mult = 1;
     if (orientation === "black") {
       mult = -1;
     }
 
-    const length = mate 
-      ? mult * evaluation > 0 ? 100 : 0
-      : (Math.tanh(evaluation / 1000) + 1) * 50; // Map -1 to 1 to 0% to 100%
+    const length = evaluation?.mate ?? false
+      ? mult * (evaluation?.evaluation ?? 0) > 0 ? 100 : 0
+      : (Math.tanh((evaluation?.evaluation ?? 0) / 1000) + 1) * 50; // Map -1 to 1 to 0% to 100%
 
     fillRef.current?.style.setProperty(`${mobile ? "width" : "height"}`, `${length}%`);
     fillRef.current?.style.setProperty(`${mobile ? "height" : "width"}`, `100%`);
     barRef.current?.style.setProperty(`${mobile ? "height" : "width"}`, `24px`);
     barRef.current?.style.setProperty(`${mobile ? "width" : "height"}`, `${barLength}px`)
-  }, [evaluation, orientation, mobile, barLength, mate]);
+  }, [evals, orientation, mobile, barLength]);
 
   useEffect(() => {
-    if (isReady && game.fen() !== evaledFen) {
+    if (isReady && game.fen() !== evals.at(-1)?.evaledFen) {
       startSearch();
     }
-  }, [game, evaledFen, isReady, startSearch]);
+  }, [game, evals, isReady, startSearch]);
 
   useEffect(() => {
     barRef.current?.style.setProperty(`${mobile ? "width" : "height"}`, `${barLength}px`)
   }, [barLength, mobile])
-
-  useEffect(() => {
-    const evalHandler = (event: Event) => {
-      const { cp, multiPv, mate } = (event as CustomEvent).detail;
-
-      if (multiPv === 1) {
-        setEvaluation(mate !==0 ? mate : cp);
-        setMate(mate !== 0);
-      }
-    }
-
-    window.addEventListener("setEval", evalHandler);
-
-    const moveHandler = (event: Event) => {
-      const { fen } = (event as CustomEvent).detail;
-      setEvaledFen(fen);
-    }
-
-    window.addEventListener("setBestMove", moveHandler);
-    return () => {
-      window.removeEventListener("setEval", evalHandler);
-      window.removeEventListener("setBestMove", moveHandler);
-    }
-  }, [game]);
 
   useEffect(() => {
     const handleResize = () => {

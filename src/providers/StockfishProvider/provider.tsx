@@ -72,7 +72,8 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
                 ? orientation === "white" ? cp : -cp 
                 : orientation === "white" ? -cp : cp,
               // cp: cp,
-              mate: 0
+              mate: 0,
+              fen: game.fen()
             },
           });
     

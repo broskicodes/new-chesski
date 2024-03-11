@@ -26,7 +26,7 @@ export const GameLogs = () => {
       addArrows([[res.from, res.to]], true);
       addHighlightedSquares([], true)
     } catch (e) {
-      addHighlightedSquares([move.slice(-2) as Square], true)
+      addHighlightedSquares([{ square: move.slice(-2) as Square, color: "#F7A28D"}], true)
       addArrows([], true);
     }
     
