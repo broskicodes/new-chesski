@@ -5,6 +5,9 @@ import { PromotionPieceOption, Square } from 'react-chessboard/dist/chessboard/t
 import posthog from 'posthog-js';
 import { PositionEval, useEvaluation } from '@/providers/EvaluationProvider/context';
 import { Chess } from 'chess.js';
+// import { toast } from 'sonner';
+import { useToast } from "@/components/ui/use-toast";
+
 
 export const Chessboard = () => {
   const [boardWidth, setBoardWidth] = useState(512);
@@ -12,6 +15,7 @@ export const Chessboard = () => {
   const [showPromotionDialog, setShowPromotionDialog] = useState(false);
   
   const { evals } = useEvaluation();
+  const { toast } = useToast();
   const { game, makeMove, onDrop, addHighlightedSquares, setLastMoveHighlightColor, arrows, turn, orientation, aiLastMoveHighlight, highlightedMoves, highlightedSquares, lastMoveHighlight, resetHighlightedMoves, addArrows } = useChess();
   
   const evaluateMoveQuality = useCallback((prevPosition: PositionEval, currentPosition: PositionEval): string | null => {
@@ -49,8 +53,9 @@ export const Chessboard = () => {
       const prev = evals.at(-2);
       const curr = evals.at(-1);
 
-      // console.log(prev?.evaluation, curr?.evaluation);
-      if (game.fen() === prev?.evaledFen || true) {
+      if (game.fen() !== curr?.evaledFen && turn === orientation) {
+
+        console.log(game.history().at(-2));
         const moveStrength = evaluateMoveQuality(prev!, curr!);
 
         if (!moveStrength) {
@@ -58,30 +63,45 @@ export const Chessboard = () => {
         }
 
         let color: string;
+        let msg: string;
         switch (moveStrength) {
           case "Best":
             color = "#59C9A5";
+            msg = "Best Move"
             break;
           case "Good":
             color = "#bfff8a";
+            msg = "Good Move";
             break;
           case "Inaccuracy":
             color = "#f7ed6a";
+            msg = "Inaccurate";
             break;
           case "Mistake":
             color = "#ff9481";
+            msg = "Mistake";
             break;
           case "Blunder":
             color = "#ff1414";
+            msg = "Blunder";
             break;
           default: 
             color = "#F7A28D"
+            msg = "Trash"
         }
         setLastMoveHighlightColor(color);
-          
+
+        const { dismiss } = toast({
+          title: msg,
+          description: `You played ${game.history().at(-2)}.`
+        });
+
+        setTimeout(() => {
+          dismiss();
+        }, 2000)
       }
     }
-  }, [evals, setLastMoveHighlightColor, game]);
+  }, [evals, setLastMoveHighlightColor, game, turn, orientation]);
 
   useEffect(() => {
     const handleResize = () => {
