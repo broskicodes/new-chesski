@@ -34,6 +34,7 @@ export interface Puzzle {
   rating_deviation: number;
   themes: string[];
   opening_tags: string[] | null;
+  description: string
 }
 
 export interface Evaluation {

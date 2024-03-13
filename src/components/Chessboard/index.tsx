@@ -9,7 +9,11 @@ import { Chess } from 'chess.js';
 import { useToast } from "@/components/ui/use-toast";
 
 
-export const Chessboard = () => {
+interface Props {
+  showMoveStrength: boolean
+}
+
+export const Chessboard = ({ showMoveStrength }: Props) => {
   const [boardWidth, setBoardWidth] = useState(512);
   const [moveTo, setMoveTo] = useState<Square | null>(null)
   const [showPromotionDialog, setShowPromotionDialog] = useState(false);
@@ -48,7 +52,9 @@ export const Chessboard = () => {
   }, [turn, lastMoveHighlight]);
 
   useEffect(() => {
-    // if (orientation)
+    if (!showMoveStrength)
+      return;
+
     if (evals.length >= 2) {
       const prev = evals.at(-2);
       const curr = evals.at(-1);

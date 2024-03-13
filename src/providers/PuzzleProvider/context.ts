@@ -6,6 +6,8 @@ export interface PuzzleProviderContext {
   currPos: string;
   puzzleComplete: boolean;
   moveIdx: number;
+  playNextMove: () => void;
+  checkMove: () => boolean;
   updatePosition: () => void;
   setPuzzle: (puzzleId: string) => void;
   clearPuzzle: () => void;
@@ -16,6 +18,12 @@ export const PuzzleContext = createContext<PuzzleProviderContext>({
   currPos: "",
   puzzleComplete: false,
   moveIdx: -1,
+  playNextMove: () => {
+    throw new Error("PuzzleProvider not initialized");
+  },
+  checkMove: () => {
+    throw new Error("PuzzleProvider not initialized");
+  },
   updatePosition: () => {
     throw new Error("PuzzleProvider not initialized");
   },

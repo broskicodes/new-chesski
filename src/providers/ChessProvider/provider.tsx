@@ -19,6 +19,19 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
   const [lastMoveHighlight, setLastMoveHighlight] = useState<[SquareHighlight, SquareHighlight] | null>(null)
   const [aiLastMoveHighlight, setAILastMoveHighlight] = useState<[SquareHighlight, SquareHighlight] | null>(null)
 
+  const setLastMoveHighlightColor = useCallback((color: string) => {
+
+    setLastMoveHighlight((prev) => {
+      if (!prev) {
+        return null;
+      }
+
+      return [
+        { ...prev[0], color },
+        { ...prev[1], color }
+      ]
+    })
+  }, []);
 
   const makeMove = useCallback(
     (
@@ -49,6 +62,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
               { square: res.from, color: "#F9DC5C" },
               { square: res.to, color: "#F9DC5C" }
             ]);
+            setLastMoveHighlightColor("")
           }
         }
         return res;
@@ -56,7 +70,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
         return null;
       }
     },
-    [game, turn, orientation],
+    [game, turn, orientation, setLastMoveHighlightColor],
   );
 
   const setPosition = useCallback((fen: string) => {
@@ -179,20 +193,6 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
 
   const resetHighlightedMoves = useCallback((moves: Move[]) => {
     setHighlightedMoves(moves);
-  }, []);
-
-  const setLastMoveHighlightColor = useCallback((color: string) => {
-
-    setLastMoveHighlight((prev) => {
-      if (!prev) {
-        return null;
-      }
-
-      return [
-        { ...prev[0], color },
-        { ...prev[1], color }
-      ]
-    })
   }, []);
 
   const value: ChessProviderContext = useMemo(

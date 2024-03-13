@@ -19,9 +19,9 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
 
   const setNewPuzzle = useCallback(async (puzzleId: string) => {
     const res = await fetch(`/api/puzzle/${puzzleId}`);
-    const data = await res.json();
+    const { puzzle, description } = await res.json();
 
-    const tempGame = new Chess(data.starting_fen);
+    const tempGame = new Chess(puzzle.starting_fen);
 
     if (tempGame.turn() === 'b' && orientation === 'black' ||
         tempGame.turn() === 'w' && orientation === 'white'){
@@ -30,10 +30,11 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
 
     setPuzzleComplete(false);
     setPuzzle({
-      ...data,
-      moves: data.moves.split(" "),
-      themes: data.themes.split(" "),
-      opening_tags: data.opening_tags.length > 0 ? data.opening_tags?.split(" ") : null
+      ...puzzle,
+      moves: puzzle.moves.split(" "),
+      themes: puzzle.themes.split(" "),
+      opening_tags: puzzle.opening_tags.length > 0 ? puzzle.opening_tags?.split(" ") : null,
+      description: description
     });  
   }, [swapOrientation, orientation]);
 
@@ -47,8 +48,8 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
       tempGame.move(puzzle.moves[moveIdx]);
 
       if (game.fen() !== tempGame.fen()) {
-        alert('wrong');
-        undo();
+        // alert('wrong');
+        // undo();
       } else {
         setPuzzlePos(game.fen());
         if (moveIdx + 1 < puzzle.moves.length) {
@@ -60,9 +61,53 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
     }
   }, [game, undo, puzzle, puzzlePos, moveIdx]);
 
-  useEffect(() => {
-    updatePosition();
-  }, [updatePosition]);
+  const checkMove = useCallback(() => {
+    if (!puzzle || moveIdx < 0) {
+      return false;
+    }
+    
+    const tempGame = new Chess(puzzlePos);
+    console.log(puzzlePos)
+    tempGame.move(puzzle.moves[moveIdx]);
+
+    const correct = game.fen() === tempGame.fen();
+
+    if (correct) {
+      setPuzzlePos(game.fen());
+      
+      if (moveIdx + 1 < puzzle.moves.length) {
+        setMoveIdx(moveIdx + 1);
+      } else {
+        setPuzzleComplete(true);
+      }
+    }
+
+    return correct;
+  }, [puzzle, puzzlePos, moveIdx, game]);
+
+  const playNextMove = useCallback(() => {
+    if (!puzzle || moveIdx < 0 || puzzleComplete) {
+      return;
+    }
+    
+    if (moveIdx >= 0 && moveIdx % 2 === 0) {
+      const tempGame = new Chess(game.fen());
+      tempGame.move(puzzle.moves[moveIdx]);
+
+      makeMove(puzzle.moves[moveIdx]);
+      setPuzzlePos(tempGame.fen());
+      
+      if (moveIdx + 1 < puzzle.moves.length) {
+        setMoveIdx(moveIdx + 1);
+      } else {
+        setPuzzleComplete(true);
+      }
+    }
+  }, [makeMove, game, puzzle, moveIdx, puzzleComplete]);
+
+  // useEffect(() => {
+  //   updatePosition();
+  // }, [updatePosition]);
 
   useEffect(() => {
     if (puzzle) {
@@ -76,13 +121,15 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
     }
   }, [puzzle, setPosition]);
 
-  useEffect(() => {
-    if(!puzzle) return;
+  // useEffect(() => {
+  //   if(!puzzle) return;
 
-    if (moveIdx >= 0 && moveIdx % 2 === 0) {
-      makeMove(puzzle.moves[moveIdx]);
-    }
-  }, [moveIdx, puzzle, makeMove]);
+  //   if (moveIdx >= 0 && moveIdx % 2 === 0) {
+  //     setTimeout(() => {
+  //       makeMove(puzzle.moves[moveIdx]);
+  //     }, 1000)
+  //   }
+  // }, [moveIdx, puzzle, makeMove]);
 
   // useEffect(() => { 
   //   if (moveIdx !== 0) return;
@@ -99,9 +146,11 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
     puzzleComplete: puzzleComplete,
     moveIdx,
     setPuzzle: setNewPuzzle,
+    playNextMove,
+    checkMove: checkMove,
     updatePosition: updatePosition,
     clearPuzzle: clearPuzzle
-  }), [puzzle, puzzleComplete, puzzlePos, moveIdx, setNewPuzzle, updatePosition, clearPuzzle, ]);
+  }), [puzzle, puzzleComplete, puzzlePos, moveIdx, setNewPuzzle, playNextMove, checkMove, updatePosition, clearPuzzle, ]);
 
   return (
     <PuzzleContext.Provider value={value}>

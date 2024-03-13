@@ -5,14 +5,12 @@ import { BoardControl } from "@/components/BoardControl";
 import { Chessboard } from '@/components/Chessboard';
 import { EvalBar } from "@/components/EvalBar";
 import { GameLogs } from "@/components/GameLogs";
+import { SignUpModal } from '@/components/SignUpModal';
 import { Tooltip } from "@/components/Tooltip";
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/providers/AuthProvider/context';
 import { useChess } from '@/providers/ChessProvider/context';
 import { useStockfish } from '@/providers/StockfishProvider/context';
 import { SkillLevel } from '@/utils/types';
-import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 export default function Play() {
@@ -20,11 +18,10 @@ export default function Play() {
   const [pastFen, setPastFen] = useState("");
   const [disabled, setDisabled] = useState(false);
 
-  const { session, supabase, signInWithOAuth, signOut } = useAuth();
-  const { initEngine, isReady } = useStockfish();
+  const { session, supabase } = useAuth();
+  const { initEngine } = useStockfish();
   const { game } = useChess();
 
-  const router = useRouter();
   const contentRef = useRef<HTMLDivElement>(null);
   const chessRef = useRef<HTMLDivElement>(null);
   const divRef = useRef<HTMLDivElement>(null);
@@ -99,23 +96,7 @@ export default function Play() {
 
   return (
     <div className="sm:pt-20">
-      <div className={`${disabled ? "board-overlay" : "hidden"}`}>
-        <Card className='w-[32rem]'>
-          <CardHeader className='items-start'>
-            <CardTitle>Create Your Account</CardTitle>
-            <CardDescription>In order to continue please sign in</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className='text-lg'>Chesski requires account details to personalize the experience</p>
-          </CardContent>
-          <CardFooter className='justify-center'>
-            <Button onClick={signInWithOAuth}>
-              Sign in with Google
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-      {/* <Button onClick={() => { signOut(); router.push("/"); }}>sign out</Button> */}
+      <SignUpModal disabled={disabled} />      
       <div className="page-content" ref={contentRef}>
         <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0" ref={chessRef}>
           <Tooltip content="Evaluation Bar">
@@ -123,12 +104,7 @@ export default function Play() {
           </Tooltip>
           <div className="flex flex-col space-y-2">
             <div className='relative'>
-              {/* {!isReady && (
-                <div className='board-overlay'>
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1B03A3]" />
-                </div>
-              )} */}
-              <Chessboard />
+              <Chessboard showMoveStrength={true} />
             </div>
             <BoardControl />
           </div>

@@ -16,5 +16,15 @@ export const GET = async (req: Request, { params }: { params: { id: string }}) =
     return new Response(JSON.stringify({ error: "Puzzle not found" }), { status: 404 });
   }
 
-  return new Response(JSON.stringify(data[0]), { status: 200 });
+  const { data: emb, error: embError } = await supabase.from("puzzle_embeddings_2").select("description").eq("id", id);
+
+  if (embError) {
+    return new Response(JSON.stringify({ embError }), { status: 500 });
+  }
+
+  if (!emb || emb.length === 0) {
+    return new Response(JSON.stringify({ error: "Puzzle embedding not found" }), { status: 404 });
+  }
+
+  return new Response(JSON.stringify({ puzzle: data[0], description: emb[0].description }), { status: 200 });
 }
