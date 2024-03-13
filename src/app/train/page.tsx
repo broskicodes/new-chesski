@@ -88,7 +88,7 @@ const Train = () => {
         content: `The player just played the correct move: ${game.history().at(-1)}! Congradulate them and briefly comment on the impact of the move.`
       });    
     }    
-  }, [game, prevFen, currPos, orientation, turn, checkMove, append]);
+  }, [game, prevFen, currPos, orientation, turn, puzzleComplete, checkMove, append]);
 
   useEffect(() => {
     if (puzzleComplete && !d && !processing) {
@@ -122,9 +122,9 @@ const Train = () => {
         <Card className="assistant pt-6">
           <CardContent className="h-full">
             <ScrollArea className="h-full flex flex-col">
-              {messages.slice(1).map((msg) => {
+              {messages.slice(1).map((msg, i) => {
                 return (
-                  <div>{msg.content}</div>
+                  <div key={i}>{msg.content}</div>
                 );
               })}
               {moveIdx >= 0 && moveIdx % 2 === 0 && !puzzleComplete && (

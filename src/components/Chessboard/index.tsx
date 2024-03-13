@@ -107,7 +107,7 @@ export const Chessboard = ({ showMoveStrength }: Props) => {
         }, 2000)
       }
     }
-  }, [evals, setLastMoveHighlightColor, game, turn, orientation]);
+  }, [evals, setLastMoveHighlightColor, evaluateMoveQuality, toast, showMoveStrength, game, turn, orientation]);
 
   useEffect(() => {
     const handleResize = () => {
