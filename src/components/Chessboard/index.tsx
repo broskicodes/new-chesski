@@ -60,8 +60,6 @@ export const Chessboard = ({ showMoveStrength }: Props) => {
       const curr = evals.at(-1);
 
       if (game.fen() !== curr?.evaledFen && turn === orientation) {
-
-        console.log(game.history().at(-2));
         const moveStrength = evaluateMoveQuality(prev!, curr!);
 
         if (!moveStrength) {
@@ -107,7 +105,7 @@ export const Chessboard = ({ showMoveStrength }: Props) => {
         }, 2000)
       }
     }
-  }, [evals, setLastMoveHighlightColor, evaluateMoveQuality, toast, showMoveStrength, game, turn, orientation]);
+  }, [evals, setLastMoveHighlightColor, toast, showMoveStrength, game, turn, orientation]);
 
   useEffect(() => {
     const handleResize = () => {
