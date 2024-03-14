@@ -55,7 +55,7 @@ export const Chessboard = () => {
 
       if (game.fen() !== curr?.evaledFen && turn === orientation) {
 
-        console.log(game.history().at(-2));
+        // console.log(game.history().at(-2));
         const moveStrength = evaluateMoveQuality(prev!, curr!);
 
         if (!moveStrength) {
