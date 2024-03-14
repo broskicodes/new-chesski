@@ -162,7 +162,7 @@ export default function Play() {
         </Card>
       </div> */}
       <Dialog >
-        <DialogTrigger ref={modalTriggerRef} />
+        <DialogTrigger ref={modalTriggerRef} className='hidden' />
         <DialogContent>
           <DialogHeader className='flex flex-col items-center space-y-0'>
             <DialogTitle className='text-2xl'>Game Over</DialogTitle>
