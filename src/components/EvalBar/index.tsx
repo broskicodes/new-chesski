@@ -36,7 +36,7 @@ export const EvalBar = () => {
 
     const length = evaluation?.mate ?? false
       ? mult * (evaluation?.evaluation ?? 0) > 0 ? 100 : 0
-      : (Math.tanh((evaluation?.evaluation ?? 0) / 1000) + 1) * 50; // Map -1 to 1 to 0% to 100%
+      : (Math.tanh(mult * (evaluation?.evaluation ?? 0) / 1000) + 1) * 50; // Map -1 to 1 to 0% to 100%
 
     fillRef.current?.style.setProperty(`${mobile ? "width" : "height"}`, `${length}%`);
     fillRef.current?.style.setProperty(`${mobile ? "height" : "width"}`, `100%`);
