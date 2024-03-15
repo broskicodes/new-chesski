@@ -35,6 +35,7 @@
     "next-themes": "^0.2.1",
     "openai": "^4.26.0",
     "posthog-js": "^1.105.6",
+    "posthog-node": "^3.6.3",
     "react": "^18",
     "react-chessboard": "^4.4.0",
     "react-dom": "^18",

@@ -55,8 +55,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         posthog.identify(session.id, {
           id: session.id,
           email: session.email,
-          // name: session.name,
-          });
+        });
       } catch (error) {
         console.log("Error during posthog identify: ", error);
       }

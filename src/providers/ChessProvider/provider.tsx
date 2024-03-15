@@ -198,7 +198,13 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     setGameOver(game.isGameOver());
-  }, [game])
+  }, [game]);
+
+  useEffect(() => {
+    if (gameOver) {
+      posthog.capture("game_complete");
+    }
+  }, [gameOver]);
 
   const value: ChessProviderContext = useMemo(
     () => ({
