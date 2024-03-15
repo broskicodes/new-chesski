@@ -14,6 +14,7 @@ export interface SquareHighlight {
 
 export interface ChessProviderContext {
   game: Chess;
+  gameOver: boolean;
   turn: Player;
   orientation: Player;
   highlightedSquares: SquareHighlight[];
@@ -43,6 +44,7 @@ export interface ChessProviderContext {
 
 export const ChessContext = createContext<ChessProviderContext>({
   game: new Chess(),
+  gameOver: false,
   turn: Player.White,
   orientation: Player.White,
   highlightedSquares: [],

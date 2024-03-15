@@ -18,7 +18,7 @@ import { ONBOARDING_UPDATE_DATE } from "@/utils/types";
 
 export default function Home() {  
   const [onboarded, setOnboarded] = useState(false);
-  const [picSize, setPicSize] = useState(540);
+  const [picSize, setPicSize] = useState(520);
 
   const router = useRouter();
   const { session, supabase } = useAuth();
@@ -54,7 +54,11 @@ export default function Home() {
       if (window.innerWidth < 640) {
         setPicSize(360)
       } else {
-        setPicSize(540)
+        if (window.innerHeight < 832) {
+          setPicSize(480)
+        } else {
+          setPicSize(520)
+        }
       }
     }
 
@@ -66,8 +70,8 @@ export default function Home() {
   return (
     <div className="h-full">
       <div className="flex flex-col justify-center items-center h-full">
-        <div className="header arvo absolute top-4 sm:top-12">CHESSKI</div>
-        <div className="-mt-8 sm:-mt-12">
+        <div className="header logo">CHESSKI</div>
+        <div className="">
           <Image className="lp-img" src="/chesski-lp.png" alt="chess pieces" width={picSize} height={picSize} />
         </div>
         <div className="header -mt-12 sm:-mt-8">

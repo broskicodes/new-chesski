@@ -11,6 +11,7 @@ export enum Player {
 
 export const ChessProvider = ({ children }: PropsWithChildren) => {
   const [game, setGame] = useState<Chess>(new Chess());
+  const [gameOver, setGameOver] = useState(false);
   const [orientation, setOrientation] = useState<Player>(Player.White);
   const [turn, setTurn] = useState<Player>(Player.White);
   const [highlightedSquares, setHighlightedSquares] = useState<SquareHighlight[]>([]);
@@ -195,9 +196,14 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
     })
   }, []);
 
+  useEffect(() => {
+    setGameOver(game.isGameOver());
+  }, [game])
+
   const value: ChessProviderContext = useMemo(
     () => ({
       game,
+      gameOver,
       turn,
       orientation,
       arrows,
@@ -220,6 +226,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
     }),
     [
       game,
+      gameOver,
       turn,
       orientation,
       arrows,

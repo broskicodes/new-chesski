@@ -13,6 +13,7 @@ export const Chessboard = () => {
   const [boardWidth, setBoardWidth] = useState(512);
   const [moveTo, setMoveTo] = useState<Square | null>(null)
   const [showPromotionDialog, setShowPromotionDialog] = useState(false);
+  const [pieceDropSquares, setPieceDropSquares] = useState<[Square, Square] | null>(null);
   
   const { evals } = useEvaluation();
   const { toast } = useToast();
@@ -23,7 +24,7 @@ export const Chessboard = () => {
 
     const chess = new Chess(prevPosition.evaledFen);
     try {
-    const res = chess.move({ from: lastMoveHighlight![0].square, to: lastMoveHighlight![1].square });
+      const res = chess.move({ from: lastMoveHighlight![0].square, to: lastMoveHighlight![1].square });
     } catch (err) {
       return null;
     }
@@ -34,6 +35,22 @@ export const Chessboard = () => {
 
     if (turn == "black") {
       evalDiff = -evalDiff;
+    }
+
+    // Since we can only use the four listed classes, we will map the mate situations to the closest class.
+    if (prevPosition.mate && currentPosition.mate) {
+      // Both positions have a mate, so the move didn't change the inevitable outcome
+      // This could be considered a 'Blunder' if it was the player's turn to move and they failed to prevent mate
+      // or 'Good' if there was no way to prevent the mate.
+      return turn === orientation ? 'Blunder' : 'Good';
+    } else if (prevPosition.mate) {
+      // Previous position had a mate, but the current one doesn't, so the move prevented mate
+      // This is a 'Good' move as it prevented mate.
+      return 'Good';
+    } else if (currentPosition.mate) {
+      // Current position has a mate, so the move led to a mate
+      // This is a 'Blunder' as it led to a mate.
+      return 'Blunder';
     }
 
     if (evalDiff <= -150) {
@@ -55,7 +72,6 @@ export const Chessboard = () => {
 
       if (game.fen() !== curr?.evaledFen && turn === orientation) {
 
-        console.log(game.history().at(-2));
         const moveStrength = evaluateMoveQuality(prev!, curr!);
 
         if (!moveStrength) {
@@ -66,23 +82,23 @@ export const Chessboard = () => {
         let msg: string;
         switch (moveStrength) {
           case "Best":
-            color = "#59C9A5";
+            color = "#E64DFF";
             msg = "Best Move"
             break;
           case "Good":
-            color = "#bfff8a";
+            color = "#33C57D";
             msg = "Good Move";
             break;
           case "Inaccuracy":
-            color = "#f7ed6a";
+            color = "#F6C333";
             msg = "Inaccurate";
             break;
           case "Mistake":
-            color = "#ff9481";
+            color = "#F4A153";
             msg = "Mistake";
             break;
           case "Blunder":
-            color = "#ff1414";
+            color = "#E45B4F";
             msg = "Blunder";
             break;
           default: 
@@ -123,16 +139,31 @@ export const Chessboard = () => {
     <ReactChessboad
       boardWidth={boardWidth}
       position={game.fen()}
-      onPieceDrop={onDrop}
+      onPieceDrop={(sSqr: Square, tSqr: Square) => {
+        return onDrop(sSqr, tSqr);
+      }}
       boardOrientation={orientation}
       customArrows={arrows}
       promotionToSquare={moveTo}
       showPromotionDialog={showPromotionDialog}
+      onPromotionCheck={(sourceSquare, targetSquare, piece) => {
+        setPieceDropSquares([sourceSquare, targetSquare]);
+
+        return (
+          (piece === "wP" && sourceSquare[1] === "7" && targetSquare[1] === "8") 
+          || (piece === "bP" && sourceSquare[1] === "2" && targetSquare[1] === "1")
+        ) && Math.abs(sourceSquare.charCodeAt(0) - targetSquare.charCodeAt(0)) <= 1
+      }}
       onPromotionPieceSelect={(piece: PromotionPieceOption | undefined) => {
-        if (piece) {
-          makeMove({ from: highlightedMoves[0].from, to: moveTo!, promotion: piece[1].toLowerCase() ?? "q" })
+        if (highlightedMoves.length > 0) {
+          if (piece) {
+            makeMove({ from: highlightedMoves[0].from, to: moveTo!, promotion: piece[1].toLowerCase() ?? "q" })
+          }
+        } else {
+          makeMove({ from: pieceDropSquares![0], to: pieceDropSquares![1], promotion: piece![1].toLowerCase() ?? "q" })
+          setPieceDropSquares(null)
         }
-        
+
         resetHighlightedMoves([]);
         addHighlightedSquares([], true);
         addArrows([], true);
@@ -192,18 +223,21 @@ export const Chessboard = () => {
         });
         lastMoveHighlight?.forEach(({ square, color }) => {
           sqrStyles[square] = {
-            background: color,
+            background: "#FFF",
+            boxShadow: `inset 0 0 ${boardWidth / 12}px ${color}`,
           };
         });
         aiLastMoveHighlight?.forEach(({ square, color }) => {
           sqrStyles[square] = {
-            background: color,
+            background: "#FFF",
+            boxShadow: `inset 0 0 ${boardWidth / 12}px ${color}`,
           };
         });
         highlightedMoves.forEach((sqr) => {
           sqrStyles[sqr.from] = {
             ...sqrStyles[sqr.from],
-            background: "#E6FF99",
+            background: "#FFF",
+            boxShadow: `inset 0 0 ${boardWidth / 12}px ${"#E6FF99"}`,
           };
           sqrStyles[sqr.to] = {
             ...sqrStyles[sqr.to],
