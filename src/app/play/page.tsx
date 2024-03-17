@@ -6,6 +6,7 @@ import { Chessboard } from '@/components/Chessboard';
 import { EvalBar } from "@/components/EvalBar";
 import { GameLogs } from "@/components/GameLogs";
 import { Tooltip } from "@/components/Tooltip";
+import { Navbar } from '@/components/Navbar'
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogClose, DialogOverlay, DialogTrigger } from '@/components/ui/dialog';
@@ -145,6 +146,7 @@ export default function Play() {
 
   return (
     <div className="">
+      <Navbar />
       {/* <div className={`${disabled ? "board-overlay" : "hidden"}`}>
         <Card className='w-[32rem]'>
           <CardHeader className='items-start'>

@@ -1,0 +1,53 @@
+.navbar {
+  /* display: block; */
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  background-color: #303030;
+}
+
+.arvo {
+  font-family: "Arvo", serif;
+}
+
+.navbar-container {
+  margin: 0px auto;
+}
+
+@media (max-width: 640px) { /* sm */
+  .navbar {
+    display: none;
+  }
+}
+
+
+@media (min-width: 640px) { /* sm */
+  .navbar-container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) { /* md */
+  .navbar-container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) { /* lg */
+  .navbar-container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) { /* xl */
+  .navbar-container {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1536px) { /* 2xl */
+  .navbar-container {
+    max-width: 1536px;
+  }
+}
