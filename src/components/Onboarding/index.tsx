@@ -15,27 +15,8 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { useRouter } from "next/navigation";
 import { Input } from "../ui/input";
+import { Experience, Goal, UserData } from '@/utils/types';
 
-
-enum Experience {
-  Beginner = 0,
-  Intermediate = 1,
-  Advanced = 2,
-  Master = 3
-}
-
-enum Goal {
-  Casual = 0,
-  Curious = 1,
-  Commited = 2,
-}
-
-interface UserData {
-  chesscom_name: string;
-  lichess_name: string;
-  learning_goal: Goal;
-  skill_level: Experience;
-}
 
 export const Onboarding = () => {
   const [step, setStep] = useState(0);
@@ -77,7 +58,7 @@ export const Onboarding = () => {
                   {/* <CardHeader /> */}
                   <div className='mb-2'/>
                   <CardContent className='pb-2'>
-                    <Avatar>
+                    <Avatar size={window.innerWidth < 640 ? "md" : "lg"}>
                       <AvatarImage src={`/pieces/${exp}.png`} />
                       <AvatarFallback>{val}</AvatarFallback>
                     </Avatar>

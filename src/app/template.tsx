@@ -11,6 +11,7 @@ import dynamic from 'next/dynamic'
 import { CoachProvider } from "@/providers/CoachProvider/provider";
 import { AuthProvider } from "@/providers/AuthProvider/provider";
 import { EvaluationProvider } from "@/providers/EvaluationProvider/provider";
+import { UserDataProvider } from "@/providers/UserDataProvider/provider";
 
 const PostHogPageView = dynamic(() => import('../components/PostHogPageView'), {
   ssr: false,
@@ -28,18 +29,20 @@ export default function Template({ children }: PropsWithChildren) {
   return (
     <PostHogProvider client={posthog}>
       <AuthProvider>
-        <ChessProvider>
-          <StockfishProvider>
-            <EvaluationProvider>
-              <PuzzleProvider>
-                <CoachProvider>
-                  <PostHogPageView />
-                  {children}
-                </CoachProvider>
-              </PuzzleProvider>
-            </EvaluationProvider>
-          </StockfishProvider>
-        </ChessProvider>
+        <UserDataProvider>
+          <ChessProvider>
+            <StockfishProvider>
+              <EvaluationProvider>
+                <PuzzleProvider>
+                  <CoachProvider>
+                    <PostHogPageView />
+                    {children}
+                  </CoachProvider>
+                </PuzzleProvider>
+              </EvaluationProvider>
+            </StockfishProvider>
+          </ChessProvider>
+        </UserDataProvider>
       </AuthProvider>
     </PostHogProvider>
   );

@@ -7,17 +7,26 @@ import { cn } from "@/lib/utils"
 
 const Avatar = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Root
-    ref={ref}
-    className={cn(
-      "relative flex h-20 w-20 sm:h-40 sm:w-40 shrink-0 overflow-hidden rounded-full",
-      className
-    )}
-    {...props}
-  />
-))
+  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root> & { size?: 'sm' | 'md' | 'lg' }
+>(({ className, size = 'md', ...props }, ref) => {
+  const sizeClasses = {
+    sm: "h-10 w-10",
+    md: "h-20 w-20",
+    lg: "h-40 w-40",
+  }
+
+  return (
+    <AvatarPrimitive.Root
+      ref={ref}
+      className={cn(
+        "relative flex shrink-0 overflow-hidden rounded-full",
+        sizeClasses[size],
+        className
+      )}
+      {...props}
+    />
+  )
+})
 Avatar.displayName = AvatarPrimitive.Root.displayName
 
 const AvatarImage = React.forwardRef<
@@ -27,6 +36,7 @@ const AvatarImage = React.forwardRef<
   <AvatarPrimitive.Image
     ref={ref}
     className={cn("aspect-square h-full w-full", className)}
+    // src="https://github.com/shadcn.png"
     {...props}
   />
 ))
