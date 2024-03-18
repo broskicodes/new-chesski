@@ -11,6 +11,7 @@ import { Experience } from "@/utils/types";
 import { useToast } from "@/components/ui/use-toast"
 import { useAuth } from "@/providers/AuthProvider/context";
 import { useRouter } from "next/navigation";
+import posthog from "posthog-js";
 
 interface Props {
   children: ReactNode;
@@ -114,6 +115,7 @@ export const Sidebar = ({ children }: Props) => {
                 onClick={() => {
                   navigator.clipboard.writeText(window.location.origin);
 
+                  posthog.capture("share_clicked");
                   setLinkCopied(true);
                   setTimeout(() => {
                     setLinkCopied(false);
