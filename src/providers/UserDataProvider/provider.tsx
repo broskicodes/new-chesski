@@ -30,7 +30,7 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
       setExperience(Experience.Beginner);
     }
 
-  }, [session, session]);
+  }, [session, supabase]);
 
   const saveData = useCallback(async () => {
     const res = await fetch("/profile/save", {
