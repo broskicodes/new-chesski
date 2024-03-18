@@ -1,5 +1,26 @@
 import { Move } from "chess.js";
 
+
+export enum Experience {
+  Beginner = 0,
+  Intermediate = 1,
+  Advanced = 2,
+  Master = 3
+}
+
+export enum Goal {
+  Casual = 0,
+  Curious = 1,
+  Commited = 2,
+}
+
+export interface UserData {
+  chesscom_name: string;
+  lichess_name: string;
+  learning_goal: Goal;
+  skill_level: Experience;
+}
+
 export enum SkillLevel {
   Newb = "Newb",
   Beginner = "Beginner",

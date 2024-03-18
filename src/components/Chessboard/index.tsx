@@ -62,7 +62,7 @@ export const Chessboard = () => {
     } else {
       return 'Good';
     }
-  }, [turn, lastMoveHighlight]);
+  }, [orientation, turn, lastMoveHighlight]);
 
   useEffect(() => {
     // if (orientation)
