@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faReply, faRefresh, faRetweet, faGear, faRightLong } from '@fortawesome/free-solid-svg-icons';
+import { faReply, faRefresh, faRetweet, faGear, faUser } from '@fortawesome/free-solid-svg-icons';
 import { Tooltip } from "@/components/Tooltip";
 import { useChess } from "@/providers/ChessProvider/context";
 import { useCallback, useState } from "react";
@@ -12,6 +12,7 @@ import { Label } from "../ui/label";
 import { useStockfish } from "@/providers/StockfishProvider/context";
 import { getChessRatingCategory } from "@/utils/clientHelpers";
 import { useEvaluation } from "@/providers/EvaluationProvider/context";
+import { Sidebar } from "../Sidebar";
 
 export const BoardControl = () => {
   const [engineSkill, setEngineSkill] = useState(1200);
@@ -61,7 +62,14 @@ export const BoardControl = () => {
         </Tooltip>
         </div> */}
       </div>
-      <div>
+      <div className="flex flex-row space-x-2">
+        <div className="sm:hidden">
+          <Sidebar>
+            <Button size="icon">
+              <FontAwesomeIcon icon={faUser} />
+            </Button>
+          </Sidebar>
+        </div>
         <Popover>
           <PopoverTrigger>
             <Tooltip content="Gameplay Settings">

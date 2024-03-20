@@ -38,9 +38,7 @@ export const POST = async (req: Request) => {
       const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_KEY!,
-        {
-          cookies: {}
-        }
+        { cookies: {} }
       );
 
       const checkoutSessionCompleted = event.data.object;

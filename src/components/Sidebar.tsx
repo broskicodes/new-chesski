@@ -42,14 +42,14 @@ export const Sidebar = ({ children }: Props) => {
           </SheetTitle>
         </SheetHeader>
         <div className="h-full flex flex-col relative">
-          <div className="mt-12">
+          <div className="mt-6 sm:mt-12">
             {/* <Avatar size="sm">
               <AvatarImage src={pfp} />
               <AvatarFallback>{name.split(" ")[0][0] ?? "N"}{name.split(" ")[1][0] ?? "N"}</AvatarFallback>
             </Avatar> */}
             <div className="font-semibold">{name}</div>
           </div>
-          <div className="flex flex-col space-y-8 mt-24">
+          <div className="flex flex-col space-y-8 mt-12 sm:mt-24">
             <div className="flex flex-col space-y-4">
               <SheetDescription>SOCIAL</SheetDescription>
               <div className="flex flex-col space-y-2">
@@ -112,7 +112,10 @@ export const Sidebar = ({ children }: Props) => {
               )}
             </div>
           </div>
-          <div className="flex flex-col  items-start absolute bottom-12 w-full">
+          <div className="flex flex-col items-start absolute bottom-8 sm:bottom-12 w-full">
+            <Link href={`${stripeLink}?${session ? `prefilled_email=${session.email}`: ""}`} target="_blank" className={buttonVariants({ variant: "ghost" })}>
+              Support Chesski
+            </Link>
             <div className="flex flex-row w-full justify-between items-center">
               <Button variant="ghost"
                 onClick={() => {
@@ -129,9 +132,6 @@ export const Sidebar = ({ children }: Props) => {
               </Button>
               {linkCopied && <SheetDescription className="font-medium">Link Copied!</SheetDescription>}
             </div>
-            <Link href={`${stripeLink}?${session ? `prefilled_email=${session.email}`: ""}`} target="_blank" className={buttonVariants({ variant: "ghost" })}>
-              Support The Creator
-            </Link>
             {session && (
               <Button variant="ghost" onClick={async () => {
                 await signOut();
