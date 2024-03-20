@@ -2,7 +2,7 @@
 
 import { useUserData } from "@/providers/UserDataProvider/context";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "./ui/select";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
@@ -12,10 +12,13 @@ import { useToast } from "@/components/ui/use-toast"
 import { useAuth } from "@/providers/AuthProvider/context";
 import { useRouter } from "next/navigation";
 import posthog from "posthog-js";
+import Link from "next/link";
 
 interface Props {
   children: ReactNode;
 }
+
+const stripeLink = "https://donate.stripe.com/7sIaHVg9WbnLcla4gg";
 
 export const Sidebar = ({ children }: Props) => {
   const [editing, setEditing] = useState(false);
@@ -109,7 +112,7 @@ export const Sidebar = ({ children }: Props) => {
               )}
             </div>
           </div>
-          <div className="flex flex-col space-y-2 items-start absolute bottom-12 w-full">
+          <div className="flex flex-col  items-start absolute bottom-12 w-full">
             <div className="flex flex-row w-full justify-between items-center">
               <Button variant="ghost"
                 onClick={() => {
@@ -126,6 +129,9 @@ export const Sidebar = ({ children }: Props) => {
               </Button>
               {linkCopied && <SheetDescription className="font-medium">Link Copied!</SheetDescription>}
             </div>
+            <Link href={`${stripeLink}?${session ? `prefilled_email=${session.email}`: ""}`} target="_blank" className={buttonVariants({ variant: "ghost" })}>
+              Support The Creator
+            </Link>
             {session && (
               <Button variant="ghost" onClick={async () => {
                 await signOut();
