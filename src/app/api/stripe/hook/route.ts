@@ -1,8 +1,24 @@
 import { createServerClient } from "@supabase/ssr";
 import LoopsClient from "loops";
-import stripe from "stripe";
+import Stripe from "stripe";
 
 const loops = new LoopsClient(process.env.LOOPS_API_KEY!);
+const stripe = new Stripe(
+  process.env.STRIPE_SECRET_KEY ?? '',
+  {
+    // https://github.com/stripe/stripe-node#configuration
+    // https://stripe.com/docs/api/versioning
+    // @ts-ignore
+    apiVersion: null,
+    // Register this as an official Stripe plugin.
+    // https://stripe.com/docs/building-plugins#setappinfo
+    appInfo: {
+      name: 'Chesski',
+      version: '0.0.0',
+      url: 'https://chesski.lol'
+    }
+  }
+);
 
 export const POST = async (req: Request) => {
   const sig = req.headers.get('stripe-signature');
