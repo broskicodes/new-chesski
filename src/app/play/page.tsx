@@ -46,41 +46,10 @@ export default function Play() {
   const { clearEvaluations } = useEvaluation();
   const { clearGameMessages } = useCoach();
 
-  const router = useRouter();
   const contentRef = useRef<HTMLDivElement>(null);
   const chessRef = useRef<HTMLDivElement>(null);
   const divRef = useRef<HTMLDivElement>(null);
   const modalTriggerRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (session) {
-      const item = localStorage.getItem('userData');
-
-      if (item) {
-        const userData = JSON.parse(item);
-
-        (async () => {
-          const { data } = await supabase!.from('user_data')
-            .select()
-            .eq("uuid", session.id);
-
-          const prevData = data && data[0] ? data[0] : {}
-          const { error, data: d } = await supabase!.from("user_data")
-            .upsert({
-              uuid: session.id,
-              ...prevData,
-              ...userData,
-              updated_at: new Date()
-            })
-            .select();
-            
-          if (!error) {
-            localStorage.removeItem("userData")
-          }
-        })();
-      }
-    }
-  }, [session, supabase])
 
   useEffect(() => {
     if (!session && game.fen() !== pastFen) {
@@ -88,18 +57,6 @@ export default function Play() {
       setPastFen(game.fen())
     }
   }, [game, session, gameStateChanged, pastFen])
-
-  // useEffect(() => {
-  //   if (!session && gameStateChanged > 5) {
-  //     setDisabled(true);
-  //   }
-  // }, [gameStateChanged, session]);
-
-  // useEffect(() => {
-  //   if (session) {
-  //     setDisabled(false)
-  //   }
-  // }, [session]);
 
   useEffect(() => {
     initEngine(true, SkillLevel.Beginner, 2000);
@@ -147,22 +104,6 @@ export default function Play() {
   return (
     <div className="">
       <Navbar />
-      {/* <div className={`${disabled ? "board-overlay" : "hidden"}`}>
-        <Card className='w-[32rem]'>
-          <CardHeader className='items-start'>
-            <CardTitle>Create Your Account</CardTitle>
-            <CardDescription>In order to continue please sign in</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className='text-lg'>Chesski requires account details to personalize the experience</p>
-          </CardContent>
-          <CardFooter className='justify-center'>
-            <Button onClick={signInWithOAuth}>
-              Sign in with Google
-            </Button>
-          </CardFooter>
-        </Card>
-      </div> */}
       <Dialog >
         <DialogTrigger ref={modalTriggerRef} className='hidden' />
         <DialogContent>

@@ -13,6 +13,7 @@ import { useAuth } from "@/providers/AuthProvider/context";
 import { useRouter } from "next/navigation";
 import posthog from "posthog-js";
 import Link from "next/link";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 
 interface Props {
   children: ReactNode;
@@ -113,7 +114,12 @@ export const Sidebar = ({ children }: Props) => {
             </div>
           </div>
           <div className="flex flex-col items-start absolute bottom-8 sm:bottom-12 w-full">
-            <Link href={`${stripeLink}?${session ? `prefilled_email=${session.email}`: ""}`} target="_blank" className={buttonVariants({ variant: "ghost" })}>
+            <Link 
+              href={`${stripeLink}?${session ? `prefilled_email=${session.email}`: ""}`} 
+              target="_blank" 
+              className={buttonVariants({ variant: "ghost" })}
+              onClick={() => { posthog.capture("dono_clicked") }}
+              >
               Support Chesski
             </Link>
             <div className="flex flex-row w-full justify-between items-center">
@@ -133,12 +139,30 @@ export const Sidebar = ({ children }: Props) => {
               {linkCopied && <SheetDescription className="font-medium">Link Copied!</SheetDescription>}
             </div>
             {session && (
-              <Button variant="ghost" onClick={async () => {
-                await signOut();
-                router.push("/");
-                }}>
-                Sign Out
-              </Button>
+              <Dialog>
+                <DialogTrigger className={buttonVariants({ variant: "ghost"})}>Sign Out</DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Are you sure you want to sign out?</DialogTitle>
+                    <DialogDescription>{"If you do, I'll be sad :("}</DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button variant="outline">
+                        Cancel
+                      </Button>
+                    </DialogClose>
+                    <Button variant="default"
+                      onClick={async () => {
+                        await signOut();
+                        router.push("/");
+                      }}
+                      >
+                      Confirm
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             )}
             {!session && (
               <Button variant="ghost" onClick={async () => {
