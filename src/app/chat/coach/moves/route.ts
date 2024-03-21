@@ -1,99 +1,85 @@
-import { StreamingTextResponse, OpenAIStream } from "ai";
 import OpenAI from "openai";
+import { StreamingTextResponse, OpenAIStream } from "ai";
 import { ChatCompletionTool } from "openai/resources/index.mjs";
 
 export const runtime = 'edge';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-});
+});  
 
-const functions: ChatCompletionTool[] = [
-  {
-    "type": "function",
-    "function": {
-      "name": "advise",
-      "description": "Provide feedback on a chess position. This may include position dynamics (basic concepts/principles, tactical oppourtunities, positional weaknesses, key insights etc.) or advise for moves to make.",
-      "parameters": {
-        "type": "object",
-        "properties": {
-          "resoning": {
-            "type": "string",
-            "description": "This field should be used to think step by step and analyze the position before coming up with advice or move suggestions. The rational for suggestions and advice should be based on the data generated here."
-          },
-          "advice": {
-            "type": "string",
-            "description": "Information to provide to the user about the postion. Should touch on positional dynamics and follow fundamental chess principles. Comments should be short and concise (less than 64 tokens). Aim to summarize important information for the reasoning section. Do not ramble here!."
-          },
-          "move_suggestions": {
-            "type": "array",
-            "description": "An array of LEGAL chess moves suggested in the current postion and why.",
-            "items": {
-              "type": "object",
-              "properties": {
-                "reason": { "type": "string", "description": "The reasoning for playing the suggested move. Should take the current position tactics and dynamics into account." },
-                "move": { "type": "string", "description": "The suggested move in SAN syntax" }
-              }
-            },
-            "maxItems": 3,
-            "uniqueItems": true
-          },
-          "queries": {
-            "type": "array", 
-            "description": "An array of the generated queries the user can ask based on the provided advice and/or suggestions. These queries should aim to help the user deepen their understanding of a specific concept or idea.",
-            "items": {
-              "type": "object",
-              "properties": {
-                "query": {
-                  "type": "string",
-                  "description": "The query the user can ask. These should be short and consise questions. Should be a maximum of 10 words."
-                },
-                "title": {
-                  "type": "string",
-                  "description": "The title of the query. Should be a maximum of 3 words."
-                }
-              }
-            },
-            "minItems": 1,
-            "maxItems": 3
-          }
-        },
-        "required": ["reasoning", "advice", "queries"],
-      }
-    }
-  }
-];
+"You are a chess Grandmaster and professional coach. You will play against the user and provide feedback on moves as they play.\n\nThe color the user is playing, the FEN string of the current position as well as the list of moves leading up to it will be provided. You will also be told the Stockfish evaluation of the position, as well as the top engine line. Use all of this information to analyze the position before providing feedback.\n\nYour objective is to help the user understand the dynamics of the position. Encourage the user to think ahead and develop plans for the long term.\n\nYou will always output a JSON function call. Parts of your output will be selected and shown to the user."
 
-const coachSystemMessage = {
-  role: "system",
-  content: "You are a chess Grandmaster and professional coach. You will play against the user and provide feedback on moves as they play.\n\nThe color the user is playing, the FEN string of the current position as well as the list of moves leading up to it will be provided. You will also be told the Stockfish evaluation of the position, as well as the top engine line. Use all of this information to analyze the position before providing feedback.\n\nYour objective is to help the user understand the dynamics of the position. Encourage the user to think ahead and develop plans for the long term.\n\nYou will always output a JSON function call. Parts of your output will be selected and shown to the user."
-}
+
+const systemPrompt = `You are a professional chess coach. You provide advise to students in games as they are playing. Your goal is to educate students and take their skills to the next level; whether that be beginner to intermediate, intermediate to advanced or advanced to master.
+
+All of your interactions with students will happen while they are playing a training chess game. You will be given lots of information about the student and the game in xml tags. These include:
+- The experience level of the student in <skill></skill> tags.
+- The color the student is playing in <orientation></orientation> tags.
+- The color to move in <turn></turn> tags.
+- The FEN string of the current position on the student's board in <fen></fen> tags.
+- The ascii visualization of the board in <ascii></ascii> tags.
+- The PGN containing all moves leading to the curent position inside of <pgn></pgn> tags.
+- The stockfish evaluation of the position in <eval></eval> tags. The evaluation is provided in centipawns.
+- The top engine line in <line></line> tags.
+
+Your goal is to advise the student on what to do/the things to focus on in the current position. Your advice should be catered to the experience level of the student. Here is a list of improtant concepts for each skill level:
+- Beginner: The Rules of the Game, Basic Opening Principles, Checkmate Patterns, Value of Pieces, Basic Tactics
+- Intermediate: Opening Repertoire, Tactical Motifs, Positional Play, Endgame Basics, Plan and Strategy Development
+- Advanced: Advanced Opening Theory, Positional Understanding, Advanced Endgames, Tactical Depth, Psychological Factors
+- Master: Opening Innovations, Deep Strategic Concepts, Professional Endgames, Computer Analysis, Psychological Preparation
+
+Deeply analyze all the information provided before making any recommendations. Follow these steps for every message:
+Step 1 - Walk through the moves in the PGN. Group them into sequences of 3 - 5 plies. Label each group with a number. Structure groups logically based on patterns and tactics. Output this step between <seqs></seqs> tags.
+Step 2 - Briefly comment on the impact of the moves in each group. List comments beside he group number. Comment on tactics and common patterns. Each comment should be less than 5 tokens. Output this step in <comms></comms> tags.
+Step 3 - Comment on the dynamics of the current position. Include things like hanging pieces, tactical oppoutunities, piece placement/activity etc. Ouput this step in <tactic></tactic> tags.
+Step 4 - Choosee the 2-3 concepts relevant to the current position to talk about based on the user skill level. This output should be less than 15 tokens. Output this step in <topics></topics> tags.
+Step 5 - Generate advice for the student in the current position based on the information from previous steps. This output should be less than 48 tokens. Focus on giving the student specific advice without giving away the best move. Output this step between tripple quotes (""").`;
+
+// Step 3 - Visualize the current board position in an ascii representation. Output this step between <ascii></ascii> tags.
 
 export const POST = async (req: Request, res: Response) => {
-  const { messages } = await req.json();
+  const { messages, skill, orientation, turn, fen, pgn, ascii  } = await req.json();
 
-  const reponse = await openai.chat.completions.create({
+  const [evaluation, line] = messages.at(-1).content.replace(" ", "@").split("@");
+
+  const userPrompt = `Here are the deatils of the game:
+<skill>${skill}</skill>
+<orientation>${orientation}</orientation>
+<turn>${turn}</turn>
+<fen>${fen}</fen>
+<ascii>
+${ascii}
+</ascii>
+<pgn>${pgn}</pgn>
+<eval>${evaluation}</eval>
+<line>${line}</line>
+
+Give the student some advice for how to continue from the current position.
+Be sure to CLOSELY FOLLOW ALL INSTRUCTIONS listed in the system prompt.
+Your advice should be directly relavent to the CURRENT POSITION.
+Take into account any tactics available, or hanging pieces.`
+
+  const response = await openai.chat.completions.create({
     model: "gpt-4-turbo-preview",
-    // stream: true,
+    stream: true,
     messages: [
-      coachSystemMessage,
-      messages.at(-1),
+      {
+        role: "system",
+        content: systemPrompt
+      },
+      {
+        role: "user",
+        content: userPrompt
+      }
     ],
     // max_tokens: 64,
     temperature: 0,
-    response_format: { type: "json_object" },
-    tools: [
-      ...functions
-    ],
-    tool_choice: { "type": "function", "function": { name: "advise" } }
   });
 
-  // const stream = OpenAIStream(reponse);
-  // return new StreamingTextResponse(stream);
-
-  // console.log(reponse.choices.at(-1)?.message.tool_calls![0].function)
-
-  return new Response(JSON.stringify({
-    tool_calls: reponse.choices[0].message.tool_calls,
-  }));
+  console.log(userPrompt);
+  const stream = OpenAIStream(response);
+  return new StreamingTextResponse(stream);
+  // console.log(response.choices[0].message.content)
+  // return new Response(`${response.choices[0].message.content?.split('"""')[1]}`);
 }

@@ -11,7 +11,6 @@ export interface PositionEval {
 export interface EvaluationContext {
   evals: PositionEval[];
   clearEvaluations: () => void;
-  // addEval
 }
 
 export const EvaluationContext = createContext<EvaluationContext>({

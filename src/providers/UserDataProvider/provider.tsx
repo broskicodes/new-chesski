@@ -39,6 +39,10 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
         setChesscom(userData.chesscom_name);
         setLichess(userData.lichess_name);
         setExperience(userData.skill_level);
+      } else {
+        setChesscom("");
+        setLichess("");
+        setExperience(Experience.Beginner);
       }
     }
   }, [session, supabase]);

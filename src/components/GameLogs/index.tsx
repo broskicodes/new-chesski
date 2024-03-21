@@ -7,11 +7,13 @@ import { useCoach } from "@/providers/CoachProvider/context";
 
 import "./styles.css";
 import posthog from "posthog-js";
+import { useEvaluation } from "@/providers/EvaluationProvider/context";
 
 export const GameLogs = () => {
   const [prevFen, setPrevFen] = useState("");
-  const [evals, setEvals] = useState<{ [key: number]: Evaluation }[]>([{}]);
+  // const [evals, setEvals] = useState<{ [key: number]: Evaluation }[]>([{}]);
 
+  const { evals } = useEvaluation();
   const { isInit, startSearch } = useStockfish();
   const { game, turn, orientation, addHighlightedSquares, addArrows, makeMove } = useChess();
   const { gameMessages, processing, queries, addGameMessage, appendGameMessage, getExplantion } = useCoach();
@@ -37,7 +39,7 @@ export const GameLogs = () => {
       addGameMessage({
         id: Math.random().toString(32).substring(7),
         role: "assistant",
-        content: "Hi I'm Chesski. I'll be giving you advice as you play moves on the board. The loading circle means I'm thinking!"
+        content: `"""Hi I'm Chesski. I'll be giving you advice as you play moves on the board. The loading circle means I'm thinking!"""`
       })
     }
   }, [gameMessages, addGameMessage]);
@@ -46,8 +48,8 @@ export const GameLogs = () => {
     const fen = game.fen();
 
     if (!processing && fen !== prevFen && orientation === turn && isInit) {
-      const latestEval = evals.length > 1 ? evals.at(-2)![1] : undefined;
-      if (!latestEval || (latestEval && latestEval.fen !== fen)) {
+      const latestEval = evals.length > 0 ? evals.at(-1)! : undefined;
+      if (!latestEval || (latestEval && latestEval.evaledFen !== fen)) {
         return;
       }
 
@@ -56,51 +58,36 @@ export const GameLogs = () => {
       setPrevFen(fen);
       appendGameMessage({
         role: "user",
-        content: `The user is playing as ${orientation}. The current position is ${fen}. The moves leading up to this position are ${moves.join(" ")}. ${turn === "white" ? "Black" : "White"} just played ${moves.at(-1)}.\n\nStockfish gives the position an evaluation of ${latestEval?.eval} centipawns. The best engine line is ${latestEval?.pv.join(" ")}.`
-      });
-
-      setEvals((prev) => {
-        return [...prev, {}]
+        content: `${latestEval.evaluation} ${latestEval.pv.join(" ")}`
       });
     }
   }, [processing, game, prevFen, orientation, turn, isInit, evals, appendGameMessage]);
 
   useEffect(() => {
     if (logRef.current) {
+      const message = gameMessages.at(-1);
+      const advice = message?.content.split('"""')[1];
+
+      if (!advice) return;
+
       logRef.current.scrollTop = logRef.current.scrollHeight;
     }
   }, [gameMessages, processing]);
 
   useEffect(() => {
-    const evalHandler = (event: Event) => {
-      const { cp, mate, pv, multiPv } = (event as CustomEvent).detail;
-
-      setEvals((prev) => {
-        prev.at(-1)![multiPv] = { fen: game.fen(), eval: mate ? mate : cp, pv: pv, mate: mate !== 0 };
-
-        return prev;
-      });
-    }
-
-    window.addEventListener("setEval", evalHandler);
-
     const moveHandler = (event: Event) => {
       const { bestMove } = (event as CustomEvent).detail;
 
       if (turn !== orientation) {
         makeMove(bestMove);
       }
-      setEvals((prev) => {
-        return [...prev, {}]
-      });
     }
 
     window.addEventListener("setBestMove", moveHandler);
     return () => {
-      window.removeEventListener("setEval", evalHandler);
       window.removeEventListener("setBestMove", moveHandler);
     }
-  }, [game, evals, orientation, turn, makeMove]);
+  }, [game, orientation, turn, makeMove]);
 
   return (
     <div className="logs">
@@ -110,13 +97,19 @@ export const GameLogs = () => {
 
           if (!(message.role === "assistant")) return null;
 
-          const segments = message.content.split(SanRegex).filter(Boolean);
+          const advice = message.content.split('"""')[1];
+
+          if (!advice) return null;
+
+          const segments = advice.split(SanRegex).filter(Boolean);
+
           const elems = segments.map((segment, i) => {
             if (SanRegex.test(segment)) {
               return <span key={i} className="san" onClick={() => highlightGameBoard(segment)}>{segment}</span>;
             }
             return <span key={i}>{segment}</span>;
           });
+
           return (
             <div key={i} className="flex flex-col">
               <span className={`${message.role}-message role`}>CHESSKI:</span>
@@ -133,9 +126,11 @@ export const GameLogs = () => {
             }}>{query.title}</button>
           ))}
         </div>
-        <div className={`justify-center pt-2 ${processing && gameMessages.length > 0 ? "flex" : "hidden"}`}>
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1B03A3]" />
-        </div>
+        {processing && gameMessages.length > 0 && (
+          <div className={`justify-center pt-2 mx-auto w-fit h-fit`}>
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1B03A3]" />
+          </div>
+        )}
       </div>
     </div>
   )
