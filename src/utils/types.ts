@@ -1,6 +1,5 @@
 import { Move } from "chess.js";
 
-
 export enum Experience {
   Beginner = 0,
   Intermediate = 1,

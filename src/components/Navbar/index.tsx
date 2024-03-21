@@ -7,6 +7,7 @@ import { Sidebar } from "../Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faUser } from "@fortawesome/free-solid-svg-icons";
 import { useUserData } from "@/providers/UserDataProvider/context";
+import Link from "next/link";
 
 export const Navbar = () => {
   const { session, signInWithOAuth, signOut } = useAuth();
@@ -17,7 +18,7 @@ export const Navbar = () => {
   return (
     <div className="navbar">
       <header className="navbar-container flex justify-between items-center p-2 text-white">
-        <h1 className="text-2xl font-bold arvo">CHESSKI</h1>
+        <Link href="/" className="text-2xl font-bold arvo cursor-pointer">CHESSKI</Link>
         <nav className="flex flex-row space-x-4 items-center">
           <ul className="">
             {!session && <Button onClick={signInWithOAuth}>Sign In</Button>}

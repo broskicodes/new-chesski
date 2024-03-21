@@ -4,11 +4,17 @@ import { useChat } from "ai/react";
 import { CreateMessage, Message, ToolCall } from "ai";
 import { useChess } from "../ChessProvider/context";
 import posthog from "posthog-js";
+import { useUserData } from "../UserDataProvider/context";
+import { useEvaluation } from "../EvaluationProvider/context";
+import { Experience } from "@/utils/types";
+import { experienceToTitle } from "@/utils/clientHelpers";
 
 export const CoachProvider = ({ children }: PropsWithChildren) => {
   const [processing, setProcessing] = useState(false);
   const [queries, setQueries] = useState<Query[]>([]);
 
+  const { experience } = useUserData();
+  const { evals } = useEvaluation();
   const { orientation, game, turn } = useChess();
 
   const { append: findQueries } = useChat({
@@ -32,28 +38,38 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
 
   const { messages: gameMessages, append, setMessages } = useChat({
     api: "/chat/coach/moves",
-    onFinish: (_msg: Message) => {
+    body: {
+      skill: experienceToTitle(experience), 
+      orientation: orientation, 
+      turn: turn,
+      fen: game.fen(), 
+      ascii: game.ascii(),
+      pgn: game.history().join(" ")
+    },
+    onFinish: (msg: Message) => {
+      // console.log(msg.content);
       posthog.capture("ai_msg_sent");
+      setProcessing(false);
     },
     experimental_onToolCall: async (_msgs: Message[], toolCalls: ToolCall[]) => {
-      if (toolCalls.length > 0) {
-        const call = toolCalls.at(-1);
+      // if (toolCalls.length > 0) {
+      //   const call = toolCalls.at(-1);
 
-        if (call?.function.name !== "advise") {
-          return;
-        }
+      //   if (call?.function.name !== "advise") {
+      //     return;
+      //   }
 
-        const args = JSON.parse(call?.function.arguments);
-        setMessages([...gameMessages, {
-          id: Math.random().toString(36).substring(7),
-          role: "assistant",
-          content: args.advice
-        }]);
-        setQueries(args.queries);
-        setProcessing(false);
+      //   const args = JSON.parse(call?.function.arguments);
+      //   setMessages([...gameMessages, {
+      //     id: Math.random().toString(36).substring(7),
+      //     role: "assistant",
+      //     content: args.advice
+      //   }]);
+      //   setQueries(args.queries);
+      //   setProcessing(false);
 
-        // console.log(args)
-      }
+      //   // console.log(args)
+      // }
     },
   });
   
