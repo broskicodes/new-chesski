@@ -88,6 +88,10 @@ body {
   overflow: hidden;
 }
 
+.arvo {
+  font-family: "Arvo", serif;
+}
+
 /* .sign-up > :not(:last-child) {
   margin-right: 24px;
 } */

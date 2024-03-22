@@ -1,5 +1,5 @@
 import { PropsWithChildren, useCallback, useMemo, useState } from "react";
-import { CoachContext, Query } from "./context";
+import { CoachContext, CoachProviderContext, Query } from "./context";
 import { useChat } from "ai/react";
 import { CreateMessage, Message, ToolCall } from "ai";
 import { useChess } from "../ChessProvider/context";
@@ -7,7 +7,8 @@ import posthog from "posthog-js";
 import { useUserData } from "../UserDataProvider/context";
 import { useEvaluation } from "../EvaluationProvider/context";
 import { Experience } from "@/utils/types";
-import { experienceToTitle } from "@/utils/clientHelpers";
+import { experienceToTitle, setCurrMessages } from "@/utils/clientHelpers";
+import { faL } from "@fortawesome/free-solid-svg-icons";
 
 export const CoachProvider = ({ children }: PropsWithChildren) => {
   const [processing, setProcessing] = useState(false);
@@ -37,7 +38,7 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
   });
 
   const { messages: gameMessages, append, setMessages } = useChat({
-    api: "/chat/coach/moves",
+    api: "/chat/coach/analyze",
     body: {
       skill: experienceToTitle(experience), 
       orientation: orientation, 
@@ -47,11 +48,13 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
       pgn: game.history().join(" ")
     },
     onFinish: (msg: Message) => {
-      // console.log(msg.content);
+      console.log(msg.content);
+
+      setCurrMessages([msg], false);
       posthog.capture("ai_msg_sent");
       setProcessing(false);
     },
-    experimental_onToolCall: async (_msgs: Message[], toolCalls: ToolCall[]) => {
+    // experimental_onToolCall: async (_msgs: Message[], toolCalls: ToolCall[]) => {
       // if (toolCalls.length > 0) {
       //   const call = toolCalls.at(-1);
 
@@ -70,7 +73,7 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
 
       //   // console.log(args)
       // }
-    },
+    // },
   });
   
   const { append: appendExplanationContext, setMessages: addExplanationContext, reload } = useChat({
@@ -93,6 +96,7 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
 
   const clearGameMessages = useCallback(() => {
     setMessages([]);
+    setCurrMessages([], true);
   }, [setMessages]);
 
   const getExplantion = useCallback((query: string) => {
@@ -122,15 +126,16 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
     reload();
   }, [gameMessages, game, orientation, turn, addExplanationContext, reload]);
 
-  const value = useMemo(() => ({
+  const value: CoachProviderContext = useMemo(() => ({
     processing,
     queries,
     gameMessages: gameMessages,
     addGameMessage: addGameMessage,
     appendGameMessage: appendGameMessage,
     clearGameMessages: clearGameMessages,
+    setGameMessages: setMessages,
     getExplantion: getExplantion,
-  }), [processing, gameMessages, queries, appendGameMessage, addGameMessage, clearGameMessages, getExplantion]);
+  }), [processing, gameMessages, queries, appendGameMessage, addGameMessage, clearGameMessages, setMessages, getExplantion]);
 
   return (
     <CoachContext.Provider value={value}>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useChess } from "@/providers/ChessProvider/context";
 import { useStockfish } from "@/providers/StockfishProvider/context";
 import { useEvaluation } from "@/providers/EvaluationProvider/context";
+import { Tooltip } from "../Tooltip";
 
 export const EvalBar = () => {
   const [barLength, setBarLength] = useState<number>(512);
@@ -74,9 +75,11 @@ export const EvalBar = () => {
   }, []);
 
   return (
-    <div id="eval-bar" ref={barRef}>
-      <div id="eval-fill" ref={fillRef}></div>
-    </div>
+    <Tooltip content={`Eval: ${evals.at(-1) ? evals.at(-1)?.evaluation! / 100 : 0.0 }`}>
+      <div id="eval-bar" ref={barRef}>
+        <div id="eval-fill" ref={fillRef}></div>
+      </div>
+    </Tooltip>
   );
 };
 

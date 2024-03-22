@@ -8,6 +8,7 @@ import { useCoach } from "@/providers/CoachProvider/context";
 import "./styles.css";
 import posthog from "posthog-js";
 import { useEvaluation } from "@/providers/EvaluationProvider/context";
+import { Button } from "../ui/button";
 
 export const GameLogs = () => {
   const [prevFen, setPrevFen] = useState("");
@@ -39,7 +40,7 @@ export const GameLogs = () => {
       addGameMessage({
         id: Math.random().toString(32).substring(7),
         role: "assistant",
-        content: `"""Hi I'm Chesski. I'll be giving you advice as you play moves on the board. The loading circle means I'm thinking!"""`
+        content: `"""This is the starting position. Make a move to start the game."""`
       })
     }
   }, [gameMessages, addGameMessage]);
@@ -56,10 +57,10 @@ export const GameLogs = () => {
       const moves = game.history();
 
       setPrevFen(fen);
-      appendGameMessage({
-        role: "user",
-        content: `${latestEval.evaluation} ${latestEval.pv.join(" ")}`
-      });
+      // appendGameMessage({
+      //   role: "user",
+      //   content: `${latestEval.evaluation} ${latestEval.pv.join(" ")}`
+      // });
     }
   }, [processing, game, prevFen, orientation, turn, isInit, evals, appendGameMessage]);
 
@@ -118,14 +119,36 @@ export const GameLogs = () => {
             </div>
           )
         })}
-        <div className={`queries ${!processing ? "flex" : "hidden"}`}>
-          {queries.map((query, i) => (
-            <button key={i} className="button inverted-button thin-button" onClick={() => {
-              posthog.capture("position_queried")
-              getExplantion(query.query) 
-            }}>{query.title}</button>
-          ))}
-        </div>
+        {!processing && (
+          // <div className={`queries`}>
+          //   {queries.map((query, i) => (
+          //     <button key={i} className="button inverted-button thin-button" onClick={() => {
+          //       posthog.capture("position_queried")
+          //       getExplantion(query.query) 
+          //     }}>{query.title}</button>
+          //   ))}
+          // </div>
+          <div className="queries">
+            <Button 
+              variant="outline" size="thin"
+              onClick={() => {
+                const latestEval = evals.length > 0 ? evals.at(-1)! : undefined;
+
+                if (!latestEval) return;
+
+                appendGameMessage({
+                  role: "user",
+                  content: `${latestEval.evaluation} ${latestEval.pv.join(" ")}`
+                });
+              }}
+              >Analyze position</Button>
+            {/* <Button 
+              variant="outline" size="thin"
+              onClick={() => {
+
+              }}>Next move options</Button> */}
+          </div>
+        )}
         {processing && gameMessages.length > 0 && (
           <div className={`justify-center pt-2 mx-auto w-fit h-fit`}>
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1B03A3]" />

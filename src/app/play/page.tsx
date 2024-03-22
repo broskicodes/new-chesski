@@ -15,9 +15,10 @@ import { useChess } from '@/providers/ChessProvider/context';
 import { useCoach } from '@/providers/CoachProvider/context';
 import { useEvaluation } from '@/providers/EvaluationProvider/context';
 import { useStockfish } from '@/providers/StockfishProvider/context';
-import { SkillLevel } from '@/utils/types';
-import { useRouter } from 'next/navigation';
+import { GameState, SkillLevel } from '@/utils/types';
 import { useEffect, useRef, useState } from 'react';
+import { Footer } from '@/components/Footer';
+import { Message } from 'ai';
 
 enum GameResult {
   Win = 0,
@@ -42,9 +43,9 @@ export default function Play() {
 
   const { session, supabase, signInWithOAuth, signOut } = useAuth();
   const { initEngine, isReady } = useStockfish();
-  const { game, gameOver, turn, orientation, reset } = useChess();
+  const { game, gameOver, turn, orientation, reset, playContinuation, swapOrientation } = useChess();
   const { clearEvaluations } = useEvaluation();
-  const { clearGameMessages } = useCoach();
+  const { clearGameMessages, setGameMessages } = useCoach();
 
   const contentRef = useRef<HTMLDivElement>(null);
   const chessRef = useRef<HTMLDivElement>(null);
@@ -101,9 +102,26 @@ export default function Play() {
     }
   }, [game, gameOver, turn, orientation])
 
+  useEffect(() => {
+    const gameState: GameState | null = JSON.parse(localStorage.getItem("currGameState")!);
+    const msgState: Message[] = JSON.parse(localStorage.getItem("currMessages")!)
+
+    if (gameState) {
+      playContinuation(gameState.moves, true);
+      if (gameState.orientation && gameState.orientation === "black" && orientation === "white") {
+        swapOrientation();
+      }
+    }
+
+    if (msgState) {
+      setGameMessages(msgState);
+    }
+  }, [])
+
   return (
     <div className="">
       <Navbar />
+      {/* <Footer /> */}
       <Dialog >
         <DialogTrigger ref={modalTriggerRef} className='hidden' />
         <DialogContent>
@@ -114,7 +132,7 @@ export default function Play() {
 
               switch (gameResult) {
                 case GameResult.Win:
-                  desc = "Congrdulations, you won!";
+                  desc = "Congradulations, you won!";
                   break;
                 case GameResult.Loss:
                   desc = "You lost. Better luck next time!";
@@ -166,9 +184,7 @@ export default function Play() {
       {/* <Button onClick={() => { signOut(); router.push("/"); }}>sign out</Button> */}
       <div className="page-content" ref={contentRef}>
         <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0" ref={chessRef}>
-          <Tooltip content="Evaluation Bar">
-            <EvalBar />
-          </Tooltip>
+          <EvalBar />
           <div className="flex flex-col space-y-2">
             <div className='relative'>
               {/* {!isReady && (
