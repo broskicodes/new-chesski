@@ -78,72 +78,76 @@ export const Chessboard = () => {
   }, [orientation, turn, lastMoveHighlight]);
 
   useEffect(() => {
-    console.log("hey");
-    // if (orientation)
-    // if (evals.length >= 2) {
-    //   const prev = evals.at(-2);
-    //   const curr = evals.at(-1);
+    if (evals.length >= 2) {
+      const prev = evals.at(-2);
+      const curr = evals.at(-1);
 
-    //   if (game.fen() !== curr?.evaledFen && turn === orientation) {
+      if (game.fen() !== curr?.evaledFen && turn === orientation) {
 
-    //     const moveStrength = evaluateMoveQuality(prev!, curr!);
+        const moveStrength = evaluateMoveQuality(prev!, curr!);
 
-    //     if (!moveStrength) {
-    //       return;
-    //     }
+        if (!moveStrength) {
+          return;
+        }
 
-    //     let color: string;
-    //     let msg: string;
-    //     switch (moveStrength) {
-    //       case "Best":
-    //         color = "#E64DFF";
-    //         msg = "Best Move"
-    //         break;
-    //       case "Good":
-    //         color = "#33C57D";
-    //         msg = "Good Move";
-    //         break;
-    //       case "Inaccuracy":
-    //         color = "#F6C333";
-    //         msg = "Inaccurate";
-    //         break;
-    //       case "Mistake":
-    //         color = "#F4A153";
-    //         msg = "Mistake";
-    //         break;
-    //       case "Blunder":
-    //         color = "#E45B4F";
-    //         msg = "Blunder";
-    //         break;
-    //       default: 
-    //         color = "#F7A28D"
-    //         msg = "Trash"
-    //     }
-    //     setLastMoveHighlightColor(color);
+        let color: string;
+        let msg: string;
+        switch (moveStrength) {
+          case "Best":
+            color = "#E64DFF";
+            msg = "Best Move"
+            break;
+          case "Good":
+            color = "#33C57D";
+            msg = "Good Move";
+            break;
+          case "Inaccuracy":
+            color = "#F6C333";
+            msg = "Inaccurate";
+            break;
+          case "Mistake":
+            color = "#F4A153";
+            msg = "Mistake";
+            break;
+          case "Blunder":
+            color = "#E45B4F";
+            msg = "Blunder";
+            break;
+          default: 
+            color = "#F7A28D"
+            msg = "Trash"
+        }
+        setLastMoveHighlightColor(color);
 
-    //     const tempGame = new Chess();
-    //     tempGame.loadPgn(game.history().slice(0, -2).join(" "))
-    //     tempGame.move(prev?.bestMove!)
+        const tempGame = new Chess();
+        tempGame.loadPgn(game.history().slice(0, -2).join(" "))
+        tempGame.move(prev?.bestMove!)
 
-    //     const gameMsg: Message = {
-    //       id: Math.random().toString(36).substring(7),
-    //       role: "assistant",
-    //       content: `"""You played ${game.history().at(-2)}${msg !== "Best Move" ? `. The best move was ${tempGame.history().at(-1)}` : ", it was the best move."}"""`
-    //     }
+        console.log("hey");
 
-    //     addGameMessage(gameMsg);
-    //     setCurrMessages([gameMsg], false);
+        const gameMsg: Message = {
+          id: Math.random().toString(36).substring(7),
+          role: "assistant",
+          content: `"""You played ${game.history().at(-2)}${msg !== "Best Move" ? `. The best move was ${tempGame.history().at(-1)}` : ", it was the best move."}"""`
+        }
 
-    //     // const { dismiss } = toast({
-    //     //   title: msg,
-    //     //   description: `You played ${game.history().at(-2)}.`
-    //     // });
+        console.log("he");
 
-    //     // setTimeout(() => {
-    //     //   dismiss();
-    //     // }, 2000)
-    //   }
-    // }
+        addGameMessage(gameMsg);
+        setCurrMessages([gameMsg], false);
+
+        console.log("h");
+
+        // const { dismiss } = toast({
+        //   title: msg,
+        //   description: `You played ${game.history().at(-2)}.`
+        // });
+
+        // setTimeout(() => {
+        //   dismiss();
+        // }, 2000)
+      }
+    }
   }, [evals, setLastMoveHighlightColor, game, turn, orientation]);
 
   useEffect(() => {
