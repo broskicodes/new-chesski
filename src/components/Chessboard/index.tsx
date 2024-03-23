@@ -185,7 +185,7 @@ export const Chessboard = () => {
           </DialogHeader>
           <div className='flex flex-col space-y-4'>
             {!session && (
-              <div className=''>
+              <div className='flex flex-col space-y-1'>
                 <DialogDescription className='text-black font-semibold text-lg'>Get notified about future updates!</DialogDescription>
                 <Button 
                   className='w-full'
@@ -194,7 +194,7 @@ export const Chessboard = () => {
                 </Button>
               </div>
             )}
-            <div>
+            <div className='flex flex-col space-y-1'>
               <DialogDescription className='text-black font-semibold text-lg'>Support the creator!</DialogDescription>
               <Link
                 href={`${STRIPE_LINK}?${session ? `prefilled_email=${session.email}`: ""}`} 
