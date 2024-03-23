@@ -153,21 +153,25 @@ export const Chessboard = () => {
   }, []);
 
   useEffect(() => {
-    if (movesMade === (session ? 2 : 5) * mult) {
+    if (movesMade === (session ? 15 : 5) * mult) {
       setMult(mult * 2);
 
-      if (!session || !supabase) return;
+      if (session && supabase) {
+        (async () => {
+          const { data, error } = await supabase
+            .from("user_donos")
+            .select()
+            .eq("email", session.email);
 
-      (async () => {
-        const { data, error } = await supabase
-          .from("user_donos")
-          .select()
-          .eq("email", session.email);
+          if (data && data.length > 0) return;
+            
+          modalTriggerRef.current?.click();
+        })();
 
-        if (data && data.length > 0) return;
-          
-        modalTriggerRef.current?.click();
-      })();
+        return;
+      }
+
+      modalTriggerRef.current?.click();
     }
   }, [movesMade, mult, session, supabase])
 
@@ -191,15 +195,15 @@ export const Chessboard = () => {
               </div>
             )}
             <div>
-            <DialogDescription className='text-black font-semibold text-lg'>Support the creator!</DialogDescription>
-            <Link
-              href={`${STRIPE_LINK}?${session ? `prefilled_email=${session.email}`: ""}`} 
-              target="_blank" 
-              className={`${buttonVariants({ variant: "default" })} w-full`}
-              onClick={() => { posthog.capture("dono_clicked") }}
-              >
-              Donate now
-            </Link>
+              <DialogDescription className='text-black font-semibold text-lg'>Support the creator!</DialogDescription>
+              <Link
+                href={`${STRIPE_LINK}?${session ? `prefilled_email=${session.email}`: ""}`} 
+                target="_blank" 
+                className={`${buttonVariants({ variant: "default" })} w-full`}
+                onClick={() => { posthog.capture("dono_clicked") }}
+                >
+                Donate now
+              </Link>
             </div>
           </div>
         </DialogContent>
