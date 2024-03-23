@@ -123,29 +123,15 @@ export const Chessboard = () => {
         tempGame.loadPgn(game.history().slice(0, -2).join(" "))
         tempGame.move(prev?.bestMove!)
 
-        console.log("hey");
-
         const gameMsg: Message = {
           id: Math.random().toString(36).substring(7),
           role: "assistant",
           content: `"""You played ${game.history().at(-2)}${msg !== "Best Move" ? `. The best move was ${tempGame.history().at(-1)}` : ", it was the best move."}"""`
         }
 
-        console.log("he");
 
         addGameMessage(gameMsg);
         setCurrMessages([gameMsg], false);
-
-        console.log("h");
-
-        // const { dismiss } = toast({
-        //   title: msg,
-        //   description: `You played ${game.history().at(-2)}.`
-        // });
-
-        // setTimeout(() => {
-        //   dismiss();
-        // }, 2000)
       }
     }
   }, [evals, setLastMoveHighlightColor, game, turn, orientation]);
