@@ -40,6 +40,10 @@ export const setCurrMessages = (msgs: Message[], reset: boolean) => {
     localStorage.setItem("currMessages", JSON.stringify(msgs));
   } else {
     const oldState = JSON.parse(localStorage.getItem("currMessages")!);
-    localStorage.setItem("currMessages", JSON.stringify([...oldState, ...msgs]));
+    if (oldState) {
+      localStorage.setItem("currMessages", JSON.stringify([...oldState, ...msgs]));
+    } else {
+      localStorage.setItem("currMessages", JSON.stringify(msgs));
+    }
   }
 }
