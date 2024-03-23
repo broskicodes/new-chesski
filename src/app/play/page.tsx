@@ -103,6 +103,8 @@ export default function Play() {
   }, [game, gameOver, turn, orientation])
 
   useEffect(() => {
+    console.log("hello");
+
     const gameState: GameState | null = JSON.parse(localStorage.getItem("currGameState")!);
     const msgState: Message[] = JSON.parse(localStorage.getItem("currMessages")!)
 
