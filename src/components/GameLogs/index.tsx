@@ -94,8 +94,6 @@ export const GameLogs = () => {
     <div className="logs">
       <div className="log-content" ref={logRef}>
         {gameMessages.map((message, i) => {
-              console.log("f");
-
           if (!message.content) return null;
 
           if (!(message.role === "assistant")) return null;
