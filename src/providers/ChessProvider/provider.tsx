@@ -3,6 +3,7 @@ import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from "re
 import { ChessContext, ChessProviderContext, SquareHighlight } from "./context";
 import { Arrow, Square } from "react-chessboard/dist/chessboard/types";
 import posthog from "posthog-js";
+import { setCurrGameState } from "@/utils/clientHelpers";
 
 export enum Player {
   White = "white",
@@ -38,6 +39,8 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
         if (res) {
           setGame(tempGame);
           setTurn(turn === Player.White ? Player.Black : Player.White);
+
+          setCurrGameState({ moves: tempGame.history() });
 
           if (turn === orientation) {
             setLastMoveHighlight([
@@ -109,6 +112,8 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
         setLastMoveHighlight(null);
         setAILastMoveHighlight(null);
         setArrows([]);
+        
+        setCurrGameState({ moves: tempGame.history() });
       }
       return res;
     } catch (e) {
@@ -126,6 +131,8 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
     setLastMoveHighlight(null);
     setAILastMoveHighlight(null);
     setArrows([]);
+
+    setCurrGameState({ moves: tempGame.history() });
   }, []);
 
   const onDrop = useCallback(
@@ -159,7 +166,9 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
   );
 
   const swapOrientation = useCallback(() => {
-    setOrientation(orientation === Player.White ? Player.Black : Player.White);
+    const newOrientation = orientation === Player.White ? Player.Black : Player.White;
+    setOrientation(newOrientation);
+    setCurrGameState({ orientation: newOrientation });
   }, [orientation]);
 
   const addArrows = useCallback(

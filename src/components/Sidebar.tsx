@@ -7,7 +7,7 @@ import { Input } from "./ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "./ui/select";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { ReactNode, useState } from "react";
-import { Experience } from "@/utils/types";
+import { Experience, STRIPE_LINK } from "@/utils/types";
 import { useToast } from "@/components/ui/use-toast"
 import { useAuth } from "@/providers/AuthProvider/context";
 import { useRouter } from "next/navigation";
@@ -19,7 +19,6 @@ interface Props {
   children: ReactNode;
 }
 
-const stripeLink = "https://donate.stripe.com/7sIaHVg9WbnLcla4gg";
 
 export const Sidebar = ({ children }: Props) => {
   const [editing, setEditing] = useState(false);
@@ -115,7 +114,7 @@ export const Sidebar = ({ children }: Props) => {
           </div>
           <div className="flex flex-col items-start absolute bottom-8 sm:bottom-12 w-full">
             <Link 
-              href={`${stripeLink}?${session ? `prefilled_email=${session.email}`: ""}`} 
+              href={`${STRIPE_LINK}?${session ? `prefilled_email=${session.email}`: ""}`} 
               target="_blank" 
               className={buttonVariants({ variant: "ghost" })}
               onClick={() => { posthog.capture("dono_clicked") }}
@@ -142,17 +141,19 @@ export const Sidebar = ({ children }: Props) => {
               <Dialog>
                 <DialogTrigger className={buttonVariants({ variant: "ghost"})}>Sign Out</DialogTrigger>
                 <DialogContent>
-                  <DialogHeader>
+                  <DialogHeader className="flex flex-col items-center">
                     <DialogTitle>Are you sure you want to sign out?</DialogTitle>
                     <DialogDescription>{"If you do, I'll be sad :("}</DialogDescription>
                   </DialogHeader>
-                  <DialogFooter>
-                    <DialogClose asChild>
+                  <DialogFooter className="flex flex-row space-x-2 w-full">
+                    <DialogClose asChild className="w-full">
                       <Button variant="outline">
                         Cancel
                       </Button>
                     </DialogClose>
-                    <Button variant="default"
+                    <Button 
+                      variant="default"
+                      className="w-full"
                       onClick={async () => {
                         await signOut();
                         router.push("/");

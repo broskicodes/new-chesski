@@ -1,4 +1,5 @@
-import { Experience, SkillLevel, SkillLevelMap } from "./types";
+import { Message } from "ai";
+import { Experience, GameState, SkillLevel, SkillLevelMap } from "./types";
 
 export const getChessRatingCategory = (rating: number): SkillLevel => {
   for (const category of Object.entries(SkillLevelMap)) {
@@ -22,5 +23,27 @@ export const experienceToTitle = (experienceValue: Experience): string => {
       return 'Master';
     default:
       return 'Unknown';
+  }
+}
+
+export const setCurrGameState = (props: Partial<GameState>) => {
+  const oldState = JSON.parse(localStorage.getItem("currGameState")!);
+
+  localStorage.setItem("currGameState", JSON.stringify({
+    ...oldState,
+    ...props
+  }));
+}
+
+export const setCurrMessages = (msgs: Message[], reset: boolean) => {
+  if (reset) {
+    localStorage.setItem("currMessages", JSON.stringify(msgs));
+  } else {
+    const oldState = JSON.parse(localStorage.getItem("currMessages")!);
+    if (oldState) {
+      localStorage.setItem("currMessages", JSON.stringify([...oldState, ...msgs]));
+    } else {
+      localStorage.setItem("currMessages", JSON.stringify(msgs));
+    }
   }
 }

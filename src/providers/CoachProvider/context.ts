@@ -14,6 +14,7 @@ export interface CoachProviderContext {
   addGameMessage: (msg: Message) => void;
   appendGameMessage: (msg: Message | CreateMessage) => void;
   clearGameMessages: () => void;
+  setGameMessages: (msgs: Message[]) => void;
   getExplantion: (query: string) => void;
 }
 
@@ -28,6 +29,9 @@ export const CoachContext = createContext<CoachProviderContext>({
     throw new Error("CoachProvider not initialized");
   },
   clearGameMessages: () => {
+    throw new Error("CoachProvider not initialized");
+  },
+  setGameMessages: () => {
     throw new Error("CoachProvider not initialized");
   },
   getExplantion: (_query) => {

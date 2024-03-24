@@ -40,6 +40,7 @@ export interface ChessProviderContext {
   addHighlightedSquares: (sqrs: SquareHighlight[], reset: boolean) => void;
   resetHighlightedMoves: (moves: Move[]) => void;
   setLastMoveHighlightColor: (color: string) => void;
+  playContinuation: (moves: string[], reset: boolean) => void;
 }
 
 export const ChessContext = createContext<ChessProviderContext>({
@@ -80,6 +81,9 @@ export const ChessContext = createContext<ChessProviderContext>({
     throw new Error("ChessboardProvider not initialized");
   },
   setLastMoveHighlightColor: (_color) => {
+    throw new Error("ChessboardProvider not initialized");
+  },
+  playContinuation: (_movess, _reset) => {
     throw new Error("ChessboardProvider not initialized");
   },
 });

@@ -1,14 +1,17 @@
 #footer {
-  /* absolute bottom-0 left-0 w-screen h-8 sm:h-12 bg-[#343338] flex flex-col justify-center */
   position: fixed;
   bottom: 0;
+  right: 0;
   left: 0;
-  width: 100vw;
-  height: 48px;
+  /* height: 48px; */
   background-color: #343338;
-  display: flex;
+  /* display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: center; */
+}
+
+.footer-container {
+  margin: 0px auto;
 }
 
 .custom-text {
@@ -24,10 +27,41 @@
 
 @media screen and (max-width: 640px) {
   #footer {
-    height: 32px;
+    display: none;
   }
 
-  .custom-text {
+  /* .custom-text {
     font-size: 14px;
+  } */
+}
+
+
+@media (min-width: 640px) { /* sm */
+  .footer-container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) { /* md */
+  .footer-container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) { /* lg */
+  .footer-container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) { /* xl */
+  .footer-container {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1536px) { /* 2xl */
+  .footer-container {
+    max-width: 1536px;
   }
 }

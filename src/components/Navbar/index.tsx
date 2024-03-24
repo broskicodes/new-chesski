@@ -17,7 +17,7 @@ export const Navbar = () => {
 
   return (
     <div className="navbar">
-      <header className="navbar-container flex justify-between items-center p-2 text-white">
+      <header className="navbar-container flex flex-row justify-between items-center py-2 text-white">
         <Link href="/" className="text-2xl font-bold arvo cursor-pointer">CHESSKI</Link>
         <nav className="flex flex-row space-x-4 items-center">
           <ul className="">
