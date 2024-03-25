@@ -47,3 +47,28 @@ export const setCurrMessages = (msgs: Message[], reset: boolean) => {
     }
   }
 }
+
+export const expToLvl = (exp: Experience | "Impossible") => {
+  let lvl: SkillLevel;
+    switch (exp) {
+      case Experience.Beginner:
+        lvl = SkillLevel.Beginner;
+        break;
+      case Experience.Intermediate:
+        lvl = SkillLevel.Intermediate;
+        break;
+      case Experience.Advanced:
+        lvl = SkillLevel.Advanced;
+        break;
+      case Experience.Master:
+        lvl = SkillLevel.Master;
+        break;
+      case "Impossible":
+        lvl = SkillLevel.SuperGrandmaster;
+        break;
+      default:
+        lvl = SkillLevel.Beginner;
+    }
+
+    return lvl;
+}

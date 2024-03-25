@@ -49,6 +49,7 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
       worker.postMessage("setoption name MultiPV value 3")
       worker.postMessage("ucinewgame");
       worker.postMessage("isready");
+      
       setUciOk(true);
     } else if (event.data === "readyok") {
       setIsReady(true);
@@ -164,9 +165,11 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
     return true;
   }, [isSearching, isReady, worker, game, gameOver, onMessage, moveTime]);
 
-  // const clearBestMove = useCallback(() => {
-  //   setBestMove(null);
-  // }, []);
+  const uninit = useCallback(() => {
+    setIsInit(false);
+    setIsReady(false);
+    setUciOk(false);
+  }, []);
 
   useEffect(() => {
     if (game.isGameOver()) {
@@ -194,7 +197,8 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
     initEngine,
     updateEngine,
     startSearch,
-  }), [isInit, isReady, evaluated, skillLvl, initEngine, updateEngine, startSearch]);
+    uninit
+  }), [isInit, isReady, evaluated, skillLvl, initEngine, updateEngine, startSearch, uninit]);
 
   return (
     <StockfishProviderContext.Provider value={value}>
