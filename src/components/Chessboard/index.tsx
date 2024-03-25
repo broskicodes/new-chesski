@@ -197,6 +197,7 @@ export const Chessboard = () => {
               <div className='flex flex-col space-y-1'>
                 <DialogDescription className='text-black font-semibold text-lg'>Get notified about future updates!</DialogDescription>
                 <Button 
+                  variant="outline"
                   className='w-full'
                   onClick={signInWithOAuth}>
                   Sign in with Google
@@ -222,7 +223,7 @@ export const Chessboard = () => {
         position={game.fen()}
         onPieceDrop={(sSqr: Square, tSqr: Square) => {
           const res = onDrop(sSqr, tSqr);
-          
+
           if (res && !settingUp) {
             setMovesMade(movesMade + 1);
             posthog.capture("user_played_move");
