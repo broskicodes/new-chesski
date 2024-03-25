@@ -9,6 +9,7 @@ export interface StockfishProviderContext {
   initEngine: (limitStrength: boolean, skillLvl?: SkillLevel, moveTime?: number) => void;
   updateEngine: (limitStrength: boolean, skillLvl?: SkillLevel, moveTime?: number) => void;
   startSearch: () => boolean;
+  uninit: () => void;
 }
 
 export const StockfishProviderContext = createContext<StockfishProviderContext>({
@@ -25,6 +26,9 @@ export const StockfishProviderContext = createContext<StockfishProviderContext>(
   startSearch: () => {
     throw new Error("StockfishProvider not initialized");
   },
+  uninit: () => {
+    throw new Error("StockfishProvider not initialized");
+  }
 });
 
 export const useStockfish = () => useContext(StockfishProviderContext);

@@ -15,6 +15,7 @@ import { useAuth } from '@/providers/AuthProvider/context';
 import { Button, buttonVariants } from '../ui/button';
 import Link from 'next/link';
 import { STRIPE_LINK } from '@/utils/types';
+import { useSetup } from '@/providers/SetupProvider';
 
 export const Chessboard = () => {
   const [boardWidth, setBoardWidth] = useState(512);
@@ -27,7 +28,8 @@ export const Chessboard = () => {
   const { evals } = useEvaluation();
   const { toast } = useToast();
   const { session, supabase, signInWithOAuth } = useAuth();
-  const { addGameMessage, gameMessages } = useCoach()
+  const { addGameMessage, gameMessages } = useCoach();
+  const { settingUp } = useSetup();
   const { game, makeMove, onDrop, addHighlightedSquares, setLastMoveHighlightColor, arrows, turn, orientation, aiLastMoveHighlight, highlightedMoves, highlightedSquares, lastMoveHighlight, resetHighlightedMoves, addArrows } = useChess();
   
   const modalTriggerRef = useRef<HTMLButtonElement>(null);
@@ -84,54 +86,61 @@ export const Chessboard = () => {
 
       if (game.fen() !== curr?.evaledFen && turn === orientation) {
 
-        const moveStrength = evaluateMoveQuality(prev!, curr!);
+        const tempGame = new Chess();
+        tempGame.loadPgn(game.history().slice(0, -2).join(" "));
+        try {
+          tempGame.move(prev?.bestMove!)
 
-        if (!moveStrength) {
+          const moveStrength = evaluateMoveQuality(prev!, curr!);
+
+          if (!moveStrength) {
+            return;
+          }
+
+          let color: string;
+          let msg: string;
+          switch (moveStrength) {
+            case "Best":
+              color = "#E64DFF";
+              msg = "Best Move"
+              break;
+            case "Good":
+              color = "#33C57D";
+              msg = "Good Move";
+              break;
+            case "Inaccuracy":
+              color = "#F6C333";
+              msg = "Inaccurate";
+              break;
+            case "Mistake":
+              color = "#F4A153";
+              msg = "Mistake";
+              break;
+            case "Blunder":
+              color = "#E45B4F";
+              msg = "Blunder";
+              break;
+            default: 
+              color = "#F7A28D"
+              msg = "Trash"
+          }
+          setLastMoveHighlightColor(color);
+
+          
+
+          const gameMsg: Message = {
+            id: Math.random().toString(36).substring(7),
+            role: "assistant",
+            content: `"""You played ${game.history().at(-2)}${msg !== "Best Move" ? `. The best move was ${tempGame.history().at(-1)}` : ", it was the best move."}"""`
+          }
+
+
+          addGameMessage(gameMsg);
+          setCurrMessages([gameMsg], false);
+        } catch (e) {
+          // console.error(e);
           return;
         }
-
-        let color: string;
-        let msg: string;
-        switch (moveStrength) {
-          case "Best":
-            color = "#E64DFF";
-            msg = "Best Move"
-            break;
-          case "Good":
-            color = "#33C57D";
-            msg = "Good Move";
-            break;
-          case "Inaccuracy":
-            color = "#F6C333";
-            msg = "Inaccurate";
-            break;
-          case "Mistake":
-            color = "#F4A153";
-            msg = "Mistake";
-            break;
-          case "Blunder":
-            color = "#E45B4F";
-            msg = "Blunder";
-            break;
-          default: 
-            color = "#F7A28D"
-            msg = "Trash"
-        }
-        setLastMoveHighlightColor(color);
-
-        const tempGame = new Chess();
-        tempGame.loadPgn(game.history().slice(0, -2).join(" "))
-        tempGame.move(prev?.bestMove!)
-
-        const gameMsg: Message = {
-          id: Math.random().toString(36).substring(7),
-          role: "assistant",
-          content: `"""You played ${game.history().at(-2)}${msg !== "Best Move" ? `. The best move was ${tempGame.history().at(-1)}` : ", it was the best move."}"""`
-        }
-
-
-        addGameMessage(gameMsg);
-        setCurrMessages([gameMsg], false);
       }
     }
   }, [evals, setLastMoveHighlightColor, game, turn, orientation]);
@@ -188,6 +197,7 @@ export const Chessboard = () => {
               <div className='flex flex-col space-y-1'>
                 <DialogDescription className='text-black font-semibold text-lg'>Get notified about future updates!</DialogDescription>
                 <Button 
+                  variant="outline"
                   className='w-full'
                   onClick={signInWithOAuth}>
                   Sign in with Google
@@ -212,8 +222,14 @@ export const Chessboard = () => {
         boardWidth={boardWidth}
         position={game.fen()}
         onPieceDrop={(sSqr: Square, tSqr: Square) => {
-          setMovesMade(movesMade + 1);
-          return onDrop(sSqr, tSqr);
+          const res = onDrop(sSqr, tSqr);
+
+          if (res && !settingUp) {
+            setMovesMade(movesMade + 1);
+            posthog.capture("user_played_move");
+          }
+
+          return res;
         }}
         boardOrientation={orientation}
         customArrows={arrows}
@@ -275,9 +291,10 @@ export const Chessboard = () => {
             }
             
             if (makeMove({ from: highlightedMoves[0].from, to: sqr, promotion: "q" })) {
-              posthog.capture("user_played_move");
-              setMovesMade(movesMade + 1);
-
+              if (!settingUp) {
+                setMovesMade(movesMade + 1);
+                posthog.capture("user_played_move");
+              }
               // addHighlightedSquares([{ square: sqr, color: "#000000" }], true);
               // console.log(evals.at(-1)?.bestMove)
 
