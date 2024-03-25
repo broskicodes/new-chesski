@@ -145,7 +145,6 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
 
       if (!move) return false;
 
-      posthog.capture("user_played_move");
       setArrows([]);
       setHighlightedMoves([]);
 

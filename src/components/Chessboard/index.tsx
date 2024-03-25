@@ -15,6 +15,7 @@ import { useAuth } from '@/providers/AuthProvider/context';
 import { Button, buttonVariants } from '../ui/button';
 import Link from 'next/link';
 import { STRIPE_LINK } from '@/utils/types';
+import { useSetup } from '@/providers/SetupProvider';
 
 export const Chessboard = () => {
   const [boardWidth, setBoardWidth] = useState(512);
@@ -27,7 +28,8 @@ export const Chessboard = () => {
   const { evals } = useEvaluation();
   const { toast } = useToast();
   const { session, supabase, signInWithOAuth } = useAuth();
-  const { addGameMessage, gameMessages } = useCoach()
+  const { addGameMessage, gameMessages } = useCoach();
+  const { settingUp } = useSetup();
   const { game, makeMove, onDrop, addHighlightedSquares, setLastMoveHighlightColor, arrows, turn, orientation, aiLastMoveHighlight, highlightedMoves, highlightedSquares, lastMoveHighlight, resetHighlightedMoves, addArrows } = useChess();
   
   const modalTriggerRef = useRef<HTMLButtonElement>(null);
@@ -219,8 +221,14 @@ export const Chessboard = () => {
         boardWidth={boardWidth}
         position={game.fen()}
         onPieceDrop={(sSqr: Square, tSqr: Square) => {
-          setMovesMade(movesMade + 1);
-          return onDrop(sSqr, tSqr);
+          const res = onDrop(sSqr, tSqr);
+          
+          if (res && !settingUp) {
+            setMovesMade(movesMade + 1);
+            posthog.capture("user_played_move");
+          }
+
+          return res;
         }}
         boardOrientation={orientation}
         customArrows={arrows}
@@ -282,9 +290,10 @@ export const Chessboard = () => {
             }
             
             if (makeMove({ from: highlightedMoves[0].from, to: sqr, promotion: "q" })) {
-              posthog.capture("user_played_move");
-              setMovesMade(movesMade + 1);
-
+              if (!settingUp) {
+                setMovesMade(movesMade + 1);
+                posthog.capture("user_played_move");
+              }
               // addHighlightedSquares([{ square: sqr, color: "#000000" }], true);
               // console.log(evals.at(-1)?.bestMove)
 
