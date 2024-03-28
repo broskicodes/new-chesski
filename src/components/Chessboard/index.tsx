@@ -84,7 +84,7 @@ export const Chessboard = () => {
       return;
     }
 
-    await fetch("/api/streaks/cron", {
+    await fetch("/api/streaks/update", {
       method: "POST",
       body: JSON.stringify({
         id: session.id
