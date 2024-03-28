@@ -24,6 +24,8 @@ export const POST = async (req: Request) => {
     const currentDate = new Date();
     currentDate.setUTCHours(0, 0, 0, 0);
 
+    console.log(expireDate < currentDate);
+
     if (expireDate < currentDate) {
       const { error: updateError } = await supabase
         .from("streaks")
