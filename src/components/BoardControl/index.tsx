@@ -50,7 +50,7 @@ export const BoardControl = ({ className }: { className?: string }) => {
           </Button>
         </Tooltip>
       </div>
-      <StreakIcon />
+      {/* <StreakIcon /> */}
       {!settingUp && (
         <div className="flex flex-row space-x-2 items-center">
           <div className="sm:hidden">
