@@ -60,11 +60,15 @@ export const StreakIcon = () => {
   }, [session, supabase])
 
   return (
-    <Tooltip className="w-fit cursor-default" content={`${streak} day streak`}>
-      <div className="flex flex-row items-center space-x-2">
-        <FontAwesomeIcon className="text-xl" icon={faFireFlameCurved} size="xl" />
-        <div className="text-xl">{streak}</div>
-      </div>
-    </Tooltip>
+    <div>
+      {session && (
+        <Tooltip className="w-fit cursor-default" content={`${streak} day streak`}>
+          <div className="flex flex-row items-center space-x-2">
+            <FontAwesomeIcon className="text-xl" icon={faFireFlameCurved} size="xl" />
+            <div className="text-xl">{streak}</div>
+          </div>
+        </Tooltip>
+      )}
+    </div>
   )
 }

@@ -49,7 +49,7 @@ export const Sidebar = ({ children }: Props) => {
               <AvatarFallback>{name.split(" ")[0][0] ?? "N"}{name.split(" ")[1][0] ?? "N"}</AvatarFallback>
             </Avatar> */}
             <div className="font-semibold">{name}</div>
-            {/* <StreakIcon /> */}
+            <StreakIcon />
           </div>
           <div className="flex flex-col space-y-8 mt-12 sm:mt-24">
             <div className="flex flex-col space-y-4">
