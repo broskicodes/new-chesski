@@ -2,7 +2,14 @@ import { getSupabaseCilent } from "@/utils/serverHelpers"
 
 export const runtime = "edge";
 
-export const POST = async (req: Request) => {
+export const GET = async (req: Request) => {
+  const authHeader = req.headers.get('authorization');
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return new Response('Unauthorized', {
+      status: 401,
+    });
+  }
+
   const supabase = getSupabaseCilent();
 
   const { data, error } = await supabase
