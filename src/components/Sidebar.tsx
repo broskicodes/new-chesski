@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import posthog from "posthog-js";
 import Link from "next/link";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { StreakIcon } from "./StreakIcon";
 
 interface Props {
   children: ReactNode;
@@ -48,6 +49,7 @@ export const Sidebar = ({ children }: Props) => {
               <AvatarFallback>{name.split(" ")[0][0] ?? "N"}{name.split(" ")[1][0] ?? "N"}</AvatarFallback>
             </Avatar> */}
             <div className="font-semibold">{name}</div>
+            {/* <StreakIcon /> */}
           </div>
           <div className="flex flex-col space-y-8 mt-12 sm:mt-24">
             <div className="flex flex-col space-y-4">

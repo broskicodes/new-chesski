@@ -9,6 +9,7 @@ import { useStockfish } from "@/providers/StockfishProvider/context";
 import { useEvaluation } from "@/providers/EvaluationProvider/context";
 import { Sidebar } from "../Sidebar";
 import { useSetup } from "@/providers/SetupProvider";
+import { StreakIcon } from "../StreakIcon";
 
 export const BoardControl = ({ className }: { className?: string }) => {
   const { undo, swapOrientation, reset } = useChess();
@@ -31,7 +32,7 @@ export const BoardControl = ({ className }: { className?: string }) => {
   }, [reset, clearGameMessages, clearEvaluations]);
 
   return (
-    <div className={`flex flex-row justify-between ${className}`}>
+    <div className={`flex flex-row justify-between items-center ${className}`}>
       <div className="flex flex-row space-x-2">
         <Tooltip content="Flip Board">
           <Button size="icon" onClick={handleFlip}>
@@ -49,8 +50,9 @@ export const BoardControl = ({ className }: { className?: string }) => {
           </Button>
         </Tooltip>
       </div>
+      {/* <StreakIcon /> */}
       {!settingUp && (
-        <div className="flex flex-row space-x-2">
+        <div className="flex flex-row space-x-2 items-center">
           <div className="sm:hidden">
             <Sidebar>
               <Button size="icon">
