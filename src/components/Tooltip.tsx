@@ -5,9 +5,10 @@ import "tippy.js/dist/tippy.css";
 interface TooltipProps {
   content: string;
   children: JSX.Element;
+  className?: string
 }
 
-export const Tooltip = ({ content, children }: TooltipProps) => {
+export const Tooltip = ({ content, children, className }: TooltipProps) => {
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const [instance, setInstance] = useState<Instance | null>(null);
 
@@ -28,7 +29,7 @@ export const Tooltip = ({ content, children }: TooltipProps) => {
   }, [content, instance]);
 
   return (
-    <div ref={tooltipRef}>
+    <div className={className} ref={tooltipRef}>
       {children}
       <div className="hidden">{content}</div>
     </div>
