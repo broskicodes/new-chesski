@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/streaks/cron",
-      "schedule": "35 0 * * *"
+      "schedule": "42 0 * * *"
     }
   ]
 }
