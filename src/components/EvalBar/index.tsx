@@ -5,6 +5,7 @@ import { useChess } from "@/providers/ChessProvider/context";
 import { useStockfish } from "@/providers/StockfishProvider/context";
 import { useEvaluation } from "@/providers/EvaluationProvider/context";
 import { Tooltip } from "../Tooltip";
+import { useGame } from "@/providers/GameProvider";
 
 export const EvalBar = () => {
   const [barLength, setBarLength] = useState<number>(512);
@@ -16,6 +17,7 @@ export const EvalBar = () => {
   const { game, orientation } = useChess();
   const { startSearch, isReady } = useStockfish();
   const { evals } = useEvaluation();
+  const { gameId, complete: gameComplete } = useGame();
 
   useEffect(() => {
     if (orientation === "white") {
@@ -46,10 +48,10 @@ export const EvalBar = () => {
   }, [evals, orientation, mobile, barLength]);
 
   useEffect(() => {
-    if (isReady && game.fen() !== evals.at(-1)?.evaledFen) {
+    if (isReady && game.fen() !== evals.at(-1)?.evaledFen && gameId && !gameComplete) {
       startSearch();
     }
-  }, [game, evals, isReady, startSearch]);
+  }, [game, evals, isReady, gameId, gameComplete, startSearch]);
 
   useEffect(() => {
     barRef.current?.style.setProperty(`${mobile ? "width" : "height"}`, `${barLength}px`)

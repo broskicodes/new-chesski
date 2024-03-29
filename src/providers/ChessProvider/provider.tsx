@@ -121,6 +121,36 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
     }
   }, [game, turn]);
 
+  const doubleUndo = useCallback(() => {
+    const tempGame = new Chess();
+    tempGame.loadPgn(game.pgn());
+    try {
+      const res = tempGame.undo();
+      if (res) {
+        const res2 = tempGame.undo();
+
+        setGame(tempGame);
+
+        if (!res2) {
+          setTurn(turn === Player.White ? Player.Black : Player.White);
+        }
+
+        setHighlightedMoves([]);
+        setHighlightedSquares([]);
+        setLastMoveHighlight(null);
+        setAILastMoveHighlight(null);
+        setArrows([]);
+        
+        setCurrGameState({ moves: tempGame.history() });
+
+        return res2;
+      }
+      return res;
+    } catch (e) {
+      return null;
+    }
+  }, [game, turn]);
+
   const reset = useCallback(() => {
     const tempGame = new Chess();
     setGame(tempGame);
@@ -231,6 +261,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
       onDrop,
       onDropVersus,
       undo,
+      doubleUndo,
       reset,
       swapOrientation,
       addArrows,
@@ -254,6 +285,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
       onDrop,
       onDropVersus,
       undo,
+      doubleUndo,
       reset,
       swapOrientation,
       addArrows,

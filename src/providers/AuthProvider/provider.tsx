@@ -3,7 +3,7 @@ import { User } from "@supabase/supabase-js";
 import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 import { AuthContext } from "./context";
 import posthog from 'posthog-js';
-// import { usePostHog } from "posthog-js/react";
+import { setCurrGameState } from "@/utils/clientHelpers";
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [origin, setOrigin] = useState("");
@@ -28,6 +28,13 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     setSession(null);
+    setCurrGameState({
+      id: "",
+      startingPos: "",
+      complete: false,
+      moves: [],
+      orientation: "white"
+    });
   }, [supabase]);
 
   useEffect(() => {
