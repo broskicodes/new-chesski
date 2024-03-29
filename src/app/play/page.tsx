@@ -14,7 +14,6 @@ import { GameState, SkillLevel } from '@/utils/types';
 import { useEffect, useRef, useState } from 'react';
 import { Footer } from '@/components/Footer';
 import { Message } from 'ai';
-import { GameModal } from '@/components/GameModal';
 import { useSetup } from '@/providers/SetupProvider';
 import { expToLvl } from '@/utils/clientHelpers';
 import { useUserData } from '@/providers/UserDataProvider/context';
@@ -72,9 +71,9 @@ export default function Play() {
         swapOrientation();
       }
 
-      if (gameState.moves.length === 0) {
-        toggleModal(true);
-      }
+      // if (gameState.moves.length === 0) {
+      //   toggleModal(true);
+      // }
     }
 
     if (msgState) {
@@ -88,7 +87,6 @@ export default function Play() {
       
       <Navbar />
       {/* <Footer /> */}
-      <GameModal />
       <div className="page-content" ref={contentRef}>
         <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0" ref={chessRef}>
           <EvalBar />

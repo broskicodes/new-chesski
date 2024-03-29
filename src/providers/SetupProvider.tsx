@@ -6,6 +6,8 @@ import { Experience } from '@/utils/types';
 import { expToLvl, experienceToTitle } from '@/utils/clientHelpers';
 import { Label } from '@/components/ui/label';
 import { useStockfish } from '@/providers/StockfishProvider/context';
+import { useGame } from './GameProvider';
+import { usePathname } from 'next/navigation';
 
 export interface SetupProviderContext {
   settingUp: boolean;
@@ -30,6 +32,8 @@ export const useSetup = () => useContext(SetupContext);
 
 export const SetupProvider = ({ children }: PropsWithChildren) => {
   const { initEngine, uninit, skillLvl } = useStockfish();
+  const { newGame, gameId } = useGame();
+  const pathname = usePathname();
 
   const [open, setOpen] = useState(false);
   const [settingUp, setSettingUp] = useState(false);
@@ -49,6 +53,14 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     setEngineSkillLevel((Experience as any)[skillLvl] ?? "Impossible");
   }, [skillLvl])
+
+  useEffect(() => {
+    if (!gameId && pathname === "/play") {
+      setOpen(true);
+    } else {
+      setOpen(false);
+    }
+  }, [gameId])
 
   return (
     <SetupContext.Provider value={value}>
@@ -85,6 +97,7 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
             <Label className='whitespace-nowrap'>Choose Starting Position</Label>
             <DialogClose className='col-span-1 flex-grow'>
               <Button 
+                disabled={!!gameId}
                 className='w-full'
                 variant="outline"
                 onClick={() => {
@@ -105,6 +118,9 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
 
                   uninit();
                   initEngine(true, lvl, 2000);
+                  if (!gameId) {
+                    newGame();
+                  }
                   setOpen(false);
                 }}>
                 Confirm

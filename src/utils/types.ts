@@ -65,8 +65,11 @@ export interface Evaluation {
 }
 
 export interface GameState {
+  id: string;
+  startingPos: string;
   moves: string[];
   orientation: "white" | "black";
+  complete: boolean;
 }
 
 export const SanRegex = /(O-O(-O)?|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](=[QRBN])?[\+#]?|([a-h]x)?[a-h][1-8](=[QRBN])?[\+#]?)/g;

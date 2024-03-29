@@ -34,6 +34,7 @@ export interface ChessProviderContext {
   ) => Move | null;
   setPosition: (fen: string) => boolean;
   undo: () => Move | null;
+  doubleUndo: () => Move | null;
   reset: () => void;
   swapOrientation: () => void;
   addArrows: (arrows: Arrow[], reset: boolean) => void;
@@ -63,6 +64,9 @@ export const ChessContext = createContext<ChessProviderContext>({
     throw new Error("ChessboardProvider not initialized");
   },
   undo: () => {
+    throw new Error("ChessboardProvider not initialized");
+  },
+  doubleUndo: () => {
     throw new Error("ChessboardProvider not initialized");
   },
   reset: () => {
