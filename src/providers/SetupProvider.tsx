@@ -7,6 +7,7 @@ import { expToLvl, experienceToTitle } from '@/utils/clientHelpers';
 import { Label } from '@/components/ui/label';
 import { useStockfish } from '@/providers/StockfishProvider/context';
 import { useGame } from './GameProvider';
+import { usePathname } from 'next/navigation';
 
 export interface SetupProviderContext {
   settingUp: boolean;
@@ -32,6 +33,7 @@ export const useSetup = () => useContext(SetupContext);
 export const SetupProvider = ({ children }: PropsWithChildren) => {
   const { initEngine, uninit, skillLvl } = useStockfish();
   const { newGame, gameId } = useGame();
+  const pathname = usePathname();
 
   const [open, setOpen] = useState(false);
   const [settingUp, setSettingUp] = useState(false);
@@ -53,7 +55,7 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
   }, [skillLvl])
 
   useEffect(() => {
-    if (!gameId) {
+    if (!gameId && pathname === "/play") {
       setOpen(true);
     } else {
       setOpen(false);
