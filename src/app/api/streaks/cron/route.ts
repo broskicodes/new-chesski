@@ -1,4 +1,5 @@
 import { getSupabaseCilent } from "@/utils/serverHelpers"
+import { createServerClient } from "@supabase/ssr";
 
 export const runtime = "edge";
 
@@ -10,7 +11,11 @@ export const GET = async (req: Request) => {
     });
   }
 
-  const supabase = getSupabaseCilent();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_KEY!,
+    { cookies: {} }
+  );
 
   const { data, error } = await supabase
     .from("streaks")
@@ -25,21 +30,18 @@ export const GET = async (req: Request) => {
 
   await Promise.all(data?.map(async (s) => {
     const updatedDate = new Date(s.updated_at);
-    const expireDate = new Date();
-    expireDate.setDate(updatedDate.getDate() + 1);
+    updatedDate.setDate(updatedDate.getDate() + 1);
     
     const currentDate = new Date();
     currentDate.setUTCHours(0, 0, 0, 0);
 
-    console.log(currentDate, expireDate);
-
-    if (expireDate < currentDate) {
+    if (updatedDate < currentDate) {
       const { error: updateError } = await supabase
         .from("streaks")
         .update({
-          uuid: s.uuid,
           streak: 0,
         })
+        .eq("uuid", s.uuid)
 
       if (updateError) {
         console.error(updateError);
