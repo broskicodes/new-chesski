@@ -41,58 +41,83 @@ export const POST = async (req: Request) => {
         { cookies: {} }
       );
 
-      const checkoutSessionCompleted = event.data.object;
-
-      const email = checkoutSessionCompleted.customer_details?.email
-      const name = checkoutSessionCompleted.customer_details?.name;
-      const amount = checkoutSessionCompleted.amount_subtotal;
-
-      const { data, error } = await supabase
-        .rpc("get_user_by_email", { query_email: email });
-
-      const user_id = data && data[0] ? data[0].id : null;
-
-      const { error: insertError } = await supabase.from("user_donos")
-        .insert({
-          email,
-          name,
-          amount,
-          uuid: user_id
-        });
-
-      if (!insertError) {
-        const contacts = await loops.findContact(email!);
-
-        if (contacts.length > 0) {
-          const res = await loops.updateContact(email!, {
-            supporter: true
-          });
-
-          if (!res.success && res.message !== "Email or userId is already on list.") {
-            console.log(res);
-            console.error(`Couldn't subscribe user with email ${email} to Loops.`);
-          }
-        } else {
-          let first: string = "";
-          let last: string = "";
-
-          if (name) {
-            first = name.replace(" ", "@").split("@")[0];
-            last = name.replace(" ", "@").split("@")[1];
-          }
-
-          const res = await loops.createContact(email!, {
-            firstName: first,
-            lastName: last,
-            supporter: true
-          });
-
-          if (!res.success && res.message !== "Email or userId is already on list.") {
-            console.log(res);
-            console.error(`Couldn't subscribe user with email ${email} to Loops.`);
-          }
+      const sessionWithLineItems = await stripe.checkout.sessions.retrieve(
+        event.data.object.id,
+        {
+          expand: ['line_items'],
         }
+      );
+      const lineItems = sessionWithLineItems.line_items;
+      const price_id = lineItems?.data[0].price;
+      const user_id = sessionWithLineItems.metadata?.user_id;
+
+      if (!user_id) {
+        return new Response("Invalid user somehow", { status: 500 });
       }
+
+      // console.log();
+
+      if (price_id === process.env.CHESSKI_MONTHLY_ID || price_id === process.env.CHESSKI_YEARLY_ID) {
+        const { data, error } = await supabase.from("pro_users")
+          .insert({
+            user_id: user_id,
+            sub_id: sessionWithLineItems.subscription,
+            active: true
+          })
+          .select("*");
+
+        console.log(data, error);
+      }
+      // const email = checkoutSessionCompleted.customer_details?.email
+      // const name = checkoutSessionCompleted.customer_details?.name;
+      // const amount = checkoutSessionCompleted.amount_subtotal;
+
+      // const { data, error } = await supabase
+      //   .rpc("get_user_by_email", { query_email: email });
+
+      // const user_id = data && data[0] ? data[0].id : null;
+
+      // const { error: insertError } = await supabase.from("user_donos")
+      //   .insert({
+      //     email,
+      //     name,
+      //     amount,
+      //     uuid: user_id
+      //   });
+
+      // if (!insertError) {
+      //   const contacts = await loops.findContact(email!);
+
+      //   if (contacts.length > 0) {
+      //     const res = await loops.updateContact(email!, {
+      //       supporter: true
+      //     });
+
+      //     if (!res.success && res.message !== "Email or userId is already on list.") {
+      //       console.log(res);
+      //       console.error(`Couldn't subscribe user with email ${email} to Loops.`);
+      //     }
+      //   } else {
+      //     let first: string = "";
+      //     let last: string = "";
+
+      //     if (name) {
+      //       first = name.replace(" ", "@").split("@")[0];
+      //       last = name.replace(" ", "@").split("@")[1];
+      //     }
+
+      //     const res = await loops.createContact(email!, {
+      //       firstName: first,
+      //       lastName: last,
+      //       supporter: true
+      //     });
+
+      //     if (!res.success && res.message !== "Email or userId is already on list.") {
+      //       console.log(res);
+      //       console.error(`Couldn't subscribe user with email ${email} to Loops.`);
+      //     }
+      //   }
+      // }
         
       // Then define and call a function to handle the event checkout.session.completed
       break;
