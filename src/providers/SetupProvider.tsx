@@ -60,7 +60,7 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
     } else {
       setOpen(false);
     }
-  }, [gameId])
+  }, [gameId, pathname])
 
   return (
     <SetupContext.Provider value={value}>

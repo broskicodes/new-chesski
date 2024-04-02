@@ -32,15 +32,33 @@ export const POST = async (req: Request) => {
     return new Response(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_KEY!,
+    { cookies: {} }
+  );
+
   // Handle the event
   switch (event.type) {
-    case 'checkout.session.completed':
-      const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_KEY!,
-        { cookies: {} }
-      );
+    case 'customer.subscription.updated':
+      console.log("updated")
+      break;
+    case 'customer.subscription.deleted':
+      // console.log("deleted", event.data);
+      const sub_id = event.data.object.id;
 
+      const { data, error } = await supabase.from("pro_users")
+        .update({
+          active: false
+        })
+        .eq("sub_id", sub_id)
+        .select("*");
+
+      console.log(data, error);
+      // console.log(sub_id);
+      break;
+
+    case 'checkout.session.completed':
       const sessionWithLineItems = await stripe.checkout.sessions.retrieve(
         event.data.object.id,
         {
@@ -48,14 +66,12 @@ export const POST = async (req: Request) => {
         }
       );
       const lineItems = sessionWithLineItems.line_items;
-      const price_id = lineItems?.data[0].price;
+      const price_id = lineItems?.data[0].price?.id;
       const user_id = sessionWithLineItems.metadata?.user_id;
 
       if (!user_id) {
         return new Response("Invalid user somehow", { status: 500 });
       }
-
-      // console.log();
 
       if (price_id === process.env.CHESSKI_MONTHLY_ID || price_id === process.env.CHESSKI_YEARLY_ID) {
         const { data, error } = await supabase.from("pro_users")
@@ -68,6 +84,7 @@ export const POST = async (req: Request) => {
 
         console.log(data, error);
       }
+      break;
       // const email = checkoutSessionCompleted.customer_details?.email
       // const name = checkoutSessionCompleted.customer_details?.name;
       // const amount = checkoutSessionCompleted.amount_subtotal;
@@ -120,7 +137,7 @@ export const POST = async (req: Request) => {
       // }
         
       // Then define and call a function to handle the event checkout.session.completed
-      break;
+      // break;
     // ... handle other event types
     default:
       console.log(`Unhandled event type ${event.type}`);
