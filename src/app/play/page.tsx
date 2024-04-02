@@ -10,7 +10,7 @@ import { useAuth } from '@/providers/AuthProvider/context';
 import { useChess } from '@/providers/ChessProvider/context';
 import { useCoach } from '@/providers/CoachProvider/context';
 import { useStockfish } from '@/providers/StockfishProvider/context';
-import { GameState, SkillLevel } from '@/utils/types';
+import { GameState } from '@/utils/types';
 import { useEffect, useRef, useState } from 'react';
 import { Footer } from '@/components/Footer';
 import { Message } from 'ai';
