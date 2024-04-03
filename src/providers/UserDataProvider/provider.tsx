@@ -109,7 +109,7 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
     return () => {
       sub.unsubscribe();
     }
-  }, [session, supabase]);
+  }, [session, supabase, subId]);
 
   useEffect(() => {
     (async () => {

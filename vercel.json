@@ -3,6 +3,10 @@
     {
       "path": "/api/streaks/cron",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/query-cron",
+      "schedule": "0 0 * * *"
     }
   ]
 }
