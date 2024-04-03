@@ -93,6 +93,7 @@ const SubPage = () => {
                   )}
                   {!session && (
                     <Button
+                      className="w-full"
                       onClick={() => {
                         signInWithOAuth("subscribe");
                       }}>
