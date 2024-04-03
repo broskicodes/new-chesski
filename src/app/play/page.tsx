@@ -66,7 +66,9 @@ export default function Play() {
     const msgState: Message[] = JSON.parse(localStorage.getItem("currMessages")!)
 
     if (gameState) {
-      playContinuation(gameState.moves, true);
+      if (gameState.moves && gameState.moves.length) {
+        playContinuation(gameState.moves, true);
+      }
       if (gameState.orientation && gameState.orientation === "black" && orientation === "white") {
         swapOrientation();
       }
