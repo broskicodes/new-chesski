@@ -9,19 +9,23 @@ import { faBars, faUser } from "@fortawesome/free-solid-svg-icons";
 import { useUserData } from "@/providers/UserDataProvider/context";
 import Link from "next/link";
 
-export const Navbar = () => {
+interface Props {
+  showMobile?: boolean
+}
+
+export const Navbar = ({ showMobile }: Props) => {
   const { session, signInWithOAuth, signOut } = useAuth();
   const router = useRouter();
   const { name } = useUserData();
 
 
   return (
-    <div className="navbar">
+    <div className={`navbar ${showMobile ? "" : "hidden"} sm:block z-40`}>
       <header className="navbar-container flex flex-row justify-between items-center py-2 text-white">
         <Link href="/" className="text-2xl font-bold arvo cursor-pointer">CHESSKI</Link>
         <nav className="flex flex-row space-x-4 items-center">
           <ul className="">
-            {!session && <Button onClick={signInWithOAuth}>Sign In</Button>}
+            {!session && <Button onClick={() => signInWithOAuth()}>Sign In</Button>}
             {session && (
               <Sidebar>
                 <Button className="flex flex-row items-center space-x-2">

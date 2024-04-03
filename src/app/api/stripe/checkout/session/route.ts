@@ -42,8 +42,8 @@ export const POST = async (req: Request) => {
     // customer: user ? user.id : undefined,
     customer_email: user ? user.email : undefined,
     // client_reference_id: user ? user.id : "",
-    success_url: `${process.env.ENV_URL}/success`,
-    cancel_url: `${process.env.ENV_URL}/cancel`,
+    success_url: `${process.env.ENV_URL}/play`,
+    cancel_url: `${process.env.ENV_URL}/subscribe`,
     line_items: [{
       price: productId,
       quantity: 1
@@ -59,5 +59,5 @@ export const POST = async (req: Request) => {
   }
 
   // console.log(session.url)
-  return new Response(session.url, );
+  return new Response(session.url);
 }

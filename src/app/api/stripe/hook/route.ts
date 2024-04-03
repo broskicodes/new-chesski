@@ -73,11 +73,14 @@ export const POST = async (req: Request) => {
         return new Response("Invalid user somehow", { status: 500 });
       }
 
+      // console.log(sessionWithLineItems.customer);
+
       if (price_id === process.env.CHESSKI_MONTHLY_ID || price_id === process.env.CHESSKI_YEARLY_ID) {
         const { data, error } = await supabase.from("pro_users")
           .insert({
             user_id: user_id,
             sub_id: sessionWithLineItems.subscription,
+            customer_id: sessionWithLineItems.customer,
             active: true
           })
           .select("*");

@@ -32,7 +32,7 @@ export const Chessboard = () => {
   const { settingUp } = useSetup();
   const { game, makeMove, onDrop, addHighlightedSquares, setLastMoveHighlightColor, arrows, turn, orientation, aiLastMoveHighlight, highlightedMoves, highlightedSquares, lastMoveHighlight, resetHighlightedMoves, addArrows } = useChess();
   
-  const modalTriggerRef = useRef<HTMLButtonElement>(null);
+  // const modalTriggerRef = useRef<HTMLButtonElement>(null);
 
   const evaluateMoveQuality = useCallback((prevPosition: PositionEval, currentPosition: PositionEval): string | null => {
     let evalDiff = currentPosition.evaluation - prevPosition.evaluation;
@@ -139,8 +139,6 @@ export const Chessboard = () => {
           }
           setLastMoveHighlightColor(color);
 
-          
-
           const gameMsg: Message = {
             id: Math.random().toString(36).substring(7),
             role: "assistant",
@@ -174,32 +172,32 @@ export const Chessboard = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  useEffect(() => {
-    if (movesMade === (session ? 15 : 5) * mult) {
-      setMult(mult * 2);
+  // useEffect(() => {
+  //   if (movesMade === (session ? 15 : 5) * mult) {
+  //     setMult(mult * 2);
 
-      if (session && supabase) {
-        (async () => {
-          const { data, error } = await supabase
-            .from("user_donos")
-            .select()
-            .eq("email", session.email);
+  //     if (session && supabase) {
+  //       (async () => {
+  //         const { data, error } = await supabase
+  //           .from("user_donos")
+  //           .select()
+  //           .eq("email", session.email);
 
-          if (data && data.length > 0) return;
+  //         if (data && data.length > 0) return;
             
-          modalTriggerRef.current?.click();
-        })();
+  //         modalTriggerRef.current?.click();
+  //       })();
 
-        return;
-      }
+  //       return;
+  //     }
 
-      modalTriggerRef.current?.click();
-    }
-  }, [movesMade, mult, session, supabase])
+  //     modalTriggerRef.current?.click();
+  //   }
+  // }, [movesMade, mult, session, supabase])
 
   return (
     <div>
-      <Dialog>
+      {/* <Dialog>
         <DialogTrigger ref={modalTriggerRef} className='hidden' />
         <DialogContent>
           <DialogHeader className='flex flex-col items-center space-y-0'>
@@ -212,7 +210,7 @@ export const Chessboard = () => {
                 <Button 
                   variant="outline"
                   className='w-full'
-                  onClick={signInWithOAuth}>
+                  onClick={() => signInWithOAuth()}>
                   Sign in with Google
                 </Button>
               </div>
@@ -230,7 +228,7 @@ export const Chessboard = () => {
             </div>
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
       <ReactChessboad
         boardWidth={boardWidth}
         position={game.fen()}

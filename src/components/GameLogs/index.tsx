@@ -9,15 +9,22 @@ import "./styles.css";
 import posthog from "posthog-js";
 import { useEvaluation } from "@/providers/EvaluationProvider/context";
 import { Button } from "../ui/button";
+import { useAuth } from "@/providers/AuthProvider/context";
+import { useUserData } from "@/providers/UserDataProvider/context";
+import Link from "next/link";
+// import ReactMarkdown from "react-markdown";
 
 export const GameLogs = () => {
   const [prevFen, setPrevFen] = useState("");
+  const [numQueries, setNumQueries] = useState(0);
   // const [evals, setEvals] = useState<{ [key: number]: Evaluation }[]>([{}]);
 
+  const { session, supabase, signInWithOAuth } = useAuth();
   const { evals } = useEvaluation();
   const { isInit, startSearch } = useStockfish();
   const { game, turn, orientation, addHighlightedSquares, addArrows, makeMove } = useChess();
   const { gameMessages, processing, queries, addGameMessage, appendGameMessage, getExplantion } = useCoach();
+  const { isPro } = useUserData();
 
   const logRef = useRef<HTMLDivElement>(null);
 
@@ -90,6 +97,22 @@ export const GameLogs = () => {
     }
   }, [game, orientation, turn, makeMove]);
 
+  useEffect(() => {
+    if (!session || !supabase) {
+      return;
+    }
+
+    (async () => {
+      const { data } = await supabase.from("daily_position_queries")
+        .select("number")
+        .eq("user_id", session.id);
+
+      if (data && data[0]) {
+        setNumQueries(data[0].number);
+      }
+    })()
+  }, [session, supabase])
+
   return (
     <div className="logs">
       <div className="log-content" ref={logRef}>
@@ -107,14 +130,25 @@ export const GameLogs = () => {
           const elems = segments.map((segment, i) => {
             if (SanRegex.test(segment)) {
               return <span key={i} className="san" onClick={() => highlightGameBoard(segment)}>{segment}</span>;
-            }
+            } 
+
+            if (segment.includes("Subscribe now")) {
+              const parts = segment.split("Subscribe now");
+              return (
+                <span key={i}>
+                  {parts[0]}
+                  <Link href="/subscribe" className="underline font-semibold">Subscribe now</Link>
+                  {parts[1]}
+                </span>
+              );
+            }           
             return <span key={i}>{segment}</span>;
           });
 
           return (
             <div key={i} className="flex flex-col">
               <span className={`${message.role}-message role`}>CHESSKI:</span>
-              {/* <ReactMarkdown className="content">{elems}</ReactMarkdown> */}
+              {/* <ReactMarkdown className="content"><div>{elems}</div></ReactMarkdown> */}
               <div className="content">{elems}</div>
             </div>
           )
@@ -129,19 +163,54 @@ export const GameLogs = () => {
           //   ))}
           // </div>
           <div className="queries">
-            <Button 
+            {session && (
+              <Button 
+                variant="outline" size="thin"
+                onClick={async () => {
+                  if (!isPro) {
+                    if (numQueries >= 3) {
+                      addGameMessage({
+                        id: Math.random().toString(32).substring(7),
+                        role: "assistant",
+                        content: `"""Your have reached your daily limit for analysis. Subscribe now, or come back tomorrow."""`
+                      })
+                      return;
+                    }
+
+
+                    if (!supabase) {
+                      return;
+                    }
+
+                    const {} = await supabase
+                      .from("daily_position_queries")
+                      .upsert({
+                        user_id: session.id,
+                        number: numQueries + 1
+                      });
+
+                    setNumQueries(numQueries + 1);
+                  }
+
+                  const latestEval = evals.length > 0 ? evals.at(-1)! : undefined;
+
+                  if (!latestEval) return;
+
+                  appendGameMessage({
+                    role: "user",
+                    content: `${latestEval.evaluation} ${latestEval.pv.join(" ")}`
+                  });
+                }}
+                >Analyze position</Button>
+            )}
+            {!session && (
+              <Button 
               variant="outline" size="thin"
               onClick={() => {
-                const latestEval = evals.length > 0 ? evals.at(-1)! : undefined;
-
-                if (!latestEval) return;
-
-                appendGameMessage({
-                  role: "user",
-                  content: `${latestEval.evaluation} ${latestEval.pv.join(" ")}`
-                });
+                signInWithOAuth()
               }}
-              >Analyze position</Button>
+              >Sign in to Analyze</Button>
+            )}
             {/* <Button 
               variant="outline" size="thin"
               onClick={() => {

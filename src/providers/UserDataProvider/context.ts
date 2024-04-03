@@ -7,6 +7,8 @@ export interface UserDataProviderContext {
   experience: Experience;
   name: string;
   pfp: string;
+  isPro: boolean;
+  subId: string | null;
   saveData: () => Promise<void>;
   getData: () => Promise<void>;
   updateChesscom: Dispatch<SetStateAction<string | null>>;
@@ -21,6 +23,8 @@ export const UserDataContext = createContext<UserDataProviderContext>({
   experience: Experience.Beginner,
   name: "",
   pfp: "",
+  isPro: false,
+  subId: null,
   getData: () => {
     throw new Error("UserDataProvider not initialized");
   },

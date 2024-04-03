@@ -317,7 +317,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
                 <DialogTitle>Learn something?</DialogTitle>
                 <DialogDescription className='text-black'>Sign up to get more out of Chesski!</DialogDescription>
               </div>
-              <Button onClick={signInWithOAuth}>
+              <Button onClick={() => signInWithOAuth()}>
                 Sign in with Google
               </Button>
             </div>
