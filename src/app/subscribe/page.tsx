@@ -57,7 +57,7 @@ const SubPage = () => {
       </div>
       <div className='flex flex-col space-y-8 sm:flex-row sm:space-x-16 sm:space-y-0 mt-8 sm:mt-12'>
         {pricing.tiers.map((tier) => (
-          <Card key={tier.title} className={`${tier.mostPopular ? "border-4 border-indigo-500" : ""} relative`}>
+          <Card key={tier.title} className={`${tier.mostPopular ? "border-4 border-indigo-500" : ""} relative sm:w-[312px]`}>
             {tier.mostPopular ? (
                 <p className="absolute top-0 left-1/2 py-1.5 px-4 bg-indigo-500 rounded-full text-xs font-semibold uppercase tracking-wide text-white transform -translate-y-1/2 -translate-x-1/2">
                   Improve faster
