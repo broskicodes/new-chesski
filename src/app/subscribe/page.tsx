@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/providers/AuthProvider/context';
+import { useUserData } from "@/providers/UserDataProvider/context";
 import { SubType } from '@/utils/types';
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -17,6 +18,7 @@ import React, { useMemo, useState } from 'react';
 const SubPage = () => {
   const [annual, setAnnual] = useState(false);
   
+  const { isPro } = useUserData();
   const { session, signInWithOAuth } = useAuth();
   const router = useRouter();
   
@@ -74,7 +76,7 @@ const SubPage = () => {
               {tier.price === 0 && <span className='font-semibold text-3xl'>FREE</span>}
               {tier.price > 0 && (
                 <div>
-                  {session && (
+                  {session && !isPro && (
                     <Button
                       className='w-full'
                       onClick={async () => { 
@@ -89,6 +91,14 @@ const SubPage = () => {
                         router.push(link);
                       }}>
                       {tier.cta}
+                    </Button>
+                  )}
+                  {session && isPro && (
+                    <Button
+                      disabled
+                      className='w-full disabled:opacity-70 disabled:bg-[#1b03a3] disabled:ring-gred:ring-4'
+                      >
+                      Current Plan
                     </Button>
                   )}
                   {!session && (

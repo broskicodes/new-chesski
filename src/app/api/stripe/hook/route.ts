@@ -1,3 +1,4 @@
+import PostHogClient from "@/utils/posthog";
 import { createServerClient } from "@supabase/ssr";
 import LoopsClient from "loops";
 import Stripe from "stripe";
@@ -84,6 +85,22 @@ export const POST = async (req: Request) => {
             active: true
           })
           .select("*");
+
+        // console.log(sessionWithLineItems.customer_details?.email, sessionWithLineItems.customer_email);
+      
+        const posthog = PostHogClient();
+        posthog.identify({
+          distinctId: user_id,
+          properties: {
+            email: sessionWithLineItems.customer_email
+          }
+        });
+
+        posthog.capture({
+          distinctId: user_id,
+          event: "sub_purchased"
+        })
+        await posthog.shutdownAsync();
 
         console.log(data, error);
       }

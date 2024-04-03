@@ -35,7 +35,6 @@ export const POST = async (req: Request) => {
   const session = await stripe.billingPortal.sessions.create({
     customer: data[0].customer_id,
     return_url: `${process.env.ENV_URL}/play`
-
   });
 
   if (!session) {
