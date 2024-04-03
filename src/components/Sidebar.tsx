@@ -108,7 +108,7 @@ export const Sidebar = ({ children }: Props) => {
                 </Button>
               )}
               {!editing && !session && (
-                <Button className="w-full" onClick={signInWithOAuth}>
+                <Button className="w-full" onClick={() => signInWithOAuth()}>
                   Sign in to edit
                 </Button>
               )}
