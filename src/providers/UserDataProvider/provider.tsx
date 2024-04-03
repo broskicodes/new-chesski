@@ -10,6 +10,8 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
 
   const [name, setName] = useState("");
   const [pfp, setPfp] = useState("");
+  const [isPro, setIsPro] = useState(false);
+  const [subId, setSubId] = useState<string | null>(null)
 
   const { session, supabase} = useAuth();
 
@@ -65,6 +67,51 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
   }, [getData]);
 
   useEffect(() => {
+    if (!session || !supabase) {
+      return;
+    }
+
+    (async () => {
+      const { data, error } = await supabase.from("pro_users")
+        .select("active,sub_id")
+        .eq("user_id", session.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+        
+
+      if (error || !data) {
+        setIsPro(false);
+        return;
+      }
+
+      setIsPro(data[0].active);
+      setSubId(data[0].sub_id);
+    })();
+
+    const sub = supabase
+      .channel("pro_users")
+      .on("postgres_changes", {
+        event: '*', 
+        schema: 'public', 
+        table: "pro_users" 
+      }, (payload) => {
+        if (payload.eventType === "DELETE" && payload.old.sub_id === subId) {
+          setIsPro(false);
+          setSubId(null);
+        }
+        if ((payload.eventType === "INSERT" || payload.eventType === "UPDATE") && (payload.new.sub_id === subId || payload.new.user_id === session.id)) {
+          setIsPro(payload.new.active);
+          setSubId(payload.new.sub_id)
+        }
+      })
+      .subscribe();
+
+    return () => {
+      sub.unsubscribe();
+    }
+  }, [session, supabase, subId]);
+
+  useEffect(() => {
     (async () => {
       if (session) {
         const { data: userData } = await supabase!.from('user_data')
@@ -116,12 +163,14 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
     experience,
     name,
     pfp,
+    isPro,
+    subId,
     saveData,
     getData,
     updateChesscom: setChesscom,
     updateLichess: setLichess,
     updateExperience: setExperience
-  }), [chesscom, lichess, experience, pfp, name, saveData, getData]);
+  }), [chesscom, lichess, experience, pfp, name, isPro, subId, saveData, getData]);
 
   return (
     <UserDataContext.Provider value={value}>

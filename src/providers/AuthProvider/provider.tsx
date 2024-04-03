@@ -16,11 +16,14 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     );
   }, []);
 
-  const signInWithOAuth = useCallback(async () => {
+  const signInWithOAuth = useCallback(async (next?: string) => {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${origin}/auth/callback`,
+        redirectTo: `${origin}/auth/callback${next ? '?next=subscribe' :''}`,
+        queryParams: {
+          next: "subscribe"
+        }
       },
     });
   }, [origin, supabase]);
@@ -67,7 +70,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         console.log("Error during posthog identify: ", error);
       }
     }
-  }, [session])
+  }, [session]);
 
   const value = useMemo(() => ({
     session,

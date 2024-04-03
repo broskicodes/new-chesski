@@ -28,7 +28,7 @@ export const Sidebar = ({ children }: Props) => {
   const { toast } = useToast();
   const { signOut, signInWithOAuth, session } = useAuth();
   const router = useRouter();
-  const { lichess, chesscom, experience, name, pfp, updateChesscom, updateLichess, updateExperience, saveData, getData } = useUserData();
+  const { lichess, chesscom, experience, name, isPro, pfp, updateChesscom, updateLichess, updateExperience, saveData, getData } = useUserData();
 
   // alert(pfp)
   return (
@@ -108,21 +108,37 @@ export const Sidebar = ({ children }: Props) => {
                 </Button>
               )}
               {!editing && !session && (
-                <Button className="w-full" onClick={signInWithOAuth}>
+                <Button className="w-full" onClick={() => signInWithOAuth()}>
                   Sign in to edit
                 </Button>
               )}
             </div>
           </div>
           <div className="flex flex-col items-start absolute bottom-8 sm:bottom-12 w-full">
-            <Link 
-              href={`${STRIPE_LINK}?${session ? `prefilled_email=${session.email}`: ""}`} 
-              target="_blank" 
-              className={buttonVariants({ variant: "ghost" })}
-              onClick={() => { posthog.capture("dono_clicked") }}
-              >
-              Support Chesski
-            </Link>
+            {!isPro && (
+              <Link 
+                href={`/subscribe`} 
+                className={buttonVariants({ variant: "ghost" })}
+                >
+                Subscribe
+              </Link>
+            )}
+            {isPro && (
+                <Button 
+                  variant="ghost"
+                  // className={buttonVariants({ variant: "ghost" })}
+                  onClick={async () => {
+                    // posthog.capture("dono_clicked") 
+                    const res = await fetch("/api/stripe/subscription", { method: "POST" });
+                    const link = await res.text();
+
+                    router.push(link);
+                  }}
+                  >
+                  Manage Subscription
+                </Button>
+            )}
+
             <div className="flex flex-row w-full justify-between items-center">
               <Button variant="ghost"
                 onClick={() => {

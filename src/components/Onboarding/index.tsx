@@ -16,6 +16,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { useRouter } from "next/navigation";
 import { Input } from "../ui/input";
 import { Experience, Goal, UserData } from '@/utils/types';
+import { useAuth } from '@/providers/AuthProvider/context';
 
 
 export const Onboarding = () => {
@@ -25,11 +26,12 @@ export const Onboarding = () => {
   const [chesscom, setChesscom] = useState("")
   const [lichess, setLichess] = useState("")
 
+  const { signInWithOAuth, session } = useAuth();
   const maxSteps = useMemo(() => 2, []);
 
   const router = useRouter();
 
-  const finishOnboarding = useCallback(() => {
+  const finishOnboarding = useCallback((signUp: boolean) => {
     const userData: UserData = {
       chesscom_name: chesscom,
       lichess_name: lichess,
@@ -38,8 +40,9 @@ export const Onboarding = () => {
     }
 
     localStorage.setItem("userData", JSON.stringify(userData));
-    router.push("/play");
-  }, [experience, goal, chesscom, lichess, router])
+    
+    signUp && !session ? signInWithOAuth() : router.push("/play");
+  }, [experience, goal, chesscom, lichess, router, session, signInWithOAuth])
 
   return (
     <div>
@@ -195,8 +198,9 @@ export const Onboarding = () => {
           </div>
           <DrawerFooter>
             <div className="flex flex-col sm:space-y-6">
-              <div className="mx-auto">
-                <Button onClick={finishOnboarding}>Let&apos;s go!</Button>
+              <div className="mx-auto flex flex-row space-x-12">
+                <Button onClick={() => finishOnboarding(false)}>Play Now</Button>
+                {/* <Button onClick={() => finishOnboarding(true)}>Sign Up</Button> */}
               </div>
               <div className="flex flex-row items-center">
                 <Button size="icon" variant="ghost" onClick={() => setStep(step - 1)}><FontAwesomeIcon icon={faArrowLeft} /></Button>

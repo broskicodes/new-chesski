@@ -4,7 +4,7 @@ import { Provider, SupabaseClient, User } from "@supabase/supabase-js";
 export interface AuthProviderContext {
   session: User | null;
   supabase: SupabaseClient | null,
-  signInWithOAuth: () => Promise<void>;
+  signInWithOAuth: (next?: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
