@@ -26,7 +26,7 @@ const SubPage = () => {
         title: 'Basic',
         price: 0,
         description: 'Get a taste of Chesski.',
-        features: ['1 game per day', '3 position analyses per day'],
+        features: ['1 game per day', '3 analyses per day'],
         cta: 'Monthly billing',
         mostPopular: false,
       },
