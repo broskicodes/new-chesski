@@ -8,7 +8,7 @@ import { useCoach } from "@/providers/CoachProvider/context";
 import "./styles.css";
 import posthog from "posthog-js";
 import { useEvaluation } from "@/providers/EvaluationProvider/context";
-import { Button } from "../ui/button";
+import { Button, buttonVariants } from "../ui/button";
 import { useAuth } from "@/providers/AuthProvider/context";
 import { useUserData } from "@/providers/UserDataProvider/context";
 import Link from "next/link";
@@ -139,8 +139,11 @@ export const GameLogs = () => {
                 const parts = segment.split("Subscribe now");
                 return (
                   <span key={j}>
-                    {parts[0]}
-                    <Link href="/subscribe" className="underline font-semibold">Subscribe now</Link>
+                    <span className="font-semibold">{parts[0]}</span>
+                    <Link href="/subscribe" className={
+                      // buttonVariants({ variant: "link", size: "thin" })
+                      "whitespace-nowrap font-bold text-[#1b03a3] hover:underline"
+                      }>Subscribe now</Link>
                     {parts[1]}
                   </span>
                 );
@@ -181,7 +184,7 @@ export const GameLogs = () => {
                       addGameMessage({
                         id: Math.random().toString(32).substring(7),
                         role: "assistant",
-                        content: `"""Your have reached your daily limit for analysis. Subscribe now, or come back tomorrow."""`
+                        content: `"""You've reached your daily limit for analysis. Subscribe now for unlimited access."""`
                       })
                       return;
                     }
