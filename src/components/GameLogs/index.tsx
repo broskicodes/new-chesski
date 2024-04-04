@@ -125,31 +125,40 @@ export const GameLogs = () => {
 
           if (!advice) return null;
 
-          const segments = advice.split(SanRegex).filter(Boolean);
+          const adviceLines = advice.split('\n');
 
-          const elems = segments.map((segment, i) => {
-            if (SanRegex.test(segment)) {
-              return <span key={i} className="san" onClick={() => highlightGameBoard(segment)}>{segment}</span>;
-            } 
+          const elems = adviceLines.map((line, i) => {
+            const segments = line.split(SanRegex).filter(Boolean);
 
-            if (segment.includes("Subscribe now")) {
-              const parts = segment.split("Subscribe now");
-              return (
-                <span key={i}>
-                  {parts[0]}
-                  <Link href="/subscribe" className="underline font-semibold">Subscribe now</Link>
-                  {parts[1]}
-                </span>
-              );
-            }           
-            return <span key={i}>{segment}</span>;
+            const lineElems = segments.map((segment, j) => {
+              if (SanRegex.test(segment)) {
+                return <span key={j} className="san" onClick={() => highlightGameBoard(segment)}>{segment}</span>;
+              } 
+
+              if (segment.includes("Subscribe now")) {
+                const parts = segment.split("Subscribe now");
+                return (
+                  <span key={j}>
+                    {parts[0]}
+                    <Link href="/subscribe" className="underline font-semibold">Subscribe now</Link>
+                    {parts[1]}
+                  </span>
+                );
+              }           
+              return <span key={j}>{segment}</span>;
+            });
+
+            return (
+              <div key={i} className="content">{lineElems}</div>
+            );
           });
 
           return (
             <div key={i} className="flex flex-col">
               <span className={`${message.role}-message role`}>CHESSKI:</span>
-              {/* <ReactMarkdown className="content"><div>{elems}</div></ReactMarkdown> */}
-              <div className="content">{elems}</div>
+              <div className="flex flex-col space-y-2">
+                {elems}
+              </div>
             </div>
           )
         })}
