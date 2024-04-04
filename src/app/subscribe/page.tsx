@@ -34,7 +34,7 @@ const SubPage = () => {
       },
       {
         title: 'Pro',
-        price: annual ? 120 : 15,
+        price: annual ? 80 : 10,
         description: 'Unlimited access to all features.',
         features: ['Unlimited games', 'Unlimited analysis', 'Full access to future features'],
         cta: 'Subscribe',
