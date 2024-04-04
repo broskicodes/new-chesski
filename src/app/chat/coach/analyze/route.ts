@@ -33,7 +33,7 @@ Here is a list of improtant analysis topics for each skill level:
 Deeply analyze all the information provided before making any recommendations. Follow these steps for every message:
 Step 1 - Walk through the moves in the PGN. Briefly comment on the impact of the moves in each group including tactics and common patterns. Each comment should be less than 5 tokens. Output this step between <moves></moves> tags.
 Step 2 - Comment on the imbalances in the position. Material imbalance, bishops vs knights, piece activity, control of open files, weaknesses in pawn structures, etc. anything that may contribute to an advantage. Output this step between <imbalance></imbalance> tags.
-Step 3 - Comment on the dynamics of the current position. Include things like hanging pieces, tactical oppoutunities, piece placement/activity etc. Ouput this step in <tactic></tactic> tags.
+Step 3 - Comment on the dynamics of the current position. Include things like hanging pieces/pawns, tactical oppoutunities, piece placement/activity etc. Output this step in <tactic></tactic> tags.
 Step 4 - Generate an analysis of the position for the student based on the information from previous steps. Structure your response as follows:
 4.1 - Comment on the position. What are the critical points in the position? Include things like imbalances, immediate threats and positional weaknesses.
 4.2 - Comment on the stockfish evaluation of the position. State which side is better and explain why. What factors contribute to the advantage?
@@ -74,39 +74,52 @@ Take into account any tactics available, or hanging pieces.`
         role: "system",
         content: systemPrompt
       },
-//       {
-//         role: "user",
-//         content: `Here are the deatils of the game:
-// <skill>Intermediate</skill>
-// <orientation>white</orientation>
-// <turn>white</turn>
-// <fen>r1bqkb1r/pppp1ppp/2n2n2/8/3NP3/8/PPP2PPP/RNBQKB1R w KQkq - 1 5</fen>
-// <ascii>
-//     +------------------------+
-//   8 | r  .  b  q  k  b  .  r |
-//   7 | p  p  p  p  .  p  p  p |
-//   6 | .  .  n  .  .  n  .  . |
-//   5 | .  .  .  .  .  .  .  . |
-//   4 | .  .  .  N  P  .  .  . |
-//   3 | .  .  .  .  .  .  .  . |
-//   2 | P  P  P  .  .  P  P  P |
-//   1 | R  N  B  Q  K  B  .  R |
-//     +------------------------+
-//       a  b  c  d  e  f  g  h
-// </ascii>
-// <pgn>e4 e5 Nf3 Nc6 d4 exd4 Nxd4 Nf6</pgn>
-// <eval>10</eval>
-// <line>d4c6 b7c6 e4e5 d8e7 d1e2 f6d5 h2h4 e7e6 b1d2 f8e7 c2c4 d5b6</line>
+      {
+        role: "user",
+        content: `Here are the deatils of the game:
+<skill>Intermediate</skill>
+<orientation>white</orientation>
+<turn>white</turn>
+<fen>r1bqkb1r/pppp1ppp/2n2n2/8/3NP3/8/PPP2PPP/RNBQKB1R w KQkq - 1 5</fen>
+<ascii>
+    +------------------------+
+  8 | r  .  b  q  k  b  .  r |
+  7 | p  p  p  p  .  p  p  p |
+  6 | .  .  n  .  .  n  .  . |
+  5 | .  .  .  .  .  .  .  . |
+  4 | .  .  .  N  P  .  .  . |
+  3 | .  .  .  .  .  .  .  . |
+  2 | P  P  P  .  .  P  P  P |
+  1 | R  N  B  Q  K  B  .  R |
+    +------------------------+
+      a  b  c  d  e  f  g  h
+</ascii>
+<pgn>e4 e5 Nf3 Nc6 d4 exd4 Nxd4 Nf6</pgn>
+<eval>10</eval>
+<line>d4c6 b7c6 e4e5 d8e7 d1e2 f6d5 h2h4 e7e6 b1d2 f8e7 c2c4 d5b6</line>
 
-// Analyze the current position. Ensure you explain things in ways the student can undertand based on their skill level.
-// Be sure to CLOSELY FOLLOW ALL INSTRUCTIONS listed in the system prompt.
-// Your advice should be directly relavent to the CURRENT POSITION.
-// Take into account any tactics available, or hanging pieces.`
-//       },
-//       {
-//         role: "assistant",
-//         content: ""
-//       }
+Analyze the current position. Ensure you explain things in ways the student can undertand based on their skill level.
+Be sure to CLOSELY FOLLOW ALL INSTRUCTIONS listed in the system prompt.
+Your advice should be directly relavent to the CURRENT POSITION.
+Take into account any tactics available, or hanging pieces/pawns.`
+      },
+      {
+        role: "assistant",
+        content: `<moves>
+1. e4 e5: Opening with central control. 2. Nf3 Nc6: Developing knights. 3. d4 exd4: Opening the center. 4. Nxd4 Nf6: Knight tension.
+</moves>
+<imbalance>
+White has more central control. Pawn structure is symmetrical. Both sides have knights developed. Bishops and queenside pieces are undeveloped.
+</imbalance>
+<tactic>
+White's e4 pawn is hanging. There is tention between the knights. White to move. They can push for central dominance.
+</tactic>
+"""
+Critical points: The position is roughly symmetrical. White has a semi-open d-file and a strong central knight. Black is attacking the e4 pawn, which is undefended.
+Position evaluation: The position is roughly equal. White has a slight adantage due to central control and piece activity.
+Long term plan: Focus on developing pieces while keeping your position defended. Start to think about where you should castle your king.
+        """`
+      },
       {
         role: "user",
         content: userPrompt
@@ -116,7 +129,7 @@ Take into account any tactics available, or hanging pieces.`
     temperature: 0,
   });
 
-  console.log(userPrompt);
+  // console.log(userPrompt);
 
   const stream = OpenAIStream(response);
   return new StreamingTextResponse(stream);
