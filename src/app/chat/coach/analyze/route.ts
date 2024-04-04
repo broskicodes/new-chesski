@@ -35,7 +35,11 @@ Step 1 - Walk through the moves in the PGN. Briefly comment on the impact of the
 Step 2 - Calculate 2-3 of the best possible moves available in the current position. Evaluate the implications of the move and the resulting position. What responses does the opponent have? This output should be less than 15 tokens. Output this step between <lines></lines> tags.
 Step 3 - Comment on the dynamics of the current position. Include things like hanging pieces, tactical oppoutunities, piece placement/activity etc. Ouput this step in <tactic></tactic> tags.
 Step 4 - Choose the 2-3 concepts most relevant to the current position to talk about based on the user skill level. This output should be less than 15 tokens. Output this step in <topics></topics> tags.
-Step 5 - Generate an analysis of the position for the student based on the information from previous steps. Reference specific details from the current position and lead up play when doing analysis. This output should be less than 64 tokens. Output this step between tripple quotes (""").`;
+Step 5 - Generate an analysis of the position for the student based on the information from previous steps. Structure your response as follows:
+5.1 - Comment on the position. What are the critical points in the position? Include things like imbalances, immediate threats and positional weaknesses.
+5.2 - Comment on the stockfish evaluation of the position. State which side is better and explain why. What factors contribute to the advantage?
+5.3 - Help the student develop a long term plan. Describe the actions they should take to fight for and/or maintain an advantage. Here you should focus more on ideas and explanations than specific move suggestions.
+Each sub-step should be 20 tokens or less. Output all of step 5 between tripple quotes (""").`;
 
 // Step 3 - Visualize the current board position in an ascii representation. Output this step between <ascii></ascii> tags.
 
@@ -77,6 +81,8 @@ Take into account any tactics available, or hanging pieces.`
     // max_tokens: 64,
     temperature: 0,
   });
+
+  console.log(userPrompt);
 
   const stream = OpenAIStream(response);
   return new StreamingTextResponse(stream);
