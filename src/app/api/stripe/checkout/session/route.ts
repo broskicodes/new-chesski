@@ -51,7 +51,8 @@ export const POST = async (req: Request) => {
     mode: "subscription",
     metadata: {
       user_id: user ? user.id : null
-    }
+    },
+    allow_promotion_codes: true
   });
 
   if (!session) {
