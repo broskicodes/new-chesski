@@ -22,7 +22,7 @@ export const Navbar = ({ showMobile }: Props) => {
   return (
     <div className={`navbar ${showMobile ? "" : "hidden"} sm:block z-40`}>
       <header className="navbar-container flex flex-row justify-between items-center py-2 text-white">
-        <Link href="/" className="text-2xl font-bold arvo cursor-pointer">CHESSKI</Link>
+        <Link href={`${process.env.NEXT_PUBLIC_ENV === "dev" ? "/" : "https://chesski.lol"}`} className="text-2xl font-bold arvo cursor-pointer">CHESSKI</Link>
         <nav className="flex flex-row space-x-4 items-center">
           <ul className="">
             {!session && <Button onClick={() => signInWithOAuth()}>Sign In</Button>}

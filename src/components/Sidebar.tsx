@@ -142,7 +142,7 @@ export const Sidebar = ({ children }: Props) => {
             <div className="flex flex-row w-full justify-between items-center">
               <Button variant="ghost"
                 onClick={() => {
-                  navigator.clipboard.writeText(window.location.origin);
+                  navigator.clipboard.writeText(process.env.NEXT_PUBLIC_ENV === "dev" ? window.location.origin : "https://chesski.lol");
 
                   posthog.capture("share_clicked");
                   setLinkCopied(true);
@@ -174,7 +174,7 @@ export const Sidebar = ({ children }: Props) => {
                       className="w-full"
                       onClick={async () => {
                         await signOut();
-                        router.push("/");
+                        router.push(process.env.NEXT_PUBLIC_ENV === "dev" ? "/" : "https://chesski.lol");
                       }}
                       >
                       Confirm
