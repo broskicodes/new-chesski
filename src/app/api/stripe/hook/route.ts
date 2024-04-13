@@ -16,7 +16,7 @@ const stripe = new Stripe(
     appInfo: {
       name: 'Chesski',
       version: '0.0.0',
-      url: 'https://chesski.lol'
+      url: process.env.ENV_URL
     }
   }
 );

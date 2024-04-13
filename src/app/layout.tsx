@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 const siteConfig = {
   name: "Chesski",
-  url: "https://chesski.lol",
+  url: "https://app.chesski.lol",
   description: "Your personal AI chess tutor that coaches you in plain English",
   ogImage: "/chesski-social.png",
 };
