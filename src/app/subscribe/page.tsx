@@ -80,6 +80,7 @@ const SubPage = () => {
                     <Button
                       className='w-full'
                       onClick={async () => { 
+                        // @ts-ignore
                         console.log(window.tolt);
                         posthog.capture("sub_clicked")
                         const re = await fetch("/api/stripe/checkout/session", { 
