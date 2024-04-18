@@ -81,7 +81,7 @@ const SubPage = () => {
                       className='w-full'
                       onClick={async () => { 
                         // @ts-ignore
-                        console.log(window.tolt);
+                        console.log(window.tolt, window.tolt_referral);
                         posthog.capture("sub_clicked")
                         const re = await fetch("/api/stripe/checkout/session", { 
                           method: "POST", 
