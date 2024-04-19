@@ -92,7 +92,7 @@ const SubPage = () => {
 
                         const link = await re.text();
 
-                        // router.push(link);
+                        router.push(link);
                       }}>
                       {tier.cta}
                     </Button>
