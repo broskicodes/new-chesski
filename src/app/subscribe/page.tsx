@@ -83,7 +83,11 @@ const SubPage = () => {
                         posthog.capture("sub_clicked")
                         const re = await fetch("/api/stripe/checkout/session", { 
                           method: "POST", 
-                          body: JSON.stringify({ subType: annual ? SubType.Yearly : SubType.Monthly }) 
+                          body: JSON.stringify({
+                            subType: annual ? SubType.Yearly : SubType.Monthly,
+                            // @ts-ignore
+                            referral: window.tolt_referral
+                          }) 
                         }); 
 
                         const link = await re.text();

@@ -18,7 +18,9 @@ const stripe = new Stripe(
 
 
 export const POST = async (req: Request) => {
-  const { subType } = await req.json();
+  const { subType, referral } = await req.json();
+
+  console.log(referral);
 
   let productId: string;
   switch (subType) {
@@ -50,7 +52,8 @@ export const POST = async (req: Request) => {
     }],
     mode: "subscription",
     metadata: {
-      user_id: user ? user.id : null
+      user_id: user ? user.id : null,
+      tolt_referral: referral
     },
     allow_promotion_codes: true
   });

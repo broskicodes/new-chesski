@@ -66,6 +66,12 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
           id: session.id,
           email: session.email,
         });
+
+        // @ts-ignore
+        if (window.tolt_referral) {
+          // @ts-ignore
+          window.tolt.signup(session.email)
+      }
       } catch (error) {
         console.log("Error during posthog identify: ", error);
       }
