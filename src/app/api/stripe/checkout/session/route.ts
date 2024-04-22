@@ -18,7 +18,7 @@ const stripe = new Stripe(
 
 
 export const POST = async (req: Request) => {
-  const { subType, referral } = await req.json();
+  const { subType, referral, trial } = await req.json();
 
   console.log(referral);
 
@@ -45,17 +45,28 @@ export const POST = async (req: Request) => {
     customer_email: user ? user.email : undefined,
     // client_reference_id: user ? user.id : "",
     success_url: `${process.env.ENV_URL}/play`,
-    cancel_url: `${process.env.ENV_URL}/subscribe`,
+    cancel_url: `${process.env.ENV_URL}/subscribe${trial ? "?ad=freeTrial" : ""}`,
     line_items: [{
       price: productId,
-      quantity: 1
+      quantity: 1,
     }],
     mode: "subscription",
     metadata: {
       user_id: user ? user.id : null,
       tolt_referral: referral
     },
-    allow_promotion_codes: true
+    allow_promotion_codes: true,
+    // payment_method_collection: "if_required",
+    subscription_data: trial 
+      ? {
+        trial_period_days: 7,
+        trial_settings: {
+          end_behavior: {
+            missing_payment_method: 'cancel',
+          }
+        }
+      }
+      : undefined
   });
 
   if (!session) {
