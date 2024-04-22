@@ -25,6 +25,19 @@ export const POST = async (req: Request) => {
     return new Response(JSON.stringify({ emailTriggered: false }), { status: 200 });
   }
 
+  const { data: subData, error: subError } = await supabase.from("pro_user")
+    .select("user_id")
+    .eq("user_id", user.id);
+
+  if (subError) {
+    console.error(subError);
+    return new Response(subError.message, { status: 500 });
+  }
+
+  if (subData.length > 0) {
+    return new Response(JSON.stringify({ emailTriggered: false }), { status: 200 });
+  }
+
   const loopsRes = await loops.sendEvent({ email: user.email }, "subPageVisit")
 
   if (!loopsRes.success) {
