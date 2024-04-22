@@ -5,12 +5,14 @@ import { SubType } from "@/utils/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useAuth } from "@/providers/AuthProvider/context";
 
 
 export const FreeTrialModal = () => {
   const [ad, setAd] = useState<string | null>(null);
   // const [userParam, setUserParam] = useState<string | null>(null);
 
+  const { session, signInWithOAuth } = useAuth();
   const param = useSearchParams();
   const router = useRouter();
 
@@ -31,28 +33,41 @@ export const FreeTrialModal = () => {
         </DialogHeader>
         <DialogFooter className="mt-2">
           <div className="flex flex-col w-full space-y-2">
-            <Button 
-              className="w-full py-6" 
-              variant="default" 
-              size="lg"
-              onClick={async () => {
-                posthog.capture("trial_clicked");
-                const re = await fetch("/api/stripe/checkout/session", { 
-                  method: "POST", 
-                  body: JSON.stringify({
-                    subType: SubType.Monthly,
-                    // @ts-ignore
-                    referral: window.tolt_referral,
-                    trial: true
-                  }) 
-                }); 
+            {session && (
+              <Button 
+                className="w-full py-6" 
+                variant="default" 
+                size="lg"
+                onClick={async () => {
+                  posthog.capture("trial_clicked");
+                  const re = await fetch("/api/stripe/checkout/session", { 
+                    method: "POST", 
+                    body: JSON.stringify({
+                      subType: SubType.Monthly,
+                      // @ts-ignore
+                      referral: window.tolt_referral,
+                      trial: true
+                    }) 
+                  }); 
 
-                const link = await re.text();
+                  const link = await re.text();
 
-                router.push(link);
-              }} >
-              <span className="font-bold text-xl">Start Free Trial</span>
+                  router.push(link);
+                }} >
+                <span className="font-bold text-xl">Start Free Trial</span>
+              </Button>
+            )}
+            {!session && (
+              <Button 
+                className="w-full py-6" 
+                variant="default" 
+                size="lg"
+                onClick={async () => {
+                  signInWithOAuth("subscribe?ad=freeTrial")
+                }} >
+              Sign In
             </Button>
+            )}
             <DialogDescription className="text-center"><span className="font-bold">Cancel Anytime</span> | Renews at $10/month</DialogDescription>
             <Link href={`/play`} className={buttonVariants({ variant: "link" })}>No interested</Link>
           </div>
