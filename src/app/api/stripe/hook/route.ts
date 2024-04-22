@@ -69,6 +69,7 @@ export const POST = async (req: Request) => {
       const lineItems = sessionWithLineItems.line_items;
       const price_id = lineItems?.data[0].price?.id;
       const user_id = sessionWithLineItems.metadata?.user_id;
+      const trial = sessionWithLineItems.metadata?.trial;
 
       if (!user_id) {
         return new Response("Invalid user somehow", { status: 500 });
@@ -98,7 +99,7 @@ export const POST = async (req: Request) => {
 
         posthog.capture({
           distinctId: user_id,
-          event: "sub_purchased"
+          event: trial ? "trial_started" : "sub_purchased"
         })
         await posthog.shutdownAsync();
 

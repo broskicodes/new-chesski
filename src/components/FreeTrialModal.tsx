@@ -2,19 +2,25 @@ import posthog from "posthog-js";
 import { Button, buttonVariants } from "./ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 import { SubType } from "@/utils/types";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
-interface Props {
-  open: boolean;
-}
 
-export const FreeTrialModal = ({ open }: Props) => {
+export const FreeTrialModal = () => {
+  const [ad, setAd] = useState<string | null>(null);
+  // const [userParam, setUserParam] = useState<string | null>(null);
+
+  const param = useSearchParams();
   const router = useRouter();
 
+  useEffect(() => {
+    setAd(param?.get("ad") ?? null);
+    // setUserParam(param?.get("user") ?? null);
+  }, [param]);
+
   return (
-    <Dialog open={open}>
+    <Dialog open={!!ad && ad === "freeTrial"}>
       <DialogContent allowClose={false}>
         <DialogHeader className="flex flex-col items-center">
           <p className="py-1.5 px-4 border border-1 border-indigo-500 text-indigo-500 rounded-full text-sm font-semibold uppercase tracking-wide">
@@ -30,7 +36,7 @@ export const FreeTrialModal = ({ open }: Props) => {
               variant="default" 
               size="lg"
               onClick={async () => {
-                posthog.capture("trial_clicked")
+                posthog.capture("trial_clicked");
                 const re = await fetch("/api/stripe/checkout/session", { 
                   method: "POST", 
                   body: JSON.stringify({

@@ -20,8 +20,6 @@ const stripe = new Stripe(
 export const POST = async (req: Request) => {
   const { subType, referral, trial } = await req.json();
 
-  console.log(referral);
-
   let productId: string;
   switch (subType) {
     case SubType.Monthly:
@@ -53,7 +51,8 @@ export const POST = async (req: Request) => {
     mode: "subscription",
     metadata: {
       user_id: user ? user.id : null,
-      tolt_referral: referral
+      tolt_referral: referral,
+      trial: trial ?? false
     },
     allow_promotion_codes: true,
     // payment_method_collection: "if_required",

@@ -13,19 +13,15 @@ import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
-import React, { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from "next/navigation"
+import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { FreeTrialModal } from "@/components/FreeTrialModal";
 
 const SubPage = () => {
   const [annual, setAnnual] = useState(true);
-  const [ad, setAd] = useState<string | null>(null);
-  // const [userParam, setUserParam] = useState<string | null>(null);
 
   const { isPro } = useUserData();
   const { session, signInWithOAuth } = useAuth();
   const router = useRouter();
-  const param = useSearchParams();
   
   const pricing = useMemo(() => ({
     tiers: [
@@ -57,15 +53,12 @@ const SubPage = () => {
     // }
   }, []);
 
-  useEffect(() => {
-    setAd(param?.get("ad") ?? null);
-    // setUserParam(param?.get("user") ?? null);
-  }, [param]);
-
   return (
     <div className="pb-8">
       <Navbar showMobile={true} />
-      <FreeTrialModal open={!!ad && ad === "freeTrial"}/>
+      <Suspense>
+        <FreeTrialModal />
+      </Suspense>
       <div className='flex flex-col items-center space-y-4 mt-[64px] sm:mt-0'>
         <div className='font-bold text-4xl'>Subscribe to Chesski</div>
         {/* <div></div> */}
