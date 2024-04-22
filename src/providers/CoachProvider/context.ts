@@ -1,7 +1,6 @@
 import { CreateMessage, Message } from "ai";
 import { createContext, useContext } from "react";
 
-
 export interface Query {
   title: string;
   query: string;
@@ -36,8 +35,7 @@ export const CoachContext = createContext<CoachProviderContext>({
   },
   getExplantion: (_query) => {
     throw new Error("CoachProvider not initialized");
-  }
+  },
 });
 
 export const useCoach = () => useContext(CoachContext);
-

@@ -10,8 +10,8 @@
 
 #eval-fill {
   width: 100%;
-  transition: width 1.0s; /* Add a smooth transition */
-  background-color: #FFF;
+  transition: width 1s; /* Add a smooth transition */
+  background-color: #fff;
 }
 
 @media screen and (max-width: 640px) {

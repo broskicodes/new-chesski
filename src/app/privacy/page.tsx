@@ -2,44 +2,63 @@ import ReactMarkdown from "react-markdown";
 import "./styles.css";
 
 export default function Privacy() {
-  
   return (
-    <ReactMarkdown 
-      className={"doc"} 
-      components={
-        {
-          h1: ({node, ...props}) => <h1 style={{
-            color: '#333', // Dark gray
-            borderBottom: '2px solid #eaecef', // Light gray border
-            paddingBottom: '0.3rem',
-            marginBottom: '1rem',
-            marginTop: '1rem',
-            fontWeight: 'bold', // Make header bold
-            fontSize: '2em', // Larger font size for h1
-          }} {...props} />,
-          h2: ({node, ...props}) => <h2 style={{
-            color: '#586069', // Medium gray
-            borderBottom: '1px solid #eaecef', // Light gray border
-            paddingBottom: '0.2rem',
-            marginBottom: '1rem',
-            marginTop: '1rem',
-            fontWeight: 'bold', // Make header bold
-            fontSize: '1.5em', // Medium font size for h2
-          }} {...props} />,
-          h3: ({node, ...props}) => <h3 style={{
-            color: '#24292e', // Nearly black
-            marginBottom: '1rem',
-            marginTop: '1rem',
-            fontWeight: 'bold', // Make header bold
-      fontSize: '1.17em', // Smaller font size for h3
-          }} {...props} />,
-          ul: ({node, ...props}) => <ul style={{listStyleType: 'circle'}} {...props} />,
-          // Custom renderer for ordered lists
-          ol: ({node, ...props}) => <ol style={{listStyleType: 'decimal'}} {...props} />,
-          // Custom renderer for list items
-          li: ({node, ...props}) => <li style={{marginBottom: '0.5rem'}} {...props} />,
-        }
-      }>
+    <ReactMarkdown
+      className={"doc"}
+      components={{
+        h1: ({ node, ...props }) => (
+          <h1
+            style={{
+              color: "#333", // Dark gray
+              borderBottom: "2px solid #eaecef", // Light gray border
+              paddingBottom: "0.3rem",
+              marginBottom: "1rem",
+              marginTop: "1rem",
+              fontWeight: "bold", // Make header bold
+              fontSize: "2em", // Larger font size for h1
+            }}
+            {...props}
+          />
+        ),
+        h2: ({ node, ...props }) => (
+          <h2
+            style={{
+              color: "#586069", // Medium gray
+              borderBottom: "1px solid #eaecef", // Light gray border
+              paddingBottom: "0.2rem",
+              marginBottom: "1rem",
+              marginTop: "1rem",
+              fontWeight: "bold", // Make header bold
+              fontSize: "1.5em", // Medium font size for h2
+            }}
+            {...props}
+          />
+        ),
+        h3: ({ node, ...props }) => (
+          <h3
+            style={{
+              color: "#24292e", // Nearly black
+              marginBottom: "1rem",
+              marginTop: "1rem",
+              fontWeight: "bold", // Make header bold
+              fontSize: "1.17em", // Smaller font size for h3
+            }}
+            {...props}
+          />
+        ),
+        ul: ({ node, ...props }) => (
+          <ul style={{ listStyleType: "circle" }} {...props} />
+        ),
+        // Custom renderer for ordered lists
+        ol: ({ node, ...props }) => (
+          <ol style={{ listStyleType: "decimal" }} {...props} />
+        ),
+        // Custom renderer for list items
+        li: ({ node, ...props }) => (
+          <li style={{ marginBottom: "0.5rem" }} {...props} />
+        ),
+      }}
+    >
       {`# Chesski Privacy Policy
 Last updated: February 2, 2024
 
@@ -78,5 +97,5 @@ We use the information we collect in various ways, including to:
 - Send you emails
 - Find and prevent fraud`}
     </ReactMarkdown>
-  )
+  );
 }

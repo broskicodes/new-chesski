@@ -21,4 +21,3 @@ export const EvaluationContext = createContext<EvaluationContext>({
 });
 
 export const useEvaluation = () => useContext(EvaluationContext);
-

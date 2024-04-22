@@ -1,5 +1,22 @@
-import { PropsWithChildren, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  PropsWithChildren,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useChess } from "./ChessProvider/context";
 import { useAuth } from "./AuthProvider/context";
 import { GameState, STRIPE_LINK } from "@/utils/types";
@@ -14,14 +31,14 @@ import { Move } from "chess.js";
 enum GameResult {
   Win = "win",
   Loss = "loss",
-  Draw = "draw"
+  Draw = "draw",
 }
 
 enum DrawType {
   Stalemate = 0,
   Repetition = 1,
   MoveRule = 2,
-  InsufficientMaterial = 3
+  InsufficientMaterial = 3,
 }
 
 export interface GameProviderContext {
@@ -31,8 +48,8 @@ export interface GameProviderContext {
   complete: boolean;
   moves: string[];
   moveIdx: number;
-  newGame: () => Promise<void>
-  resign: () => Promise<void>,
+  newGame: () => Promise<void>;
+  resign: () => Promise<void>;
   clearGame: () => void;
   nextMove: () => void;
   prevMove: () => void;
@@ -66,7 +83,9 @@ export const useGame = () => useContext(GameContext);
 
 export const GameProvider = ({ children }: PropsWithChildren) => {
   const [id, setId] = useState<string | null>(null);
-  const [startingPos, setStartingPos] = useState<string>("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  const [startingPos, setStartingPos] = useState<string>(
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  );
   const [userColor, setUserColor] = useState<string>("white");
   const [complete, setComplete] = useState<boolean>(false);
   const [moves, setMoves] = useState<string[]>([]);
@@ -77,7 +96,8 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
 
   const { clearEvaluations } = useEvaluation();
   const { clearGameMessages } = useCoach();
-  const { game, orientation, turn, gameOver, reset, undo, makeMove } = useChess();
+  const { game, orientation, turn, gameOver, reset, undo, makeMove } =
+    useChess();
   const { session, supabase, signInWithOAuth } = useAuth();
 
   const gameModalTriggerRef = useRef<HTMLButtonElement>(null);
@@ -89,9 +109,9 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
         .insert({
           starting_pos: game.fen(),
           user_id: session.id,
-          user_color: orientation
+          user_color: orientation,
         })
-        .select("id")
+        .select("id");
 
       // console.log(data, error);
 
@@ -103,12 +123,12 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
         setCurrGameState({
           id: data[0].id,
           startingPos: game.fen(),
-          complete: false
+          complete: false,
         });
       }
     } else {
       const newId = Math.random().toString(36).substring(2, 15);
-      
+
       setId(newId);
       setUserColor(orientation);
       setStartingPos(game.fen());
@@ -116,7 +136,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
       setCurrGameState({
         id: newId,
         startingPos: game.fen(),
-        complete: false
+        complete: false,
       });
     }
   }, [game, orientation, session, supabase]);
@@ -127,23 +147,21 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
         .from("games")
         .update({
           finished_at: new Date(),
-          result: orientation === "white" ? "0-1" : "1-0"
+          result: orientation === "white" ? "0-1" : "1-0",
         })
         .eq("id", id)
-        .select()
+        .select();
 
       // console.log(data, error);
-      
-    } 
+    }
 
     setComplete(true);
     setMoves(game.history());
     setMoveIdx(game.history().length - 1);
 
     setCurrGameState({
-      complete: true
+      complete: true,
     });
-
   }, [game, orientation, id, session, supabase]);
 
   const clearGame = useCallback(() => {
@@ -157,15 +175,14 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     setCurrGameState({
       id: "",
       startingPos: "",
-      complete: false
+      complete: false,
     });
-  }, [])
+  }, []);
 
   const nextMove = useCallback(() => {
     if (makeMove(moves[moveIdx + 1])) {
       setMoveIdx(moveIdx + 1);
     }
-
   }, [makeMove, moveIdx, moves]);
 
   const prevMove = useCallback(() => {
@@ -174,31 +191,52 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     }
   }, [undo, moveIdx]);
 
-  const value: GameProviderContext = useMemo(() => ({
-    gameId: id,
-    startingPos,
-    userColor,
-    complete,
-    moves,
-    moveIdx,
-    newGame,
-    resign,
-    clearGame,
-    nextMove,
-    prevMove
-  }), [id, startingPos, userColor, complete, moves, moveIdx, newGame, clearGame, resign, nextMove, prevMove]);
+  const value: GameProviderContext = useMemo(
+    () => ({
+      gameId: id,
+      startingPos,
+      userColor,
+      complete,
+      moves,
+      moveIdx,
+      newGame,
+      resign,
+      clearGame,
+      nextMove,
+      prevMove,
+    }),
+    [
+      id,
+      startingPos,
+      userColor,
+      complete,
+      moves,
+      moveIdx,
+      newGame,
+      clearGame,
+      resign,
+      nextMove,
+      prevMove,
+    ],
+  );
 
   useEffect(() => {
-    const gameState: GameState | null = JSON.parse(localStorage.getItem("currGameState")!);
+    const gameState: GameState | null = JSON.parse(
+      localStorage.getItem("currGameState")!,
+    );
 
     if (gameState) {
       setId(gameState.id && gameState.id.length > 0 ? gameState.id : null);
-      setStartingPos(gameState.startingPos && gameState.startingPos.length > 0 ? gameState.startingPos : "");
+      setStartingPos(
+        gameState.startingPos && gameState.startingPos.length > 0
+          ? gameState.startingPos
+          : "",
+      );
       setComplete(gameState.complete);
     }
-  }, [])
+  }, []);
 
-  useEffect(()=> {
+  useEffect(() => {
     if (gameOver && game.isGameOver()) {
       gameModalTriggerRef.current?.click();
 
@@ -208,7 +246,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
 
       if (game.isCheckmate()) {
         if (turn === orientation) {
-          setGameResult(GameResult.Loss)
+          setGameResult(GameResult.Loss);
         } else {
           setGameResult(GameResult.Win);
         }
@@ -216,31 +254,30 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
         setGameResult(GameResult.Draw);
 
         if (game.isStalemate()) {
-          setDrawType(DrawType.Stalemate)
+          setDrawType(DrawType.Stalemate);
         } else if (game.isThreefoldRepetition()) {
-          setDrawType(DrawType.Repetition)
+          setDrawType(DrawType.Repetition);
         } else if (game.isInsufficientMaterial()) {
-          setDrawType(DrawType.InsufficientMaterial)
+          setDrawType(DrawType.InsufficientMaterial);
         }
       }
     }
   }, [game, gameOver, turn, orientation]);
 
   useEffect(() => {
-    if (!gameOver || !gameResult || !id)
-      return;
+    if (!gameOver || !gameResult || !id) return;
 
     let result: string;
 
     switch (gameResult) {
       case GameResult.Draw:
-        result = "1/2-1/2"
+        result = "1/2-1/2";
         break;
       case GameResult.Loss:
         result = orientation === "white" ? "0-1" : "1-0";
         break;
       case GameResult.Win:
-        result = orientation === "white" ? "1-0" : "0-1"
+        result = orientation === "white" ? "1-0" : "0-1";
         break;
     }
 
@@ -250,72 +287,79 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
           .from("games")
           .update({
             finished_at: new Date(),
-            result: result
+            result: result,
           })
           .eq("id", id)
-          .select()
+          .select();
 
         // console.log(data, error);
       }
     })();
-  }, [gameOver, gameResult, orientation, id, session, supabase])
+  }, [gameOver, gameResult, orientation, id, session, supabase]);
 
   return (
     <GameContext.Provider value={value}>
       <Dialog>
-        <DialogTrigger ref={gameModalTriggerRef} className='hidden' />
+        <DialogTrigger ref={gameModalTriggerRef} className="hidden" />
         <DialogContent>
-          <DialogHeader className='flex flex-col items-center space-y-0'>
-            <DialogTitle className='text-2xl'>Game Over</DialogTitle>
-            <DialogDescription>{(() => {
-              let desc: string;
+          <DialogHeader className="flex flex-col items-center space-y-0">
+            <DialogTitle className="text-2xl">Game Over</DialogTitle>
+            <DialogDescription>
+              {(() => {
+                let desc: string;
 
-              switch (gameResult) {
-                case GameResult.Win:
-                  desc = "Congradulations, you won!";
-                  break;
-                case GameResult.Loss:
-                  desc = "You lost. Better luck next time!";
-                  break;
-                case GameResult.Draw:
-                  switch (drawType) {
-                    case DrawType.Stalemate:
-                      desc = "Draw. The game ended in stalemate.";
-                      break;
-                    case DrawType.Repetition:
-                      desc = "Draw by threefold repetition.";
-                      break;
-                    case DrawType.InsufficientMaterial:
-                      desc = "Draw, insufficient material";
-                      break;
-                    default: 
-                      desc = "The game ended in a draw."
-                  }
-                  break;
-                default:
-                  desc = "The game came to a magical ending!"
-              }
+                switch (gameResult) {
+                  case GameResult.Win:
+                    desc = "Congradulations, you won!";
+                    break;
+                  case GameResult.Loss:
+                    desc = "You lost. Better luck next time!";
+                    break;
+                  case GameResult.Draw:
+                    switch (drawType) {
+                      case DrawType.Stalemate:
+                        desc = "Draw. The game ended in stalemate.";
+                        break;
+                      case DrawType.Repetition:
+                        desc = "Draw by threefold repetition.";
+                        break;
+                      case DrawType.InsufficientMaterial:
+                        desc = "Draw, insufficient material";
+                        break;
+                      default:
+                        desc = "The game ended in a draw.";
+                    }
+                    break;
+                  default:
+                    desc = "The game came to a magical ending!";
+                }
 
-              return desc;
-            })()}</DialogDescription>
+                return desc;
+              })()}
+            </DialogDescription>
           </DialogHeader>
           {session && (
-            <DialogClose className='w-full'>
-              <Button className='w-full' onClick={() => { 
-                reset();
-                clearEvaluations();
-                clearGameMessages();
-                clearGame();
-              }}>
+            <DialogClose className="w-full">
+              <Button
+                className="w-full"
+                onClick={() => {
+                  reset();
+                  clearEvaluations();
+                  clearGameMessages();
+                  clearGame();
+                }}
+              >
                 Play Again
               </Button>
             </DialogClose>
           )}
           {!session && (
-            <div className='flex flex-col space-y-2'>
-              <div className='flex flex-col '>
+            <div className="flex flex-col space-y-2">
+              <div className="flex flex-col ">
                 <DialogTitle>Learn something?</DialogTitle>
-                <DialogDescription className='text-black'>Sign up to get more out of Chesski!</DialogDescription>
+                <DialogDescription className="text-black">
+                  Sign up to get more out of Chesski!
+                </DialogDescription>
               </div>
               <Button onClick={() => signInWithOAuth()}>
                 Sign in with Google
@@ -326,5 +370,5 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
       </Dialog>
       {children}
     </GameContext.Provider>
-  )
-}
+  );
+};

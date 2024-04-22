@@ -16,7 +16,6 @@ export interface UserDataProviderContext {
   updateExperience: Dispatch<SetStateAction<Experience>>;
 }
 
-
 export const UserDataContext = createContext<UserDataProviderContext>({
   chesscom: null,
   lichess: null,
@@ -43,4 +42,3 @@ export const UserDataContext = createContext<UserDataProviderContext>({
 });
 
 export const useUserData = () => useContext(UserDataContext);
-

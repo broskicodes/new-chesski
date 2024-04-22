@@ -1,12 +1,7 @@
-import React from 'react';
+import React from "react";
 
 const SuccessPage = () => {
-  
-  return (
-    <div>
-      Success
-    </div>
-  );
+  return <div>Success</div>;
 };
 
 export default SuccessPage;

@@ -22,33 +22,52 @@ export const GameLogs = () => {
   const { session, supabase, signInWithOAuth } = useAuth();
   const { evals } = useEvaluation();
   const { isInit, startSearch } = useStockfish();
-  const { game, turn, orientation, addHighlightedSquares, addArrows, makeMove } = useChess();
-  const { gameMessages, processing, queries, addGameMessage, appendGameMessage, getExplantion } = useCoach();
+  const {
+    game,
+    turn,
+    orientation,
+    addHighlightedSquares,
+    addArrows,
+    makeMove,
+  } = useChess();
+  const {
+    gameMessages,
+    processing,
+    queries,
+    addGameMessage,
+    appendGameMessage,
+    getExplantion,
+  } = useCoach();
   const { isPro } = useUserData();
 
   const logRef = useRef<HTMLDivElement>(null);
 
-  const highlightGameBoard = useCallback((move: string) => {
-    const tempGame = new Chess(game.fen());
+  const highlightGameBoard = useCallback(
+    (move: string) => {
+      const tempGame = new Chess(game.fen());
 
-    try {
-      const res = tempGame.move(move);
-      addArrows([[res.from, res.to]], true);
-      addHighlightedSquares([], true)
-    } catch (e) {
-      addHighlightedSquares([{ square: move.slice(-2) as Square, color: "#F7A28D"}], true)
-      addArrows([], true);
-    }
-    
-  }, [addArrows, addHighlightedSquares, game]);
+      try {
+        const res = tempGame.move(move);
+        addArrows([[res.from, res.to]], true);
+        addHighlightedSquares([], true);
+      } catch (e) {
+        addHighlightedSquares(
+          [{ square: move.slice(-2) as Square, color: "#F7A28D" }],
+          true,
+        );
+        addArrows([], true);
+      }
+    },
+    [addArrows, addHighlightedSquares, game],
+  );
 
   useEffect(() => {
     if (gameMessages.length === 0) {
       addGameMessage({
         id: Math.random().toString(32).substring(7),
         role: "assistant",
-        content: `"""This is the starting position. Make a move to start the game."""`
-      })
+        content: `"""This is the starting position. Make a move to start the game."""`,
+      });
     }
   }, [gameMessages, addGameMessage]);
 
@@ -69,7 +88,16 @@ export const GameLogs = () => {
       //   content: `${latestEval.evaluation} ${latestEval.pv.join(" ")}`
       // });
     }
-  }, [processing, game, prevFen, orientation, turn, isInit, evals, appendGameMessage]);
+  }, [
+    processing,
+    game,
+    prevFen,
+    orientation,
+    turn,
+    isInit,
+    evals,
+    appendGameMessage,
+  ]);
 
   useEffect(() => {
     if (logRef.current) {
@@ -89,12 +117,12 @@ export const GameLogs = () => {
       if (turn !== orientation) {
         makeMove(bestMove);
       }
-    }
+    };
 
     window.addEventListener("setBestMove", moveHandler);
     return () => {
       window.removeEventListener("setBestMove", moveHandler);
-    }
+    };
   }, [game, orientation, turn, makeMove]);
 
   useEffect(() => {
@@ -103,15 +131,16 @@ export const GameLogs = () => {
     }
 
     (async () => {
-      const { data } = await supabase.from("daily_position_queries")
+      const { data } = await supabase
+        .from("daily_position_queries")
         .select("number")
         .eq("user_id", session.id);
 
       if (data && data[0]) {
         setNumQueries(data[0].number);
       }
-    })()
-  }, [session, supabase])
+    })();
+  }, [session, supabase]);
 
   return (
     <div className="logs">
@@ -125,70 +154,83 @@ export const GameLogs = () => {
 
           if (!advice) return null;
 
-          const adviceLines = advice.split('\n');
+          const adviceLines = advice.split("\n");
 
           const elems = adviceLines.map((line, i) => {
             const segments = line.split(SanRegex).filter(Boolean);
 
             const lineElems = segments.map((segment, j) => {
               if (SanRegex.test(segment)) {
-                return <span key={j} className="san" onClick={() => highlightGameBoard(segment)}>{segment}</span>;
-              } 
+                return (
+                  <span
+                    key={j}
+                    className="san"
+                    onClick={() => highlightGameBoard(segment)}
+                  >
+                    {segment}
+                  </span>
+                );
+              }
 
               if (segment.includes("Subscribe now")) {
                 const parts = segment.split("Subscribe now");
                 return (
                   <span key={j}>
                     <span className="font-semibold">{parts[0]}</span>
-                    <Link href="/subscribe" className={
-                      // buttonVariants({ variant: "link", size: "thin" })
-                      "whitespace-nowrap font-bold text-[#1b03a3] hover:underline"
-                      }>Subscribe now</Link>
+                    <Link
+                      href="/subscribe"
+                      className={
+                        // buttonVariants({ variant: "link", size: "thin" })
+                        "whitespace-nowrap font-bold text-[#1b03a3] hover:underline"
+                      }
+                    >
+                      Subscribe now
+                    </Link>
                     {parts[1]}
                   </span>
                 );
-              }           
+              }
               return <span key={j}>{segment}</span>;
             });
 
             return (
-              <div key={i} className="content">{lineElems}</div>
+              <div key={i} className="content">
+                {lineElems}
+              </div>
             );
           });
 
           return (
             <div key={i} className="flex flex-col">
               <span className={`${message.role}-message role`}>CHESSKI:</span>
-              <div className="flex flex-col space-y-2">
-                {elems}
-              </div>
+              <div className="flex flex-col space-y-2">{elems}</div>
             </div>
-          )
+          );
         })}
         {!processing && (
           // <div className={`queries`}>
           //   {queries.map((query, i) => (
           //     <button key={i} className="button inverted-button thin-button" onClick={() => {
           //       posthog.capture("position_queried")
-          //       getExplantion(query.query) 
+          //       getExplantion(query.query)
           //     }}>{query.title}</button>
           //   ))}
           // </div>
           <div className="queries">
             {session && (
-              <Button 
-                variant="outline" size="thin"
+              <Button
+                variant="outline"
+                size="thin"
                 onClick={async () => {
                   if (!isPro) {
                     if (numQueries >= 3) {
                       addGameMessage({
                         id: Math.random().toString(32).substring(7),
                         role: "assistant",
-                        content: `"""You've reached your daily limit for analysis. Subscribe now for unlimited access."""`
-                      })
+                        content: `"""You've reached your daily limit for analysis. Subscribe now for unlimited access."""`,
+                      });
                       return;
                     }
-
 
                     if (!supabase) {
                       return;
@@ -198,30 +240,36 @@ export const GameLogs = () => {
                       .from("daily_position_queries")
                       .upsert({
                         user_id: session.id,
-                        number: numQueries + 1
+                        number: numQueries + 1,
                       });
 
                     setNumQueries(numQueries + 1);
                   }
 
-                  const latestEval = evals.length > 0 ? evals.at(-1)! : undefined;
+                  const latestEval =
+                    evals.length > 0 ? evals.at(-1)! : undefined;
 
                   if (!latestEval) return;
 
                   appendGameMessage({
                     role: "user",
-                    content: `${latestEval.evaluation} ${latestEval.pv.join(" ")}`
+                    content: `${latestEval.evaluation} ${latestEval.pv.join(" ")}`,
                   });
                 }}
-                >Analyze position</Button>
+              >
+                Analyze position
+              </Button>
             )}
             {!session && (
-              <Button 
-              variant="outline" size="thin"
-              onClick={() => {
-                signInWithOAuth()
-              }}
-              >Sign in to Analyze</Button>
+              <Button
+                variant="outline"
+                size="thin"
+                onClick={() => {
+                  signInWithOAuth();
+                }}
+              >
+                Sign in to Analyze
+              </Button>
             )}
             {/* <Button 
               variant="outline" size="thin"
@@ -237,5 +285,5 @@ export const GameLogs = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};

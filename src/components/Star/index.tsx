@@ -1,4 +1,3 @@
-
 interface StarProps {
   filled: boolean;
   onClick: () => void;
@@ -7,7 +6,7 @@ interface StarProps {
 export const Star = ({ filled, onClick }: StarProps) => {
   return (
     <span className="cursor-pointer" onClick={onClick}>
-      {filled ? '★' : '☆'}
+      {filled ? "★" : "☆"}
     </span>
   );
-}
+};

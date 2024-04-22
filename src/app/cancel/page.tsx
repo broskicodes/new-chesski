@@ -1,12 +1,7 @@
-import React from 'react';
+import React from "react";
 
 const CancelPage = () => {
-  
-  return (
-    <div>
-      Booo! Pay me!
-    </div>
-  );
+  return <div>Booo! Pay me!</div>;
 };
 
 export default CancelPage;

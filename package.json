@@ -7,6 +7,7 @@
     "build": "yarn stockfish && next build",
     "start": "next start",
     "lint": "next lint",
+    "format": "prettier --write ./src",
     "stockfish": "cd public && rm -rf nmrugg_stockfish_js && cp -r ../node_modules/stockfish/src nmrugg_stockfish_js && cd .."
   },
   "dependencies": {
@@ -58,6 +59,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.1.0",
     "postcss": "^8",
+    "prettier": "^3.2.5",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }

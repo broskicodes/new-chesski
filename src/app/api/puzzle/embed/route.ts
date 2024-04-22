@@ -1,12 +1,12 @@
 import { getChessRatingCategory } from "@/utils/clientHelpers";
-import { getSupabaseCilent } from "@/utils/serverHelpers"
+import { getSupabaseCilent } from "@/utils/serverHelpers";
 import OpenAI from "openai";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export const POST =async (req: Request) => {
+export const POST = async (req: Request) => {
   const supabase = getSupabaseCilent();
 
   for (let j = 13; j < 100; j++) {
@@ -28,15 +28,15 @@ export const POST =async (req: Request) => {
           model: "text-embedding-3-small",
           input: desc,
           dimensions: 512,
-          encoding_format: "float"
+          encoding_format: "float",
         });
 
         return {
           id: puzzle.id,
           description: desc,
-          embedding: embed.data[0].embedding
+          embedding: embed.data[0].embedding,
         };
-      })
+      }),
     );
 
     const batchSize = 100;
@@ -46,8 +46,11 @@ export const POST =async (req: Request) => {
 
     for (let i = 0; i < puzzlesCount; i += batchSize) {
       const batch = puzzles_descs.slice(i, i + batchSize);
-      const { data: embData, error: embError } = await supabase.from("puzzle_embeddings").upsert(batch).select();
-      
+      const { data: embData, error: embError } = await supabase
+        .from("puzzle_embeddings")
+        .upsert(batch)
+        .select();
+
       if (embError) {
         return new Response(JSON.stringify({ embError }), { status: 500 });
       }
@@ -57,4 +60,4 @@ export const POST =async (req: Request) => {
   }
 
   return new Response(JSON.stringify("success"), { status: 200 });
-}
+};

@@ -1,5 +1,10 @@
 import { getSupabaseCilent } from "@/utils/serverHelpers";
-import { Message, OpenAIStream, StreamingTextResponse, experimental_StreamData } from "ai";
+import {
+  Message,
+  OpenAIStream,
+  StreamingTextResponse,
+  experimental_StreamData,
+} from "ai";
 import OpenAI from "openai";
 import { ChatCompletionTool } from "openai/resources/index.mjs";
 
@@ -9,19 +14,23 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-
 const functions: ChatCompletionTool[] = [
   {
-    "type": "function",
-    "function": {
-      "name": "find_relevant_puzzles",
-      "description": "Semantically search for puzzles that are relevant to the user's query.",
-      "parameters": {
-        "type": "object",
-        "properties": {
-          "query": {"type": "string", "description": "The query that will be embedded and used to find relevant puzzles."},
+    type: "function",
+    function: {
+      name: "find_relevant_puzzles",
+      description:
+        "Semantically search for puzzles that are relevant to the user's query.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: {
+            type: "string",
+            description:
+              "The query that will be embedded and used to find relevant puzzles.",
+          },
         },
-        "required": ["query"],
+        required: ["query"],
       },
     },
   },
@@ -29,23 +38,27 @@ const functions: ChatCompletionTool[] = [
 
 const puzzleSearcherSystemMessage = {
   role: "system",
-  content: "You are a chess Grandmaster and professional coach. Your role is to help the user find relevant puzzles to train their chess skills and weaknesses.\n\nYou have access to a function called `find_relevant_puzzles` that takes a query and returns relevant puzzles. You will call this function for every user prompt. Your job is to convert the user prompt into a query that is effective at finding the most relevant puzzles.\n\nPuzzles will be searched semanically based on desription. Each puzzle description is of the form: 'This is a puzzle for ${skill_level} level players. The puzzle trains the following themes: ${array_of_themes}. It is related to the following openings: ${optional_array_of_openings}.' Structure your queries in a way that will find the most relevant puzzles for the user.\n\nMake sure you provide your responses in JSON format!"
-}
+  content:
+    "You are a chess Grandmaster and professional coach. Your role is to help the user find relevant puzzles to train their chess skills and weaknesses.\n\nYou have access to a function called `find_relevant_puzzles` that takes a query and returns relevant puzzles. You will call this function for every user prompt. Your job is to convert the user prompt into a query that is effective at finding the most relevant puzzles.\n\nPuzzles will be searched semanically based on desription. Each puzzle description is of the form: 'This is a puzzle for ${skill_level} level players. The puzzle trains the following themes: ${array_of_themes}. It is related to the following openings: ${optional_array_of_openings}.' Structure your queries in a way that will find the most relevant puzzles for the user.\n\nMake sure you provide your responses in JSON format!",
+};
 
 const puzzleHelperSystemMessage = {
   role: "system",
-  content: "You are a chess Grandmaster and professional coach. Your role is to help the user understand the puzzle they are currently studying.\n\nYou will be given the full solution to the puzzle and the current position the user is seeing on the board. Use this information answer any of the user's questions about the puzzle and provide any additional information that you think would be helpful to the user.\n\nYour responses to the user should be short and concise. Let them lead the conversation and only respond to their direct query. Do not ramble on!"
-}
+  content:
+    "You are a chess Grandmaster and professional coach. Your role is to help the user understand the puzzle they are currently studying.\n\nYou will be given the full solution to the puzzle and the current position the user is seeing on the board. Use this information answer any of the user's questions about the puzzle and provide any additional information that you think would be helpful to the user.\n\nYour responses to the user should be short and concise. Let them lead the conversation and only respond to their direct query. Do not ramble on!",
+};
 
 const coachSystemMessage = {
   role: "system",
-  content: "You are a chess Grandmaster and professional coach. Your will play against the user and provide feedback on moves as they play.\n\nThe FEN string of the current position as well as the list of moves leading up to it will be provided. The color that the user is playing will also be provided.\n\nYour objective is to help the user understand the dynamics of the position. When commenting on the user's moves, be sure to provide a reason for why the move is good or bad. Focus on explaining the concepts behind the moves and how it effects posinal dynamics, rather than just giving the best move.\n\nThe moves that you play will not always be optimal. You are attempting to play close to the user's skill level. When commenting on your own moves, talk about what the optimal move would have been.\n\nYour comments should be short and concise. Do not ramble on!"
-}
+  content:
+    "You are a chess Grandmaster and professional coach. Your will play against the user and provide feedback on moves as they play.\n\nThe FEN string of the current position as well as the list of moves leading up to it will be provided. The color that the user is playing will also be provided.\n\nYour objective is to help the user understand the dynamics of the position. When commenting on the user's moves, be sure to provide a reason for why the move is good or bad. Focus on explaining the concepts behind the moves and how it effects posinal dynamics, rather than just giving the best move.\n\nThe moves that you play will not always be optimal. You are attempting to play close to the user's skill level. When commenting on your own moves, talk about what the optimal move would have been.\n\nYour comments should be short and concise. Do not ramble on!",
+};
 
 const omniModelSystemMessage = {
   role: "system",
-  content: "You are an omnipotent AI agent. You are responsible for handling direct user queries and deciding which model to pass that query to based on the descriptions of other models that you can control. The models that you control will be "
-}
+  content:
+    "You are an omnipotent AI agent. You are responsible for handling direct user queries and deciding which model to pass that query to based on the descriptions of other models that you can control. The models that you control will be ",
+};
 
 export const POST = async (req: Request, res: Response) => {
   const { messages, puzzle, lastMove } = await req.json();
@@ -63,7 +76,7 @@ export const POST = async (req: Request, res: Response) => {
         const { data, error } = await supabase.auth.getUser();
 
         if (error) {
-          console.log(error)
+          console.log(error);
           return new Response(JSON.stringify({ error }), { status: 500 });
         }
 
@@ -72,18 +85,18 @@ export const POST = async (req: Request, res: Response) => {
           model: "text-embedding-3-small",
           input: args.query,
           dimensions: 512,
-          encoding_format: "float"
+          encoding_format: "float",
         });
-      
-        const { data: documents } = await supabase.rpc('find_puzzles', {
+
+        const { data: documents } = await supabase.rpc("find_puzzles", {
           user_id: data.user.id,
-          query_embedding: embed.data[0].embedding, 
-          match_count: 3, 
+          query_embedding: embed.data[0].embedding,
+          match_count: 3,
         });
 
         const streamData = new experimental_StreamData();
         streamData.append({
-          puzzles: documents
+          puzzles: documents,
         });
         streamData.close();
 
@@ -93,26 +106,30 @@ export const POST = async (req: Request, res: Response) => {
           messages: [
             {
               role: "system",
-              content: "The user is looking for puzzles to train their chess skills. You will be given the list of puzzles that were found to be relevant. Your job is to describe them to the user in a single short sentence! Refer to the user as 'you'."
+              content:
+                "The user is looking for puzzles to train their chess skills. You will be given the list of puzzles that were found to be relevant. Your job is to describe them to the user in a single short sentence! Refer to the user as 'you'.",
             },
             {
               role: "user",
-              content: `Here are the descriptions for the puzzles found: ${documents.map((puzzle: any) => puzzle.description).join("\n")}\n\nDescribe this collection of puzzles.`
-            }
-          ]
+              content: `Here are the descriptions for the puzzles found: ${documents.map((puzzle: any) => puzzle.description).join("\n")}\n\nDescribe this collection of puzzles.`,
+            },
+          ],
         });
 
         const stream = OpenAIStream(reponse, {
-          experimental_streamData: true
+          experimental_streamData: true,
         });
         return new StreamingTextResponse(stream, {}, streamData);
       }
       default: {
-        return new Response(JSON.stringify({ error: "Invalid function name" }), { status: 500 });
+        return new Response(
+          JSON.stringify({ error: "Invalid function name" }),
+          { status: 500 },
+        );
       }
     }
   }
-  
+
   if (puzzle) {
     const reponse = await openai.chat.completions.create({
       model: "gpt-4-turbo-preview",
@@ -122,12 +139,12 @@ export const POST = async (req: Request, res: Response) => {
         ...messages.filter((msg: Message) => !msg.tool_calls),
         {
           role: "assistant",
-          content: `The puzzle the user is currently studying starts in this position: ${puzzle.starting_fen}. The puzzle has the following solution: ${puzzle.moves.join(" ")}. The move ${lastMove} has just been played. Respond to the user's query.`
-        }
+          content: `The puzzle the user is currently studying starts in this position: ${puzzle.starting_fen}. The puzzle has the following solution: ${puzzle.moves.join(" ")}. The move ${lastMove} has just been played. Respond to the user's query.`,
+        },
       ],
     });
 
-    console.log(lastMove)
+    console.log(lastMove);
 
     const stream = OpenAIStream(reponse);
     return new StreamingTextResponse(stream);
@@ -154,22 +171,23 @@ export const POST = async (req: Request, res: Response) => {
   const reponse = await openai.chat.completions.create({
     model: "gpt-4-turbo-preview",
     // stream: true,
-    messages: [
-      puzzleSearcherSystemMessage,
-      lastMessage
-    ],
+    messages: [puzzleSearcherSystemMessage, lastMessage],
     response_format: { type: "json_object" },
-    tools: [
-      ...functions
-    ],
-    tool_choice: { "type": "function", "function": { name: "find_relevant_puzzles" } }
+    tools: [...functions],
+    tool_choice: {
+      type: "function",
+      function: { name: "find_relevant_puzzles" },
+    },
   });
 
   // const stream = OpenAIStream(reponse);
 
   // return new StreamingTextResponse(stream);
 
-  return new Response(JSON.stringify({
-    tool_calls: reponse.choices[0].message.tool_calls,
-  }), { status: 200 });
-}
+  return new Response(
+    JSON.stringify({
+      tool_calls: reponse.choices[0].message.tool_calls,
+    }),
+    { status: 200 },
+  );
+};

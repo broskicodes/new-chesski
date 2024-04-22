@@ -39,7 +39,7 @@
   padding-top: 8px;
   padding-bottom: 2px;
   overflow-x: auto;
-  scrollbar-width: thin; 
+  scrollbar-width: thin;
 }
 
 .queries > :not(:last-child) {
@@ -74,12 +74,11 @@
   background: #888; /* or any color on hover */
 }
 
-
 @media screen and (max-width: 640px) {
   .role {
     font-size: 14px;
   }
-  
+
   .logs {
     width: 100%;
     max-width: 480px;

@@ -5,7 +5,7 @@ import "tippy.js/dist/tippy.css";
 interface TooltipProps {
   content: string;
   children: JSX.Element;
-  className?: string
+  className?: string;
 }
 
 export const Tooltip = ({ content, children, className }: TooltipProps) => {
