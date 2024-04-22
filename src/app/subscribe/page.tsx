@@ -13,11 +13,12 @@ import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
-import React, { useMemo, useState } from 'react';
+import React, { Suspense, useEffect, useMemo, useState } from 'react';
+import { FreeTrialModal } from "@/components/FreeTrialModal";
 
 const SubPage = () => {
-  const [annual, setAnnual] = useState(false);
-  
+  const [annual, setAnnual] = useState(true);
+
   const { isPro } = useUserData();
   const { session, signInWithOAuth } = useAuth();
   const router = useRouter();
@@ -41,11 +42,23 @@ const SubPage = () => {
         mostPopular: true,
       }
     ]
-  }), [annual])
+  }), [annual]);
+
+  useEffect(() => {
+    // if (session && !isPro) {
+      (async () => {
+        const res = await fetch("/subscribe/free-trial", { method: "POST" });
+        console.log(res.ok);
+      })();
+    // }
+  }, []);
 
   return (
     <div className="pb-8">
       <Navbar showMobile={true} />
+      <Suspense>
+        <FreeTrialModal />
+      </Suspense>
       <div className='flex flex-col items-center space-y-4 mt-[64px] sm:mt-0'>
         <div className='font-bold text-4xl'>Subscribe to Chesski</div>
         {/* <div></div> */}

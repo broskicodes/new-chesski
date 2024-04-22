@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${origin}/auth/callback${next ? '?next=subscribe' :''}`,
+        redirectTo: `${origin}/auth/callback${next ? `?next=${next}` :''}`,
         queryParams: {
           next: "subscribe"
         }
