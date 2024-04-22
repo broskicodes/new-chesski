@@ -35,7 +35,7 @@ import {
 export const BoardControl = ({ className }: { className?: string }) => {
   const { undo, swapOrientation, reset, doubleUndo } = useChess();
   const { clearGameMessages } = useCoach();
-  const { clearEvaluations } = useEvaluation();
+  const { clearEvaluations, popEvals } = useEvaluation();
   const { settingUp, setSettingUp, toggleModal } = useSetup();
   const {
     gameId,
@@ -116,7 +116,13 @@ export const BoardControl = ({ className }: { className?: string }) => {
               </DialogContent>
             </Dialog>
             <Tooltip content="Undo Move">
-              <Button size="icon" onClick={doubleUndo}>
+              <Button size="icon" onClick={() => {
+                const res = doubleUndo();
+                
+                if (res.length > 0) {
+                  popEvals(res.length);
+                }
+              }}>
                 <FontAwesomeIcon icon={faReply} />
               </Button>
             </Tooltip>

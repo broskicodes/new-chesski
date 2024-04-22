@@ -24,7 +24,7 @@ import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import posthog from "posthog-js";
 import { useCoach } from "./CoachProvider/context";
-import { useEvaluation } from "./EvaluationProvider/context";
+import { MoveQuality, useEvaluation } from "./EvaluationProvider/context";
 import { setCurrGameState } from "@/utils/clientHelpers";
 import { Move } from "chess.js";
 
@@ -32,6 +32,7 @@ enum GameResult {
   Win = "win",
   Loss = "loss",
   Draw = "draw",
+  Resign = "resign"
 }
 
 enum DrawType {
@@ -94,7 +95,9 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
   const [drawType, setDrawType] = useState<DrawType | null>(null);
 
-  const { clearEvaluations } = useEvaluation();
+  const [qualMap, setQualMap] = useState<{ [key in MoveQuality]: number } | null>(null)
+
+  const { clearEvaluations, evaluateMoveQuality, evals } = useEvaluation();
   const { clearGameMessages } = useCoach();
   const { game, orientation, turn, gameOver, reset, undo, makeMove } =
     useChess();
@@ -141,7 +144,42 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     }
   }, [game, orientation, session, supabase]);
 
+  const anotherhithuh = useCallback((moveHistory: string[]) => {
+    const hits = evals.slice(1)
+      .map((ev, i) => {
+        const qual = evaluateMoveQuality(evals[i], ev, moveHistory[i]);
+
+
+        return qual;
+      })
+      .filter((_, i) => orientation === "white" ? i % 2 === 0 : i % 2 === 1);
+
+    setQualMap((_) => {
+      const prev = {
+        [MoveQuality.Best]: 0,
+        [MoveQuality.Good]: 0,
+        [MoveQuality.Book]: 0,
+        [MoveQuality.Inaccuracy]: 0,
+        [MoveQuality.Mistake]: 0,
+        [MoveQuality.Blunder]: 0,    
+      }
+
+      hits.forEach((qual) => {
+        prev[qual!] += 1;
+      })
+
+      console.log(prev)
+      return prev;
+    })
+
+    // console.log(hits);
+  }, [orientation, evals, evaluateMoveQuality]);
+
   const resign = useCallback(async () => {
+    gameModalTriggerRef.current?.click();
+    setGameResult(GameResult.Resign);
+    anotherhithuh(game.history());
+
     if (session && supabase) {
       const { data, error } = await supabase
         .from("games")
@@ -162,7 +200,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     setCurrGameState({
       complete: true,
     });
-  }, [game, orientation, id, session, supabase]);
+  }, [game, orientation, id, session, supabase, evals, anotherhithuh]);
 
   const clearGame = useCallback(() => {
     setId(null);
@@ -239,6 +277,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     if (gameOver && game.isGameOver()) {
       gameModalTriggerRef.current?.click();
+      anotherhithuh(game.history());
 
       setComplete(true);
       setMoves(game.history());
@@ -262,10 +301,10 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
         }
       }
     }
-  }, [game, gameOver, turn, orientation]);
+  }, [game, gameOver, turn, orientation, evals, anotherhithuh]);
 
   useEffect(() => {
-    if (!gameOver || !gameResult || !id) return;
+    if (!gameOver || !gameResult || !id || moves.length < 1) return;
 
     let result: string;
 
@@ -273,6 +312,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
       case GameResult.Draw:
         result = "1/2-1/2";
         break;
+      case GameResult.Resign:
       case GameResult.Loss:
         result = orientation === "white" ? "0-1" : "1-0";
         break;
@@ -288,6 +328,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
           .update({
             finished_at: new Date(),
             result: result,
+            moves: moves
           })
           .eq("id", id)
           .select();
@@ -295,7 +336,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
         // console.log(data, error);
       }
     })();
-  }, [gameOver, gameResult, orientation, id, session, supabase]);
+  }, [gameOver, gameResult, orientation, id, session, supabase, moves]);
 
   return (
     <GameContext.Provider value={value}>
@@ -314,6 +355,9 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
                     break;
                   case GameResult.Loss:
                     desc = "You lost. Better luck next time!";
+                    break;
+                  case GameResult.Resign:
+                    desc = "You resigned.";
                     break;
                   case GameResult.Draw:
                     switch (drawType) {
@@ -338,20 +382,44 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
               })()}
             </DialogDescription>
           </DialogHeader>
+          <div>
+            {qualMap && Object.keys(qualMap).map((row) => {
+              return (
+                // @ts-ignore
+                <p key={row}>{row} {qualMap[row]}</p>
+              )
+            })}
+          </div>
           {session && (
-            <DialogClose className="w-full">
-              <Button
-                className="w-full"
-                onClick={() => {
-                  reset();
-                  clearEvaluations();
-                  clearGameMessages();
-                  clearGame();
-                }}
-              >
-                Play Again
-              </Button>
-            </DialogClose>
+            <div className="flex flex-col space-y-2 mt-2">
+              <DialogClose className="w-full">
+                <Button
+                  className="w-full font-bold text-lg py-4"
+                  onClick={() => {
+                    reset();
+                    clearEvaluations();
+                    clearGameMessages();
+                    clearGame();
+                  }}
+                >
+                  Analyze Game
+                </Button>
+              </DialogClose>
+              <DialogClose className="w-full">
+                <Button
+                  className="w-full font-semibold text-lg py-4"
+                  variant="outline"
+                  onClick={() => {
+                    reset();
+                    clearEvaluations();
+                    clearGameMessages();
+                    clearGame();
+                  }}
+                >
+                  Play Again
+                </Button>
+              </DialogClose>
+            </div>
           )}
           {!session && (
             <div className="flex flex-col space-y-2">

@@ -34,7 +34,7 @@ export interface ChessProviderContext {
   ) => Move | null;
   setPosition: (fen: string) => boolean;
   undo: () => Move | null;
-  doubleUndo: () => Move | null;
+  doubleUndo: () => Move[];
   reset: () => void;
   swapOrientation: () => void;
   addArrows: (arrows: Arrow[], reset: boolean) => void;

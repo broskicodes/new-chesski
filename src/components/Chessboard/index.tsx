@@ -7,6 +7,7 @@ import {
 } from "react-chessboard/dist/chessboard/types";
 import posthog from "posthog-js";
 import {
+  MoveQuality,
   PositionEval,
   useEvaluation,
 } from "@/providers/EvaluationProvider/context";
@@ -29,7 +30,7 @@ export const Chessboard = () => {
   const [movesMade, setMovesMade] = useState(0);
   const [mult, setMult] = useState(1);
 
-  const { evals } = useEvaluation();
+  const { evals, evaluateMoveQuality } = useEvaluation();
   const { toast } = useToast();
   const { session, supabase, signInWithOAuth } = useAuth();
   const { addGameMessage, gameMessages } = useCoach();
@@ -53,62 +54,7 @@ export const Chessboard = () => {
 
   // const modalTriggerRef = useRef<HTMLButtonElement>(null);
 
-  const evaluateMoveQuality = useCallback(
-    (
-      prevPosition: PositionEval,
-      currentPosition: PositionEval,
-    ): string | null => {
-      let evalDiff = currentPosition.evaluation - prevPosition.evaluation;
-
-      const chess = new Chess(prevPosition.evaledFen);
-      try {
-        const res = chess.move({
-          from: lastMoveHighlight![0].square,
-          to: lastMoveHighlight![1].square,
-        });
-      } catch (err) {
-        return null;
-      }
-
-      if (
-        `${lastMoveHighlight![0].square}${lastMoveHighlight![1].square}` ===
-        prevPosition.bestMove
-      ) {
-        return "Best";
-      }
-
-      if (turn == "black") {
-        evalDiff = -evalDiff;
-      }
-
-      // Since we can only use the four listed classes, we will map the mate situations to the closest class.
-      if (prevPosition.mate && currentPosition.mate) {
-        // Both positions have a mate, so the move didn't change the inevitable outcome
-        // This could be considered a 'Blunder' if it was the player's turn to move and they failed to prevent mate
-        // or 'Good' if there was no way to prevent the mate.
-        return turn === orientation ? "Blunder" : "Good";
-      } else if (prevPosition.mate) {
-        // Previous position had a mate, but the current one doesn't, so the move prevented mate
-        // This is a 'Good' move as it prevented mate.
-        return "Good";
-      } else if (currentPosition.mate) {
-        // Current position has a mate, so the move led to a mate
-        // This is a 'Blunder' as it led to a mate.
-        return "Blunder";
-      }
-
-      if (evalDiff <= -150) {
-        return "Blunder";
-      } else if (evalDiff <= -50) {
-        return "Mistake";
-      } else if (evalDiff < -25) {
-        return "Inaccuracy";
-      } else {
-        return "Good";
-      }
-    },
-    [orientation, turn, lastMoveHighlight],
-  );
+  
 
   const updateStreak = useCallback(async () => {
     if (!supabase || !session) {
@@ -134,7 +80,7 @@ export const Chessboard = () => {
         try {
           tempGame.move(prev?.bestMove!);
 
-          const moveStrength = evaluateMoveQuality(prev!, curr!);
+          const moveStrength = evaluateMoveQuality(prev!, curr!, game.history().at(-2)!);
 
           if (!moveStrength) {
             return;
@@ -143,23 +89,27 @@ export const Chessboard = () => {
           let color: string;
           let msg: string;
           switch (moveStrength) {
-            case "Best":
+            case MoveQuality.Book:
+              color = "#9D695A";
+              msg = "Book Move";
+              break;
+            case MoveQuality.Best:
               color = "#E64DFF";
               msg = "Best Move";
               break;
-            case "Good":
+            case MoveQuality.Good:
               color = "#33C57D";
               msg = "Good Move";
               break;
-            case "Inaccuracy":
+            case MoveQuality.Inaccuracy:
               color = "#F6C333";
               msg = "Inaccurate";
               break;
-            case "Mistake":
+            case MoveQuality.Mistake:
               color = "#F4A153";
               msg = "Mistake";
               break;
-            case "Blunder":
+            case MoveQuality.Blunder:
               color = "#E45B4F";
               msg = "Blunder";
               break;
@@ -172,7 +122,7 @@ export const Chessboard = () => {
           const gameMsg: Message = {
             id: Math.random().toString(36).substring(7),
             role: "assistant",
-            content: `"""You played ${game.history().at(-2)}${msg !== "Best Move" ? `. The best move was ${tempGame.history().at(-1)}` : ", it was the best move."}"""`,
+            content: `"""You played ${game.history().at(-2)}${msg === "Book Move" ? ", its a book move." :  msg !== "Best Move" ? `. The best move was ${tempGame.history().at(-1)}` : ", it was the best move."}"""`,
           };
 
           addGameMessage(gameMsg);

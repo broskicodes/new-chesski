@@ -142,10 +142,6 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
 
         setGame(tempGame);
 
-        if (!res2) {
-          setTurn(turn === Player.White ? Player.Black : Player.White);
-        }
-
         setHighlightedMoves([]);
         setHighlightedSquares([]);
         setLastMoveHighlight(null);
@@ -154,11 +150,16 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
 
         setCurrGameState({ moves: tempGame.history() });
 
-        return res2;
+        if (!res2) {
+          setTurn(turn === Player.White ? Player.Black : Player.White);
+          return [res];
+        }
+
+        return [res, res2];
       }
-      return res;
+      return [];
     } catch (e) {
-      return null;
+      return [];
     }
   }, [game, turn]);
 
