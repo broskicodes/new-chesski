@@ -65,7 +65,7 @@ export const FreeTrialModal = () => {
                 onClick={async () => {
                   signInWithOAuth("subscribe?ad=freeTrial")
                 }} >
-              Sign In
+              <span className="font-bold text-xl">Sign In</span>
             </Button>
             )}
             <DialogDescription className="text-center"><span className="font-bold">Cancel Anytime</span> | Renews at $10/month</DialogDescription>
