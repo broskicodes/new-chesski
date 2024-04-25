@@ -247,5 +247,3 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
     </AnalysisContext.Provider>
   )
 } 
-
-

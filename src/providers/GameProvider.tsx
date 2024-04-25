@@ -17,7 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useChess } from "./ChessProvider/context";
+import { Player, useChess } from "./ChessProvider/context";
 import { useAuth } from "./AuthProvider/context";
 import { GameState, STRIPE_LINK } from "@/utils/types";
 import Link from "next/link";
@@ -148,7 +148,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
   const classifyMoves = useCallback((moveHistory: string[]) => {
     const hits = evals.slice(1)
       .map((ev, i) => {
-        const qual = evaluateMoveQuality(evals[i], ev, moveHistory[i]);
+        const qual = evaluateMoveQuality(evals[i], ev, moveHistory[i], i % 2 === 0 ? Player.White : Player.Black);
 
 
         return qual;

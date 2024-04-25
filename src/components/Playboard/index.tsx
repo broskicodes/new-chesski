@@ -80,7 +80,7 @@ export const Chessboard = () => {
         try {
           tempGame.move(prev?.bestMove!);
 
-          const moveStrength = evaluateMoveQuality(prev!, curr!, game.history().at(-2)!);
+          const moveStrength = evaluateMoveQuality(prev!, curr!, game.history().at(-2)!, turn);
 
           if (!moveStrength) {
             return;
