@@ -7,7 +7,7 @@ import {
 } from "react-chessboard/dist/chessboard/types";
 import posthog from "posthog-js";
 import {
-  MoveQuality,
+  Classification,
   PositionEval,
   useEvaluation,
 } from "@/providers/EvaluationProvider/context";
@@ -89,27 +89,27 @@ export const Chessboard = () => {
           let color: string;
           let msg: string;
           switch (moveStrength) {
-            case MoveQuality.Book:
+            case Classification.Book:
               color = "#9D695A";
               msg = "Book Move";
               break;
-            case MoveQuality.Best:
+            case Classification.Best:
               color = "#E64DFF";
               msg = "Best Move";
               break;
-            case MoveQuality.Good:
+            case Classification.Good:
               color = "#33C57D";
               msg = "Good Move";
               break;
-            case MoveQuality.Inaccuracy:
+            case Classification.Inaccuracy:
               color = "#F6C333";
               msg = "Inaccurate";
               break;
-            case MoveQuality.Mistake:
+            case Classification.Mistake:
               color = "#F4A153";
               msg = "Mistake";
               break;
-            case MoveQuality.Blunder:
+            case Classification.Blunder:
               color = "#E45B4F";
               msg = "Blunder";
               break;

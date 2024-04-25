@@ -2,7 +2,7 @@
 import "./styles.css";
 
 import { BoardControl } from "@/components/BoardControl";
-import { Chessboard } from "@/components/Chessboard";
+import { Chessboard } from "@/components/Playboard";
 import { EvalBar } from "@/components/EvalBar";
 import { GameLogs } from "@/components/GameLogs";
 import { Navbar } from "@/components/Navbar";

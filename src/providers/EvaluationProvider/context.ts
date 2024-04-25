@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from "react";
+import { Player } from "../ChessProvider/context";
 
 export interface PositionEval {
   evaluation: number;
@@ -8,7 +9,12 @@ export interface PositionEval {
   pv: string[];
 }
 
-export enum MoveQuality {
+export interface PositionAnal extends PositionEval {
+  classification?: Classification;
+  opening?: string;
+}
+
+export enum Classification {
   Best = "Best",
   Good = "Good",
   Book = "Book",
@@ -24,8 +30,9 @@ export interface EvaluationContext {
   evaluateMoveQuality: (
     prevPosition: PositionEval,
     currentPosition: PositionEval,
-    playedMove: string
-  ) => MoveQuality | null;
+    playedMove: string,
+    turn: Player
+  ) => Classification | null;
 }
 
 export const EvaluationContext = createContext<EvaluationContext>({

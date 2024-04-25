@@ -5,8 +5,8 @@ import {
   useMemo,
   useEffect,
 } from "react";
-import { EvaluationContext, MoveQuality, PositionEval } from "./context";
-import { useChess } from "../ChessProvider/context";
+import { EvaluationContext, Classification, PositionEval } from "./context";
+import { Player, useChess } from "../ChessProvider/context";
 import { Chess } from "chess.js";
 import openings from "@/utils/openings.json";
 
@@ -35,8 +35,9 @@ export const EvaluationProvider = ({ children }: PropsWithChildren<{}>) => {
     (
       prevPosition: PositionEval,
       currentPosition: PositionEval,
-      playedMove: string
-    ): MoveQuality | null => {
+      playedMove: string,
+      turn: Player
+    ): Classification | null => {
       let evalDiff = currentPosition.evaluation - prevPosition.evaluation;
 
       const chess = new Chess(prevPosition.evaledFen);
@@ -49,15 +50,15 @@ export const EvaluationProvider = ({ children }: PropsWithChildren<{}>) => {
       const o = openings.find(opening => currentPosition.evaledFen.includes(opening.fen));
 
       if (o) {
-        console.log(o);
-        return MoveQuality.Book
+        // console.log(o);
+        return Classification.Book
       }
 
       if (
         `${chess.history({ verbose: true }).at(-1)?.from}${chess.history({ verbose: true }).at(-1)?.to}` ===
         prevPosition.bestMove
       ) {
-        return MoveQuality.Best;
+        return Classification.Best;
       }
 
       if (turn == "black") {
@@ -69,28 +70,28 @@ export const EvaluationProvider = ({ children }: PropsWithChildren<{}>) => {
         // Both positions have a mate, so the move didn't change the inevitable outcome
         // This could be considered a 'Blunder' if it was the player's turn to move and they failed to prevent mate
         // or 'Good' if there was no way to prevent the mate.
-        return turn === orientation ? MoveQuality.Blunder : MoveQuality.Good;
+        return turn === orientation ? Classification.Blunder : Classification.Good;
       } else if (prevPosition.mate) {
         // Previous position had a mate, but the current one doesn't, so the move prevented mate
         // This is a 'Good' move as it prevented mate.
-        return MoveQuality.Good;
+        return Classification.Good;
       } else if (currentPosition.mate) {
         // Current position has a mate, so the move led to a mate
         // This is a 'Blunder' as it led to a mate.
-        return MoveQuality.Blunder;
+        return Classification.Blunder;
       }
 
       if (evalDiff <= -150) {
-        return MoveQuality.Blunder;
+        return Classification.Blunder;
       } else if (evalDiff <= -50) {
-        return MoveQuality.Mistake;
+        return Classification.Mistake;
       } else if (evalDiff < -25) {
-        return MoveQuality.Inaccuracy;
+        return Classification.Inaccuracy;
       } else {
-        return MoveQuality.Good;
+        return Classification.Good;
       }
     },
-    [orientation, turn, lastMoveHighlight],
+    [orientation, lastMoveHighlight],
   );
 
   const value = useMemo(

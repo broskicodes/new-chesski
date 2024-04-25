@@ -98,7 +98,7 @@ export const EvalBar = () => {
 
   return (
     <Tooltip
-      content={`Eval: ${evals.at(-1) ? evals.at(-1)?.evaluation! / 100 : 0.0}`}
+      content={`Eval: ${evals.at(-1) ? evals.at(-1)?.mate ? evals.at(-1)?.evaluation : evals.at(-1)?.evaluation! / 100 : 0.0}`}
     >
       <div id="eval-bar" ref={barRef}>
         <div id="eval-fill" ref={fillRef}></div>

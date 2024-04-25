@@ -9,12 +9,11 @@ import { StockfishProviderContext } from "./context";
 import { SkillLevel, SkillLevelMap } from "@/utils/types";
 import { useChess } from "../ChessProvider/context";
 
-const MAX_DEPTH = 17;
+const MAX_DEPTH = 14;
 
 export const StockfishProvider = ({ children }: PropsWithChildren) => {
   const [isInit, setIsInit] = useState(false);
   const [uciOk, setUciOk] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   // const [bestMove, setBestMove] = useState<string | null>(null);
@@ -26,7 +25,7 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
   const [moveTime, setMoveTime] = useState(0);
   const [skillLvl, setSkillLvl] = useState<SkillLevel>(SkillLevel.Beginner);
 
-  const { game, turn, orientation, makeMove } = useChess();
+  const { game, turn, orientation } = useChess();
 
   const worker = useMemo(() => {
     if (typeof window === "undefined") {
@@ -173,10 +172,9 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
   );
 
   const startSearch = useCallback(() => {
-    if (!worker || isSearching || !isReady || gameOver) {
+    if (!worker || isSearching || !isReady || game.isGameOver()) {
       return false;
     }
-    // console.log("huh")
 
     setEvaluated(false);
     setIsSearching(true);
@@ -192,21 +190,13 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
     );
 
     return true;
-  }, [isSearching, isReady, worker, game, gameOver, onMessage, moveTime]);
+  }, [isSearching, isReady, worker, game, onMessage, moveTime]);
 
   const uninit = useCallback(() => {
     setIsInit(false);
     setIsReady(false);
     setUciOk(false);
   }, []);
-
-  useEffect(() => {
-    if (game.isGameOver()) {
-      setGameOver(true);
-    } else {
-      setGameOver(false);
-    }
-  }, [game]);
 
   useEffect(() => {
     if (!worker || !isInit || uciOk) {

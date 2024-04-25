@@ -6,15 +6,10 @@ import {
   useMemo,
   useState,
 } from "react";
-import { ChessContext, ChessProviderContext, SquareHighlight } from "./context";
+import { ChessContext, ChessProviderContext, Player, SquareHighlight } from "./context";
 import { Arrow, Square } from "react-chessboard/dist/chessboard/types";
 import posthog from "posthog-js";
 import { setCurrGameState } from "@/utils/clientHelpers";
-
-export enum Player {
-  White = "white",
-  Black = "black",
-}
 
 export const ChessProvider = ({ children }: PropsWithChildren) => {
   const [game, setGame] = useState<Chess>(new Chess());
@@ -30,6 +25,9 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
     [SquareHighlight, SquareHighlight] | null
   >(null);
   const [aiLastMoveHighlight, setAILastMoveHighlight] = useState<
+    [SquareHighlight, SquareHighlight] | null
+  >(null);
+  const [moveHighlight, setMoveHighlight] = useState<
     [SquareHighlight, SquareHighlight] | null
   >(null);
 
@@ -65,6 +63,11 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
               { square: res.to, color: "#F9DC5C" },
             ]);
           }
+
+          setMoveHighlight([
+            { square: res.from, color: "#F9DC5C" },
+            { square: res.to, color: "#F9DC5C" },
+          ]);
         }
         return res;
       } catch (e) {
@@ -101,6 +104,12 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
         }
       }
 
+      const lastMove = tempGame.history({ verbose: true }).at(-1);
+      lastMove && setMoveHighlight([
+        { square: lastMove.from, color: "" },
+        { square: lastMove.to, color: "" }
+      ]);
+      
       setGame(tempGame);
       setTurn(tempGame.turn() === "w" ? Player.White : Player.Black);
 
@@ -115,6 +124,8 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
     try {
       const res = tempGame.undo();
       if (res) {
+        const lastMove = tempGame.history({ verbose: true }).at(-1);
+
         setGame(tempGame);
         setTurn(turn === Player.White ? Player.Black : Player.White);
 
@@ -122,6 +133,10 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
         setHighlightedSquares([]);
         setLastMoveHighlight(null);
         setAILastMoveHighlight(null);
+        lastMove && setMoveHighlight([
+          { square: lastMove.from, color: "" },
+          { square: lastMove.to, color: "" }
+        ])
         setArrows([]);
 
         setCurrGameState({ moves: tempGame.history() });
@@ -170,6 +185,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
 
     setHighlightedMoves([]);
     setHighlightedSquares([]);
+    setMoveHighlight(null);
     setLastMoveHighlight(null);
     setAILastMoveHighlight(null);
     setArrows([]);
@@ -244,6 +260,17 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
         { ...prev[1], color },
       ];
     });
+
+    setMoveHighlight((prev) => {
+      if (!prev) {
+        return null;
+      }
+
+      return [
+        { ...prev[0], color },
+        { ...prev[1], color },
+      ];
+    });
   }, []);
 
   useEffect(() => {
@@ -267,6 +294,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
       highlightedMoves,
       lastMoveHighlight,
       aiLastMoveHighlight,
+      moveHighlight,
       makeMove,
       playContinuation,
       setPosition,
@@ -291,6 +319,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
       highlightedSquares,
       lastMoveHighlight,
       aiLastMoveHighlight,
+      moveHighlight,
       makeMove,
       playContinuation,
       setPosition,

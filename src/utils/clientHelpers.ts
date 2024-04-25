@@ -1,5 +1,6 @@
 import { Message } from "ai";
 import { Experience, GameState, SkillLevel, SkillLevelMap } from "./types";
+import { Classification } from "@/providers/EvaluationProvider/context";
 
 export const getChessRatingCategory = (rating: number): SkillLevel => {
   for (const category of Object.entries(SkillLevelMap)) {
@@ -78,3 +79,39 @@ export const expToLvl = (exp: Experience | "Impossible") => {
 
   return lvl;
 };
+
+export const getClassColor = (classification: Classification) => {
+  let color: string;
+
+  switch (classification) {
+    case Classification.Book:
+      color = "#9D695A";
+      // msg = "Book Move";
+      break;
+    case Classification.Best:
+      color = "#E64DFF";
+      // msg = "Best Move";
+      break;
+    case Classification.Good:
+      color = "#33C57D";
+      // msg = "Good Move";
+      break;
+    case Classification.Inaccuracy:
+      color = "#F6C333";
+      // msg = "Inaccurate";
+      break;
+    case Classification.Mistake:
+      color = "#F4A153";
+      // msg = "Mistake";
+      break;
+    case Classification.Blunder:
+      color = "#E45B4F";
+      // msg = "Blunder";
+      break;
+    default:
+      color = "#F7A28D";
+      // msg = "Trash";
+  }
+
+  return color;
+}

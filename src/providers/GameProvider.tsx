@@ -22,11 +22,11 @@ import { useAuth } from "./AuthProvider/context";
 import { GameState, STRIPE_LINK } from "@/utils/types";
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
-import posthog from "posthog-js";
 import { useCoach } from "./CoachProvider/context";
-import { MoveQuality, useEvaluation } from "./EvaluationProvider/context";
+import { Classification, useEvaluation } from "./EvaluationProvider/context";
 import { setCurrGameState } from "@/utils/clientHelpers";
 import { Move } from "chess.js";
+import { useRouter } from "next/navigation";
 
 enum GameResult {
   Win = "win",
@@ -95,13 +95,14 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
   const [drawType, setDrawType] = useState<DrawType | null>(null);
 
-  const [qualMap, setQualMap] = useState<{ [key in MoveQuality]: number } | null>(null)
+  const [qualMap, setQualMap] = useState<{ [key in Classification]: number } | null>(null)
 
   const { clearEvaluations, evaluateMoveQuality, evals } = useEvaluation();
   const { clearGameMessages } = useCoach();
   const { game, orientation, turn, gameOver, reset, undo, makeMove } =
     useChess();
   const { session, supabase, signInWithOAuth } = useAuth();
+  const router = useRouter();
 
   const gameModalTriggerRef = useRef<HTMLButtonElement>(null);
 
@@ -144,7 +145,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     }
   }, [game, orientation, session, supabase]);
 
-  const anotherhithuh = useCallback((moveHistory: string[]) => {
+  const classifyMoves = useCallback((moveHistory: string[]) => {
     const hits = evals.slice(1)
       .map((ev, i) => {
         const qual = evaluateMoveQuality(evals[i], ev, moveHistory[i]);
@@ -156,19 +157,19 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
 
     setQualMap((_) => {
       const prev = {
-        [MoveQuality.Best]: 0,
-        [MoveQuality.Good]: 0,
-        [MoveQuality.Book]: 0,
-        [MoveQuality.Inaccuracy]: 0,
-        [MoveQuality.Mistake]: 0,
-        [MoveQuality.Blunder]: 0,    
+        [Classification.Best]: 0,
+        [Classification.Good]: 0,
+        [Classification.Book]: 0,
+        [Classification.Inaccuracy]: 0,
+        [Classification.Mistake]: 0,
+        [Classification.Blunder]: 0,    
       }
 
       hits.forEach((qual) => {
         prev[qual!] += 1;
       })
 
-      console.log(prev)
+      // console.log(prev)
       return prev;
     })
 
@@ -178,7 +179,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
   const resign = useCallback(async () => {
     gameModalTriggerRef.current?.click();
     setGameResult(GameResult.Resign);
-    anotherhithuh(game.history());
+    classifyMoves(game.history());
 
     if (session && supabase) {
       const { data, error } = await supabase
@@ -186,6 +187,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
         .update({
           finished_at: new Date(),
           result: orientation === "white" ? "0-1" : "1-0",
+          moves: game.history()
         })
         .eq("id", id)
         .select();
@@ -200,7 +202,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     setCurrGameState({
       complete: true,
     });
-  }, [game, orientation, id, session, supabase, evals, anotherhithuh]);
+  }, [game, orientation, id, session, supabase, evals, classifyMoves]);
 
   const clearGame = useCallback(() => {
     setId(null);
@@ -274,34 +276,34 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     }
   }, []);
 
-  useEffect(() => {
-    if (gameOver && game.isGameOver()) {
-      gameModalTriggerRef.current?.click();
-      anotherhithuh(game.history());
+  // useEffect(() => {
+  //   if (gameOver && game.isGameOver()) {
+  //     gameModalTriggerRef.current?.click();
+  //     classifyMoves(game.history());
 
-      setComplete(true);
-      setMoves(game.history());
-      setMoveIdx(game.history().length - 1);
+  //     setComplete(true);
+  //     setMoves(game.history());
+  //     setMoveIdx(game.history().length - 1);
 
-      if (game.isCheckmate()) {
-        if (turn === orientation) {
-          setGameResult(GameResult.Loss);
-        } else {
-          setGameResult(GameResult.Win);
-        }
-      } else if (game.isDraw()) {
-        setGameResult(GameResult.Draw);
+  //     if (game.isCheckmate()) {
+  //       if (turn === orientation) {
+  //         setGameResult(GameResult.Loss);
+  //       } else {
+  //         setGameResult(GameResult.Win);
+  //       }
+  //     } else if (game.isDraw()) {
+  //       setGameResult(GameResult.Draw);
 
-        if (game.isStalemate()) {
-          setDrawType(DrawType.Stalemate);
-        } else if (game.isThreefoldRepetition()) {
-          setDrawType(DrawType.Repetition);
-        } else if (game.isInsufficientMaterial()) {
-          setDrawType(DrawType.InsufficientMaterial);
-        }
-      }
-    }
-  }, [game, gameOver, turn, orientation, evals, anotherhithuh]);
+  //       if (game.isStalemate()) {
+  //         setDrawType(DrawType.Stalemate);
+  //       } else if (game.isThreefoldRepetition()) {
+  //         setDrawType(DrawType.Repetition);
+  //       } else if (game.isInsufficientMaterial()) {
+  //         setDrawType(DrawType.InsufficientMaterial);
+  //       }
+  //     }
+  //   }
+  // }, [game, gameOver, turn, orientation, evals, classifyMoves]);
 
   useEffect(() => {
     if (!gameOver || !gameResult || !id || moves.length < 1) return;
@@ -396,10 +398,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
                 <Button
                   className="w-full font-bold text-lg py-4"
                   onClick={() => {
-                    reset();
-                    clearEvaluations();
-                    clearGameMessages();
-                    clearGame();
+                    router.push(`/analyze?gameId=${id}`)
                   }}
                 >
                   Analyze Game
