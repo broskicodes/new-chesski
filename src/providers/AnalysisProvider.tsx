@@ -4,38 +4,7 @@ import { Player, useChess } from "./ChessProvider/context";
 import { getClassColor } from "@/utils/clientHelpers";
 import { useStockfish } from "./StockfishProvider/context";
 import { Chess } from "chess.js";
-// import { MoveQuality } from "./EvaluationProvider/context"
-
-// interface Move {
-//   san: string,
-//   uci: string
-// }
-// export interface Evaluation {
-//   type: "cp" | "mate",
-//   value: number
-// }
-
-// export interface EngineLine {
-//   id: number,
-//   depth: number,
-//   evaluation: Evaluation,
-//   moveUCI: string,
-//   moveSAN?: string
-// }
-
-// export interface Position {
-//   fen: string,
-//   move?: Move
-// }
-
-// export interface EvaluatedPosition extends Position {
-//   move: Move,
-//   topLines: EngineLine[],
-//   cutoffEvaluation?: Evaluation,
-//   classification?: MoveQuality,
-//   opening?: string,
-//   worker: string
-// }
+import { useCoach } from "./CoachProvider/context";
 
 export interface AnalysisProviderContext {
   gamePgn: string | null;
@@ -47,6 +16,7 @@ export interface AnalysisProviderContext {
   setGamePgn: (pgn: string, color: string) => boolean;
   nextMove: () => void;
   prevMove: () => void;
+  getMoveComments: () => void;
 }
 
 export const AnalysisContext = createContext<AnalysisProviderContext>({
@@ -66,6 +36,9 @@ export const AnalysisContext = createContext<AnalysisProviderContext>({
   },
   prevMove: () => {
     throw new Error("AnalysisProvider not initialized");
+  },
+  getMoveComments: () => {
+    throw new Error("AnalysisProvider not initialized");
   }
 });
 
@@ -82,8 +55,9 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
   const [analyzed, setAnalyzed] = useState(false);
   const [classified, setClassified] = useState(false);
 
-  const { evals, evaluateMoveQuality, clearEvaluations } = useEvaluation();
+  const { reqGameAnalysis } = useCoach();
   const { isReady, initEngine, startSearch } = useStockfish();
+  const { evals, evaluateMoveQuality, clearEvaluations } = useEvaluation();
   const { game, gameOver, orientation, setLastMoveHighlightColor, makeMove, undo, swapOrientation, reset } = useChess();
 
   const setGamePgn = useCallback((pgn: string, color: string) => {
@@ -116,6 +90,26 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
       setMoveIdx(moveIdx - 1);
     }
   }, [undo, moveIdx, analyzed, classifications, setLastMoveHighlightColor]);
+
+  const getMoveComments = useCallback(() => {
+    const userPrompt = `Please analyze this game:
+<moves>
+${
+  moves.map((m, i) => {
+    return `<entry><san>${m}</san> <class>${classifications[i]}</class> <eval>${evals[i].evaluation}</eval>\n`
+  })
+}
+</moves>
+<result>1-0</result>
+<player>${orientation}</player>
+
+Be sure to analyze the game from ${orientation}'s perspective. Closely follow all instructions in the system prompt.`;
+
+    reqGameAnalysis({
+      role: "user",
+      content: userPrompt
+    });
+  }, [reqGameAnalysis, evals, classifications, orientation])
 
 
   useEffect(() => {
@@ -229,7 +223,8 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
     setMoveIdx,
     setGamePgn,
     nextMove,
-    prevMove
+    prevMove,
+    getMoveComments
   }), [
     gamePgn,
     color,
@@ -238,7 +233,8 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
     classifications,
     setGamePgn,
     nextMove,
-    prevMove
+    prevMove,
+    getMoveComments
   ])
 
   return (

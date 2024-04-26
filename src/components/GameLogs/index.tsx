@@ -33,7 +33,7 @@ export const GameLogs = () => {
   const {
     gameMessages,
     processing,
-    queries,
+    // queries,
     addGameMessage,
     appendGameMessage,
     getExplantion,

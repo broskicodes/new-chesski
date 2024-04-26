@@ -6,6 +6,7 @@ import { GameSelect } from "@/components/GameSelect";
 import { MoveList } from "@/components/MoveList";
 import { Navbar } from "@/components/Navbar";
 import { Chessboard } from "@/components/Playboard";
+import { Button } from "@/components/ui/button";
 import { useAnalysis } from "@/providers/AnalysisProvider";
 import { useAuth } from "@/providers/AuthProvider/context";
 import { useChess } from "@/providers/ChessProvider/context";
@@ -17,7 +18,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const AnalyzePage = () => {
 
-  const { nextMove, prevMove } = useAnalysis()
+  const { nextMove, prevMove, getMoveComments } = useAnalysis()
   const chessRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -103,11 +104,16 @@ const AnalyzePage = () => {
     <div>
       <Navbar />
       <GameSelect />
+      <Button onClick={() => {
+        getMoveComments();
+      }}>
+        Get Comments
+      </Button>
       <div
         className="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0"
         ref={chessRef}
       >
-        <EvalBar />
+        {/* <EvalBar /> */}
         <div className="flex flex-col space-y-2">
           <div>
             <AnalysisBoard />

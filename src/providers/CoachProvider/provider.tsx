@@ -8,34 +8,21 @@ import { useUserData } from "../UserDataProvider/context";
 import { useEvaluation } from "../EvaluationProvider/context";
 import { Experience } from "@/utils/types";
 import { experienceToTitle, setCurrMessages } from "@/utils/clientHelpers";
-import { faL } from "@fortawesome/free-solid-svg-icons";
+import { useAnalysis } from "../AnalysisProvider";
 
 export const CoachProvider = ({ children }: PropsWithChildren) => {
   const [processing, setProcessing] = useState(false);
-  const [queries, setQueries] = useState<Query[]>([]);
+  // const [queries, setQueries] = useState<Query[]>([]);
 
   const { experience } = useUserData();
   const { evals } = useEvaluation();
   const { orientation, game, turn } = useChess();
 
-  const { append: findQueries } = useChat({
-    api: "/chat/coach/queries",
-    experimental_onToolCall: async (
-      _msgs: Message[],
-      toolCalls: ToolCall[],
-    ) => {
-      if (toolCalls.length > 0) {
-        const call = toolCalls.at(-1);
-
-        if (call?.function.name !== "generate_user_queries") {
-          return;
-        }
-
-        const args = JSON.parse(call?.function.arguments);
-        setQueries(args.queries);
-      }
-    },
-    onFinish: (_msg: Message) => {
+  const { append: reqGameAnalysis } = useChat({
+    api: "/chat/coach/analysis",
+    
+    onFinish: (msg: Message) => {
+      console.log(msg.content);
       setProcessing(false);
     },
   });
@@ -45,7 +32,7 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
     append,
     setMessages,
   } = useChat({
-    api: "/chat/coach/analyze",
+    api: "/chat/coach/position",
     body: {
       skill: experienceToTitle(experience),
       orientation: orientation,
@@ -92,7 +79,7 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
     onFinish: (msg: Message) => {
       posthog.capture("ai_msg_sent");
       setMessages([...gameMessages, msg]);
-      findQueries(msg);
+      // findQueries(msg);
     },
   });
 
@@ -149,23 +136,25 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
   const value: CoachProviderContext = useMemo(
     () => ({
       processing,
-      queries,
+      // queries,
       gameMessages: gameMessages,
       addGameMessage: addGameMessage,
       appendGameMessage: appendGameMessage,
       clearGameMessages: clearGameMessages,
       setGameMessages: setMessages,
       getExplantion: getExplantion,
+      reqGameAnalysis
     }),
     [
       processing,
       gameMessages,
-      queries,
+      // queries,
       appendGameMessage,
       addGameMessage,
       clearGameMessages,
       setMessages,
       getExplantion,
+      reqGameAnalysis
     ],
   );
 
