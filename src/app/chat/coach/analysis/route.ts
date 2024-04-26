@@ -59,7 +59,7 @@ The color of the player that you should analyze will be provided in <player></pl
 Deeply consider all the provided information when generating your analysis. Analyze in these steps:
 Step 1 - Seperate the game into the opening, middle game and endgame (if applicable). Briefly comment on the player's play in each section individually in 2-3 sentences. 
 Step 2 - Identify 3-5 key moments in the game and how the player reacted. For each, comment on what happened and the significance of it on the position and overall game. Each of these comments should be 20 tokens or less.
-Step 3 - Based on the data generated above, try to point out what weaknesses the player has in their game. Try to categorize these weaknesses into common chess themes. Only point out 1 or 2 weaknesses per game. Output results of this section in tripple quotes (""").`
+Step 3 - Based on the data generated above, try to point out what weaknesses the player has in their game. Try to categorize these weaknesses into common chess themes. Only point out 2 weaknesses per game. Write 2 concise sentences describing each. Write this section in markdown and lable each theme. Output results of this section in tripple quotes (""").`
 
 // limit reasoning to 15 tokens or fewer
 // Step 1 - Walk through each move of the game and briefly comment on it in the context of the position. Consider the stockfish evaluation and the move's classification, but do not list them as part of the comment. For each move, your comment should be less than 10 tokens. Be sure to label the comment with the SAN.

@@ -8,6 +8,11 @@ import { Textarea } from "./ui/textarea";
 import { useAnalysis } from "@/providers/AnalysisProvider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Label } from "./ui/label";
+import { ScrollArea } from "./ui/scroll-area";
+
+interface Props {
+  className?: string;
+}
 
 interface PlayerData {
   rating: number;
@@ -19,11 +24,16 @@ interface GameData {
   pgn: string;
   black: PlayerData;
   white: PlayerData;
+  result: string;
 }
 
-export const GameSelect = () => {
+export const GameSelect = ({ className }: Props) => {
   const [pgnInput, setPgnInput] = useState("");
   const [pgnColor, setPgnColor] = useState("white");
+  const [pgnRes, setPgnRes] = useState("1-0");
+
+  const [badPgn, setBadPgn] = useState(false);
+  const [currTab, setCurrTab] = useState("chesscom");
 
   const [chesscomEdit, setChesscomEdit] = useState(false);
   const [lichessEdit, setlichessEdit] = useState(false);
@@ -37,7 +47,7 @@ export const GameSelect = () => {
 
   const [selectedGame, setSelectedGame] = useState<GameData | null>(null);
 
-  const { setGamePgn } = useAnalysis();
+  const { setGamePgn, moves } = useAnalysis();
   const { chesscom, lichess, updateChesscom, updateLichess, saveData } = useUserData();
 
   const dialogCloseRef = useRef<HTMLButtonElement>(null);
@@ -71,7 +81,8 @@ export const GameSelect = () => {
               rating: res.players.white.rating,
               username: res.players.white.user.name
             },
-            pgn: res.pgn
+            pgn: res.pgn,
+            result: res.status === "draw" ? "1/2-1/2" : res.winner === "white" ? "1-0" : "0-1"
           }
         })
       
@@ -127,7 +138,8 @@ export const GameSelect = () => {
               rating: res.white.rating,
               username: res.white.username
             },
-            pgn: res.pgn
+            pgn: res.pgn,
+            result: res.pgn.split(" ").at(-1)
           }
         })
 
@@ -139,22 +151,23 @@ export const GameSelect = () => {
   return (
     <Dialog>
       <DialogTrigger>
-        <Button>
-          Select Game
+        <Button className={className}>
+          {moves.length === 0 ? "Select Game" : "Select New Game"}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Select Game to Ananalyze</DialogTitle>
-          <DialogDescription>{chesscomMonth}</DialogDescription>
+          {currTab === "chesscom" && <DialogDescription>{chesscomMonth}</DialogDescription>}
         </DialogHeader>
-          <Tabs defaultValue="chesscom" className="w-full" onValueChange={() => setSelectedGame(null)}>
+          <Tabs defaultValue="chesscom" className="w-full" onValueChange={(val) => { setSelectedGame(null); setCurrTab(val); }}>
             <TabsList className="w-full">
               <TabsTrigger value="chesscom" className="w-full">Chess.com</TabsTrigger>
               <TabsTrigger value="lichess" className="w-full">Lichess</TabsTrigger>
               <TabsTrigger value="pgn" className="w-full">PGN</TabsTrigger>
             </TabsList>
-            <TabsContent value="chesscom">
+            <TabsContent className="mt-4" value="chesscom">
+              <Label>Username</Label>
               <div className="flex flex-row space-x-2">
                 <Input 
                   value={chesscom ?? ""} 
@@ -162,14 +175,14 @@ export const GameSelect = () => {
                   onChange={({ target }) => updateChesscom(target.value) } 
                   />
                 {!chesscomEdit && (
-                  <Button onClick={() => {
+                  <Button className="w-32" onClick={() => {
                     setChesscomEdit(true);
                   }}>
                     Edit
                   </Button>
                 )}
                 {chesscomEdit && (
-                  <Button onClick={() => {
+                  <Button className="w-32" onClick={() => {
                     setChesscomEdit(false);
                     saveData();
                   }}>
@@ -177,33 +190,34 @@ export const GameSelect = () => {
                   </Button>
                 )}
               </div>
-              <div className="h-60 overflow-y-auto">
+              <ScrollArea className="h-60 overflow-y-auto my-4">
                 {chesscomGames.map((g, i) => {
 
                   return (
-                    <div key={i} className={`flex flex-row space-x-4 cursor-pointer ${g.pgn === selectedGame?.pgn ? "bg-gray-100" : ""}`}
+                    <div key={i} className={`flex flex-row justify-between space-y-1 cursor-pointer hover:bg-indigo-600/10 rounded-md ${g.pgn === selectedGame?.pgn ? "bg-indigo-600/25" : ""}`}
                       onClick={() => {
                         setSelectedGame(g);
                       }}>
                       <div>{g.class}</div>
                       <div>
-                        <span>{g.white.username} ({g.white.rating})</span> vs.
+                        <span>{g.white.username} ({g.white.rating})</span>{" vs. "}
                         <span>{g.black.username} ({g.black.rating})</span>
                       </div>
                     </div>
                   )
                 })}
-              </div>
-              <div>
-                <Button onClick={() => { caIdx > 0 && setCaIdx(caIdx - 1); }}>
+              </ScrollArea>
+              <div className="w-full flex flex-row space-x-2">
+                <Button className="w-full" disabled={caIdx === 0} onClick={() => { caIdx > 0 && setCaIdx(caIdx - 1); }}>
                   prev
                 </Button>
-                <Button onClick={() => { caIdx < chesscomArchives.length - 1 && setCaIdx(caIdx + 1); }}>
+                <Button className="w-full" disabled={caIdx >= chesscomArchives.length - 1} onClick={() => { caIdx < chesscomArchives.length - 1 && setCaIdx(caIdx + 1); }}>
                   next
                 </Button>
               </div>
             </TabsContent>
-            <TabsContent value="lichess">
+            <TabsContent className="mt-4" value="lichess">
+              <Label>Username</Label>
               <div className="flex flex-row space-x-2">
                 <Input 
                   value={lichess ?? ""} 
@@ -211,14 +225,14 @@ export const GameSelect = () => {
                   onChange={({ target }) => updateLichess(target.value) } 
                   />
                 {!lichessEdit && (
-                  <Button onClick={() => {
+                  <Button className="w-32" onClick={() => {
                     setlichessEdit(true);
                   }}>
                     Edit
                   </Button>
                 )}
                 {lichessEdit && (
-                  <Button onClick={() => {
+                  <Button className="w-32" onClick={() => {
                     setlichessEdit(false);
                     saveData();
                   }}>
@@ -226,28 +240,28 @@ export const GameSelect = () => {
                   </Button>
                 )}
               </div>
-              <div className="h-60 overflow-y-auto">
+              <ScrollArea className="h-60 overflow-y-auto my-4">
                 {lichessGames.map((g, i) => {
 
                   return (
-                    <div key={i} className={`flex flex-row space-x-4 cursor-pointer ${g.pgn === selectedGame?.pgn ? "bg-gray-100" : ""}`}
+                    <div key={i} className={`flex flex-row justify-between space-y-1 cursor-pointer hover:bg-indigo-600/10 rounded-md ${g.pgn === selectedGame?.pgn ? "bg-indigo-600/25" : ""}`}
                       onClick={() => {
                         setSelectedGame(g);
                       }}>
                       <div>{g.class}</div>
-                      <div>
-                        <span>{g.white.username} ({g.white.rating})</span> vs.
+                      <div className="text-right">
+                        <span>{g.white.username} ({g.white.rating})</span>{" vs. "}
                         <span>{g.black.username} ({g.black.rating})</span>
                       </div>
                     </div>
                   )
                 })}
-              </div>
+              </ScrollArea>
             </TabsContent>
-            <TabsContent value="pgn">
+            <TabsContent className="mt-4" value="pgn">
               <DialogTitle>Enter a PGN</DialogTitle>
-                <div className="flex flex-row space-x-1">
-                  <Label>Set Board Orientation</Label>
+                <div className="grid grid-cols-2 gap-y-2 my-4">
+                  <Label>Board Orientation</Label>
                   <Select value={pgnColor} onValueChange={(val) => setPgnColor(val)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Color" />
@@ -257,32 +271,51 @@ export const GameSelect = () => {
                       <SelectItem value="black">Black</SelectItem>
                     </SelectContent>
                   </Select>
+                  <Label>Result</Label>
+                  <Select value={pgnRes} onValueChange={(val) => setPgnColor(val)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Color" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1-0">1-0</SelectItem>
+                      <SelectItem value="0-1">0-1</SelectItem>
+                      <SelectItem value="1/2-1/2">1/2-1/2</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
+                <Label>PGN</Label>
                 <Textarea 
                   value={pgnInput} 
-                  onChange={({ target }) => setPgnInput(target.value) } 
+                  onChange={({ target }) => { setPgnInput(target.value); setBadPgn(false); } } 
+                  placeholder="Enter PGN string here"
+                  className="h-32"
                   />
+                {badPgn && (
+                  <div className="text-red-600 mt-2">Invalid PGN</div>
+                )}
                 <DialogClose ref={dialogCloseRef} className="hidden"></DialogClose>
-                <Button onClick={() => {
-                  if (pgnInput === "" || !setGamePgn(pgnInput, pgnColor)) {
-                    console.log("bad pgn")
-                  } else {
-                    dialogCloseRef.current?.click();
-                  }
-                }}>Confirm</Button>
             </TabsContent>
           </Tabs>
           <DialogFooter>
-            {selectedGame && (
-              <DialogClose>
-                <Button onClick={() => {
-                  const color = selectedGame.white.username === lichess || selectedGame.white.username === chesscom ? "white" : "black";
+            {currTab !== "pgn" &&  (
+              <DialogClose className="w-full">
+                <Button disabled={!selectedGame} className="w-full" onClick={() => {
+                  const color = selectedGame?.white.username === lichess || selectedGame?.white.username === chesscom ? "white" : "black";
 
-                  setGamePgn(selectedGame.pgn, color);
+                  setGamePgn(selectedGame!.pgn, color, selectedGame!.result);
                 }}>
                   Select
                 </Button>
               </DialogClose>
+            )}
+            {currTab === "pgn" && (
+              <Button className="w-full" onClick={() => {
+                if (pgnInput === "" || !setGamePgn(pgnInput, pgnColor, pgnRes)) {
+                  setBadPgn(true);
+                } else {
+                  dialogCloseRef.current?.click();
+                }
+              }}>Confirm</Button>
             )}
           </DialogFooter>
       </DialogContent>

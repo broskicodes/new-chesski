@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useAnalysis } from "@/providers/AnalysisProvider";
 import { useAuth } from "@/providers/AuthProvider/context";
 import { useChess } from "@/providers/ChessProvider/context";
+import { useCoach } from "@/providers/CoachProvider/context";
 import { Classification, useEvaluation } from "@/providers/EvaluationProvider/context";
 import { useStockfish } from "@/providers/StockfishProvider/context";
 import { getClassColor } from "@/utils/clientHelpers";
@@ -18,8 +19,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const AnalyzePage = () => {
 
-  const { nextMove, prevMove, getMoveComments } = useAnalysis()
+  const { processing } = useCoach();
+  const { nextMove, prevMove, firstMove, lastMove, analyzed, classified } = useAnalysis();
+
   const chessRef = useRef<HTMLDivElement>(null);
+  const divRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -27,6 +31,10 @@ const AnalyzePage = () => {
         nextMove();
       } else if (event.key === 'ArrowLeft') {
         prevMove();
+      } else if (event.key === 'ArrowDown') {
+        lastMove();
+      } else if (event.key === 'ArrowUp') {
+        firstMove();
       }
     };
 
@@ -99,29 +107,46 @@ const AnalyzePage = () => {
   //   return () => window.removeEventListener("resize", resizeHandler);
   // }, [contentRef.current, chessRef.current, divRef.current]);
 
+  useEffect(() => {
+    const resizeHandler = () => {
+      if (window.innerWidth < 640) {
+        divRef.current!.style.height = `${window.innerHeight - chessRef.current!.offsetHeight - 8}px`;
+        divRef.current!.style.width = `${window.innerWidth > 480 ? 480 : window.innerWidth}px`;
+      } else {
+      }
+    };
+
+    resizeHandler();
+    window.addEventListener("resize", resizeHandler);
+    return () => window.removeEventListener("resize", resizeHandler);
+  }, [chessRef.current, divRef.current]);
 
   return (
-    <div>
+    <div className="sm:justify-center flex flex-col h-full">
       <Navbar />
-      <GameSelect />
-      <Button onClick={() => {
+      {/* <GameSelect /> */}
+      {/* <Button onClick={() => {
         getMoveComments();
       }}>
         Get Comments
-      </Button>
-      <div
-        className="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0"
-        ref={chessRef}
-      >
-        {/* <EvalBar /> */}
-        <div className="flex flex-col space-y-2">
-          <div>
-            <AnalysisBoard />
+      </Button> */}
+      <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-16 h-full sm:h-min">
+        <div
+          className="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0 sm:space-y-0"
+          ref={chessRef}
+        >
+          {/* <EvalBar /> */}
+          <div className="flex flex-col space-y-2">
+            <div>
+              <AnalysisBoard freeze={!analyzed || !classified || processing} />
+            </div>
+            {/* <BoardControl className={settingUp ? "z-40" : ""} /> */}
           </div>
-          {/* <BoardControl className={settingUp ? "z-40" : ""} /> */}
+        </div>
+        <div ref={divRef}>
+          <MoveList />
         </div>
       </div>
-      <MoveList />
     </div>
   );
 }

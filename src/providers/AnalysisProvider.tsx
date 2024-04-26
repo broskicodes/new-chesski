@@ -5,23 +5,32 @@ import { getClassColor } from "@/utils/clientHelpers";
 import { useStockfish } from "./StockfishProvider/context";
 import { Chess } from "chess.js";
 import { useCoach } from "./CoachProvider/context";
+import { useToast } from "@/components/ui/use-toast";
 
 export interface AnalysisProviderContext {
+  analyzed: boolean;
+  classified: boolean;
   gamePgn: string | null;
   color: string | null;
+  result: string | null;
   moves: string [];
   moveIdx: number;
   classifications: Classification[];
   setMoveIdx: Dispatch<SetStateAction<number>>;
-  setGamePgn: (pgn: string, color: string) => boolean;
+  setGamePgn: (pgn: string, color: string, result: string) => boolean;
+  firstMove: () => void;
+  lastMove: () => void;
   nextMove: () => void;
   prevMove: () => void;
   getMoveComments: () => void;
 }
 
 export const AnalysisContext = createContext<AnalysisProviderContext>({
+  analyzed: false,
+  classified: false,
   gamePgn: null,
   color: null,
+  result: null,
   moves: [],
   moveIdx: -1,
   classifications: [],
@@ -29,6 +38,12 @@ export const AnalysisContext = createContext<AnalysisProviderContext>({
     throw new Error("AnalysisProvider not initialized");
   },
   setGamePgn: (_pgn) => {
+    throw new Error("AnalysisProvider not initialized");
+  },
+  firstMove: () => {
+    throw new Error("AnalysisProvider not initialized");
+  },
+  lastMove: () => {
     throw new Error("AnalysisProvider not initialized");
   },
   nextMove: () => {
@@ -46,7 +61,8 @@ export const useAnalysis = () => useContext(AnalysisContext);
 
 export const AnalysisProvider = ({ children }: PropsWithChildren) => {
   const [gamePgn, setGamePgnState] = useState<string |null>(null);
-  const [color, setColor] = useState<string |null>(null)
+  const [color, setColor] = useState<string |null>(null);
+  const [result, setResult] = useState<string | null>(null);
 
   const [moves, setMoves] = useState<string[]>([]);
   const [moveIdx, setMoveIdx] = useState(-1);
@@ -54,13 +70,16 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
 
   const [analyzed, setAnalyzed] = useState(false);
   const [classified, setClassified] = useState(false);
+  const [generated, setGenerated] = useState(false);
 
-  const { reqGameAnalysis } = useCoach();
+  const { toast } = useToast();
+
+  const { reqGameAnalysis, clearInsights, processing } = useCoach();
   const { isReady, initEngine, startSearch } = useStockfish();
   const { evals, evaluateMoveQuality, clearEvaluations } = useEvaluation();
-  const { game, gameOver, orientation, setLastMoveHighlightColor, makeMove, undo, swapOrientation, reset } = useChess();
+  const { game, gameOver, orientation, setLastMoveHighlightColor, makeMove, undo, swapOrientation, reset, playContinuation } = useChess();
 
-  const setGamePgn = useCallback((pgn: string, color: string) => {
+  const setGamePgn = useCallback((pgn: string, color: string, result: string) => {
     const tempGame = new Chess();
     try {
       tempGame.loadPgn(pgn)
@@ -69,6 +88,7 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
     }
 
     setColor(color);
+    setResult(result);
     setGamePgnState(pgn);
     return true;
   }, []);
@@ -91,6 +111,22 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
     }
   }, [undo, moveIdx, analyzed, classifications, setLastMoveHighlightColor]);
 
+  const firstMove = useCallback(() => {
+    if (!analyzed) return;
+
+    reset();
+    setLastMoveHighlightColor("")
+    setMoveIdx(-1);
+  }, [reset, analyzed, classifications, setLastMoveHighlightColor]);
+
+  const lastMove = useCallback(() => {
+    if (!analyzed) return;
+
+    playContinuation(moves.slice(0, moves.length), true);
+    setLastMoveHighlightColor(getClassColor(classifications[moves.length - 1]))
+    setMoveIdx(moves.length - 1);
+  }, [playContinuation, moves, analyzed, classifications, setLastMoveHighlightColor]);
+
   const getMoveComments = useCallback(() => {
     const userPrompt = `Please analyze this game:
 <moves>
@@ -100,7 +136,7 @@ ${
   })
 }
 </moves>
-<result>1-0</result>
+<result>${result}</result>
 <player>${orientation}</player>
 
 Be sure to analyze the game from ${orientation}'s perspective. Closely follow all instructions in the system prompt.`;
@@ -109,8 +145,16 @@ Be sure to analyze the game from ${orientation}'s perspective. Closely follow al
       role: "user",
       content: userPrompt
     });
-  }, [reqGameAnalysis, evals, classifications, orientation])
+  }, [reqGameAnalysis, evals, classifications, orientation, result])
 
+  useEffect(() => {
+    if (analyzed && classified) {
+      toast({
+        title: "Game Analyzed.",
+        description: "Now generating game insights"
+      });
+    }
+  }, [analyzed, classified, toast])
 
   useEffect(() => {
     if (!gamePgn) return;
@@ -126,11 +170,18 @@ Be sure to analyze the game from ${orientation}'s perspective. Closely follow al
     setGamePgnState(null);
     setAnalyzed(false);
     setClassified(false);
+    setGenerated(false);
     setMoves(tempGame.history());
     setMoveIdx(-1);
     setClassifications([]);
-    clearEvaluations()
-  }, [gamePgn, reset, clearEvaluations]);
+    clearEvaluations();
+    clearInsights();
+
+    toast({
+      title: "Analyzing your game",
+      description: "This may take a minute."
+    });
+  }, [gamePgn, reset, clearEvaluations, toast, clearInsights]);
 
   useEffect(() => {
     if (color && color !== orientation) {
@@ -154,11 +205,26 @@ Be sure to analyze the game from ${orientation}'s perspective. Closely follow al
         })
         .filter((c) => !!c);
       
-      setClassified(true);
       // @ts-ignore
-      setClassifications(classis)
+      setClassifications(classis);
+      setClassified(true);
     }
-  }, [analyzed, evals, evaluateMoveQuality, moves, classified])
+  }, [analyzed, evals, evaluateMoveQuality, moves, classified]);
+
+  useEffect(() => {
+    if (analyzed && classified && !generated) {
+      setGenerated(true);
+      getMoveComments();
+    }
+  }, [analyzed, classified, generated, getMoveComments]);
+
+  useEffect(() => {
+    if (generated && !processing) {
+      toast({
+        title: "Insights Generated",
+      });
+    }
+  }, [generated, processing]);
 
   useEffect(() => {
     if (
@@ -215,22 +281,32 @@ Be sure to analyze the game from ${orientation}'s perspective. Closely follow al
   }, [makeMove, reset, moves, moveIdx]);
 
   const value: AnalysisProviderContext = useMemo(() => ({
+    classified,
+    analyzed,
     gamePgn,
     color,
+    result,
     moves: moves,
     moveIdx,
     classifications,
     setMoveIdx,
     setGamePgn,
+    firstMove,
+    lastMove,
     nextMove,
     prevMove,
     getMoveComments
   }), [
+    classified,
+    analyzed,
     gamePgn,
     color,
+    result,
     moves,
     moveIdx,
     classifications,
+    firstMove,
+    lastMove,
     setGamePgn,
     nextMove,
     prevMove,

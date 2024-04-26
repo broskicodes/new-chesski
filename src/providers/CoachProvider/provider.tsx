@@ -12,18 +12,20 @@ import { useAnalysis } from "../AnalysisProvider";
 
 export const CoachProvider = ({ children }: PropsWithChildren) => {
   const [processing, setProcessing] = useState(false);
+  const [weaknesses, setWeaknesses] = useState("");
   // const [queries, setQueries] = useState<Query[]>([]);
 
   const { experience } = useUserData();
   const { evals } = useEvaluation();
   const { orientation, game, turn } = useChess();
 
-  const { append: reqGameAnalysis } = useChat({
+  const { append: appendAnal } = useChat({
     api: "/chat/coach/analysis",
     
     onFinish: (msg: Message) => {
       console.log(msg.content);
       setProcessing(false);
+      setWeaknesses(msg.content.split('"""').at(-2)!)
     },
   });
 
@@ -83,6 +85,15 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
     },
   });
 
+  const clearInsights = useCallback(() => {
+    setWeaknesses("");
+  }, []);
+
+  const reqGameAnalysis = useCallback((msg: Message | CreateMessage) => {
+    setProcessing(true);
+    appendAnal(msg);
+  }, [appendAnal]);
+
   const addGameMessage = useCallback(
     (msg: Message) => {
       setMessages([...gameMessages, msg]);
@@ -136,25 +147,27 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
   const value: CoachProviderContext = useMemo(
     () => ({
       processing,
-      // queries,
+      weaknesses,
       gameMessages: gameMessages,
       addGameMessage: addGameMessage,
       appendGameMessage: appendGameMessage,
       clearGameMessages: clearGameMessages,
       setGameMessages: setMessages,
       getExplantion: getExplantion,
-      reqGameAnalysis
+      reqGameAnalysis,
+      clearInsights
     }),
     [
       processing,
       gameMessages,
-      // queries,
+      weaknesses,
       appendGameMessage,
       addGameMessage,
       clearGameMessages,
       setMessages,
       getExplantion,
-      reqGameAnalysis
+      reqGameAnalysis,
+      clearInsights
     ],
   );
 
