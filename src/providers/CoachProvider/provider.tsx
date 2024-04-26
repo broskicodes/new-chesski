@@ -8,44 +8,40 @@ import { useUserData } from "../UserDataProvider/context";
 import { useEvaluation } from "../EvaluationProvider/context";
 import { Experience } from "@/utils/types";
 import { experienceToTitle, setCurrMessages } from "@/utils/clientHelpers";
-import { faL } from "@fortawesome/free-solid-svg-icons";
+import { useAnalysis } from "../AnalysisProvider";
 
 export const CoachProvider = ({ children }: PropsWithChildren) => {
   const [processing, setProcessing] = useState(false);
-  const [queries, setQueries] = useState<Query[]>([]);
+  const [weaknesses, setWeaknesses] = useState("");
+  // const [queries, setQueries] = useState<Query[]>([]);
 
   const { experience } = useUserData();
   const { evals } = useEvaluation();
   const { orientation, game, turn } = useChess();
 
-  const { append: findQueries } = useChat({
-    api: "/chat/coach/queries",
-    experimental_onToolCall: async (_msgs: Message[], toolCalls: ToolCall[]) => {
-      if (toolCalls.length > 0) {
-        const call = toolCalls.at(-1);
-
-        if (call?.function.name !== "generate_user_queries") {
-          return;
-        }
-
-        const args = JSON.parse(call?.function.arguments);
-        setQueries(args.queries);
-      }
-    },
-    onFinish: (_msg: Message) => {
+  const { append: appendAnal } = useChat({
+    api: "/chat/coach/analysis",
+    
+    onFinish: (msg: Message) => {
+      console.log(msg.content);
       setProcessing(false);
-    }
+      setWeaknesses(msg.content.split('"""').at(-2)!)
+    },
   });
 
-  const { messages: gameMessages, append, setMessages } = useChat({
-    api: "/chat/coach/analyze",
+  const {
+    messages: gameMessages,
+    append,
+    setMessages,
+  } = useChat({
+    api: "/chat/coach/position",
     body: {
-      skill: experienceToTitle(experience), 
-      orientation: orientation, 
+      skill: experienceToTitle(experience),
+      orientation: orientation,
       turn: turn,
-      fen: game.fen(), 
+      fen: game.fen(),
       ascii: game.ascii(),
-      pgn: game.history().join(" ")
+      pgn: game.history().join(" "),
     },
     onFinish: (msg: Message) => {
       console.log(msg.content);
@@ -55,91 +51,127 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
       setProcessing(false);
     },
     // experimental_onToolCall: async (_msgs: Message[], toolCalls: ToolCall[]) => {
-      // if (toolCalls.length > 0) {
-      //   const call = toolCalls.at(-1);
+    // if (toolCalls.length > 0) {
+    //   const call = toolCalls.at(-1);
 
-      //   if (call?.function.name !== "advise") {
-      //     return;
-      //   }
+    //   if (call?.function.name !== "advise") {
+    //     return;
+    //   }
 
-      //   const args = JSON.parse(call?.function.arguments);
-      //   setMessages([...gameMessages, {
-      //     id: Math.random().toString(36).substring(7),
-      //     role: "assistant",
-      //     content: args.advice
-      //   }]);
-      //   setQueries(args.queries);
-      //   setProcessing(false);
+    //   const args = JSON.parse(call?.function.arguments);
+    //   setMessages([...gameMessages, {
+    //     id: Math.random().toString(36).substring(7),
+    //     role: "assistant",
+    //     content: args.advice
+    //   }]);
+    //   setQueries(args.queries);
+    //   setProcessing(false);
 
-      //   // console.log(args)
-      // }
+    //   // console.log(args)
+    // }
     // },
   });
-  
-  const { append: appendExplanationContext, setMessages: addExplanationContext, reload } = useChat({
+
+  const {
+    append: appendExplanationContext,
+    setMessages: addExplanationContext,
+    reload,
+  } = useChat({
     api: "/chat/coach/explanations",
     onFinish: (msg: Message) => {
       posthog.capture("ai_msg_sent");
       setMessages([...gameMessages, msg]);
-      findQueries(msg);
-    }
+      // findQueries(msg);
+    },
   });
 
-  const addGameMessage = useCallback((msg: Message) => {
-    setMessages([...gameMessages, msg]);
-  }, [setMessages, gameMessages]);
+  const clearInsights = useCallback(() => {
+    setWeaknesses("");
+  }, []);
 
-  const appendGameMessage = useCallback((msg: Message | CreateMessage) => {
+  const reqGameAnalysis = useCallback((msg: Message | CreateMessage) => {
     setProcessing(true);
-    append(msg);
-  }, [append]);
+    appendAnal(msg);
+  }, [appendAnal]);
+
+  const addGameMessage = useCallback(
+    (msg: Message) => {
+      setMessages([...gameMessages, msg]);
+    },
+    [setMessages, gameMessages],
+  );
+
+  const appendGameMessage = useCallback(
+    (msg: Message | CreateMessage) => {
+      setProcessing(true);
+      append(msg);
+    },
+    [append],
+  );
 
   const clearGameMessages = useCallback(() => {
     setMessages([]);
     setCurrMessages([], true);
   }, [setMessages]);
 
-  const getExplantion = useCallback((query: string) => {
-    setProcessing(true);
+  const getExplantion = useCallback(
+    (query: string) => {
+      setProcessing(true);
 
-    const moves = game.history();
-    const fen = game.fen();
+      const moves = game.history();
+      const fen = game.fen();
 
-    addExplanationContext([
-      {
-        id: Math.random().toString(36).substring(7),
-        role: "user",
-        content: `The user's query is in response to this message: ${gameMessages.at(-1)?.content}`
-      },
-      {
-        id: Math.random().toString(36).substring(7),
-        role: "user",
-        content: `The user is playing as ${orientation}. The current position is ${fen}. The moves leading up to this position are ${moves.join(" ")}. ${turn === "white" ? "Black" : "White"} just played ${moves.at(-1)}.`
-      },
-      {
-        id: Math.random().toString(36).substring(7),
-        role: "user",
-        content: `The user's query is: ${query}`
-      }
-    ]);
+      addExplanationContext([
+        {
+          id: Math.random().toString(36).substring(7),
+          role: "user",
+          content: `The user's query is in response to this message: ${gameMessages.at(-1)?.content}`,
+        },
+        {
+          id: Math.random().toString(36).substring(7),
+          role: "user",
+          content: `The user is playing as ${orientation}. The current position is ${fen}. The moves leading up to this position are ${moves.join(" ")}. ${turn === "white" ? "Black" : "White"} just played ${moves.at(-1)}.`,
+        },
+        {
+          id: Math.random().toString(36).substring(7),
+          role: "user",
+          content: `The user's query is: ${query}`,
+        },
+      ]);
 
-    reload();
-  }, [gameMessages, game, orientation, turn, addExplanationContext, reload]);
+      reload();
+    },
+    [gameMessages, game, orientation, turn, addExplanationContext, reload],
+  );
 
-  const value: CoachProviderContext = useMemo(() => ({
-    processing,
-    queries,
-    gameMessages: gameMessages,
-    addGameMessage: addGameMessage,
-    appendGameMessage: appendGameMessage,
-    clearGameMessages: clearGameMessages,
-    setGameMessages: setMessages,
-    getExplantion: getExplantion,
-  }), [processing, gameMessages, queries, appendGameMessage, addGameMessage, clearGameMessages, setMessages, getExplantion]);
+  const value: CoachProviderContext = useMemo(
+    () => ({
+      processing,
+      weaknesses,
+      gameMessages: gameMessages,
+      addGameMessage: addGameMessage,
+      appendGameMessage: appendGameMessage,
+      clearGameMessages: clearGameMessages,
+      setGameMessages: setMessages,
+      getExplantion: getExplantion,
+      reqGameAnalysis,
+      clearInsights
+    }),
+    [
+      processing,
+      gameMessages,
+      weaknesses,
+      appendGameMessage,
+      addGameMessage,
+      clearGameMessages,
+      setMessages,
+      getExplantion,
+      reqGameAnalysis,
+      clearInsights
+    ],
+  );
 
   return (
-    <CoachContext.Provider value={value}>
-      {children}
-    </CoachContext.Provider>
-  )
-}
+    <CoachContext.Provider value={value}>{children}</CoachContext.Provider>
+  );
+};

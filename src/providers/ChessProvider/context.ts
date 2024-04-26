@@ -19,6 +19,7 @@ export interface ChessProviderContext {
   orientation: Player;
   highlightedSquares: SquareHighlight[];
   highlightedMoves: Move[];
+  moveHighlight: [SquareHighlight, SquareHighlight] | null;
   lastMoveHighlight: [SquareHighlight, SquareHighlight] | null;
   aiLastMoveHighlight: [SquareHighlight, SquareHighlight] | null;
   arrows: Arrow[];
@@ -34,7 +35,7 @@ export interface ChessProviderContext {
   ) => Move | null;
   setPosition: (fen: string) => boolean;
   undo: () => Move | null;
-  doubleUndo: () => Move | null;
+  doubleUndo: () => Move[];
   reset: () => void;
   swapOrientation: () => void;
   addArrows: (arrows: Arrow[], reset: boolean) => void;
@@ -52,6 +53,7 @@ export const ChessContext = createContext<ChessProviderContext>({
   highlightedSquares: [],
   highlightedMoves: [],
   arrows: [],
+  moveHighlight: null,
   lastMoveHighlight: null,
   aiLastMoveHighlight: null,
   onDrop: (_src, _tgt) => {

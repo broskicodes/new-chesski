@@ -28,4 +28,3 @@ export const PuzzleContext = createContext<PuzzleProviderContext>({
 });
 
 export const usePuzzle = () => useContext(PuzzleContext);
-

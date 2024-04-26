@@ -4,7 +4,7 @@ export enum Experience {
   Beginner = 0,
   Intermediate = 1,
   Advanced = 2,
-  Master = 3
+  Master = 3,
 }
 
 export enum Goal {
@@ -74,9 +74,10 @@ export interface GameState {
 
 export enum SubType {
   Monthly,
-  Yearly
+  Yearly,
 }
 
-export const SanRegex = /(O-O(-O)?|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](=[QRBN])?[\+#]?|([a-h]x)?[a-h][1-8](=[QRBN])?[\+#]?)/g;
+export const SanRegex =
+  /(O-O(-O)?|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](=[QRBN])?[\+#]?|([a-h]x)?[a-h][1-8](=[QRBN])?[\+#]?)/g;
 export const ONBOARDING_UPDATE_DATE = new Date("2024-03-04 22:00:34.202959+00");
 export const STRIPE_LINK = "https://donate.stripe.com/7sIaHVg9WbnLcla4gg";

@@ -17,9 +17,18 @@ export function Footer() {
           </div>
         </div>
         <div className="flex flex-col">
-          <Link href="mailto:braeden@chesski.lol" className={`${buttonVariants({ variant: "link" })} text-white`}>Give Feedback</Link>
-          <Link href="mailto:braeden@chesski.lol" className={`${buttonVariants({ variant: "link" })} text-white`}>Support Creator</Link>
-
+          <Link
+            href="mailto:braeden@chesski.lol"
+            className={`${buttonVariants({ variant: "link" })} text-white`}
+          >
+            Give Feedback
+          </Link>
+          <Link
+            href="mailto:braeden@chesski.lol"
+            className={`${buttonVariants({ variant: "link" })} text-white`}
+          >
+            Support Creator
+          </Link>
         </div>
       </div>
     </div>

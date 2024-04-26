@@ -1,32 +1,41 @@
 import { createBrowserClient } from "@supabase/ssr";
 import { User } from "@supabase/supabase-js";
-import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { AuthContext } from "./context";
-import posthog from 'posthog-js';
+import posthog from "posthog-js";
 import { setCurrGameState } from "@/utils/clientHelpers";
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [origin, setOrigin] = useState("");
   const [session, setSession] = useState<User | null>(null);
-  
+
   const supabase = useMemo(() => {
     return createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     );
   }, []);
 
-  const signInWithOAuth = useCallback(async (next?: string) => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${origin}/auth/callback${next ? `?next=${next}` :''}`,
-        queryParams: {
-          next: "subscribe"
-        }
-      },
-    });
-  }, [origin, supabase]);
+  const signInWithOAuth = useCallback(
+    async (next?: string) => {
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${origin}/auth/callback${next ? `?next=${next}` : ""}`,
+          queryParams: {
+            next: "subscribe",
+          },
+        },
+      });
+    },
+    [origin, supabase],
+  );
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
@@ -36,7 +45,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       startingPos: "",
       complete: false,
       moves: [],
-      orientation: "white"
+      orientation: "white",
     });
   }, [supabase]);
 
@@ -46,12 +55,16 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     (async () => {
-      const { data: { user }} = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       setSession(user || null);
 
-      const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-        setSession(session?.user || null);
-      });
+      const { data: listener } = supabase.auth.onAuthStateChange(
+        (_event, session) => {
+          setSession(session?.user || null);
+        },
+      );
 
       return () => {
         listener.subscription.unsubscribe();
@@ -70,24 +83,23 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         // @ts-ignore
         if (window.tolt_referral) {
           // @ts-ignore
-          window.tolt.signup(session.email)
-      }
+          window.tolt.signup(session.email);
+        }
       } catch (error) {
         console.log("Error during posthog identify: ", error);
       }
     }
   }, [session]);
 
-  const value = useMemo(() => ({
-    session,
-    supabase,
-    signInWithOAuth,
-    signOut,
-  }), [session, supabase, signInWithOAuth, signOut]);
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({
+      session,
+      supabase,
+      signInWithOAuth,
+      signOut,
+    }),
+    [session, supabase, signInWithOAuth, signOut],
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

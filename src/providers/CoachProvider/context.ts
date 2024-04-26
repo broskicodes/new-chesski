@@ -1,7 +1,6 @@
 import { CreateMessage, Message } from "ai";
 import { createContext, useContext } from "react";
 
-
 export interface Query {
   title: string;
   query: string;
@@ -10,18 +9,22 @@ export interface Query {
 export interface CoachProviderContext {
   processing: boolean;
   gameMessages: Message[];
-  queries: Query[];
+  weaknesses: string;
+  // queries: Query[];
   addGameMessage: (msg: Message) => void;
   appendGameMessage: (msg: Message | CreateMessage) => void;
   clearGameMessages: () => void;
   setGameMessages: (msgs: Message[]) => void;
   getExplantion: (query: string) => void;
+  reqGameAnalysis: (msg: Message | CreateMessage) => void;
+  clearInsights: () => void;
 }
 
 export const CoachContext = createContext<CoachProviderContext>({
   processing: false,
   gameMessages: [],
-  queries: [],
+  weaknesses: "",
+  // queries: [],
   addGameMessage: (_msg) => {
     throw new Error("CoachProvider not initialized");
   },
@@ -36,8 +39,13 @@ export const CoachContext = createContext<CoachProviderContext>({
   },
   getExplantion: (_query) => {
     throw new Error("CoachProvider not initialized");
-  }
+  },
+  reqGameAnalysis: (_msg) => {
+    throw new Error("CoachProvider not initialized");
+  },
+  clearInsights: () => {
+    throw new Error("CoachProvider not initialized");
+  },
 });
 
 export const useCoach = () => useContext(CoachContext);
-

@@ -1,8 +1,7 @@
-
 body {
   /* background-image: url("/chesski-bg.png"); */
   /* background-size: cover; */
-  background-color: #F1F1F1;
+  background-color: #f1f1f1;
   width: 100vw;
   height: 100vh;
   display: flex;

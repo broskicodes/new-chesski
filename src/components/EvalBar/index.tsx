@@ -13,7 +13,7 @@ export const EvalBar = () => {
 
   const barRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
-  
+
   const { game, orientation } = useChess();
   const { startSearch, isReady } = useStockfish();
   const { evals } = useEvaluation();
@@ -37,25 +37,45 @@ export const EvalBar = () => {
       mult = -1;
     }
 
-    const length = evaluation?.mate ?? false
-      ? mult * (evaluation?.evaluation ?? 0) > 0 ? 100 : 0
-      : (Math.tanh(mult * (evaluation?.evaluation ?? 0) / 1000) + 1) * 50; // Map -1 to 1 to 0% to 100%
+    const length =
+      evaluation?.mate ?? false
+        ? mult * (evaluation?.evaluation ?? 0) > 0
+          ? 100
+          : 0
+        : (Math.tanh((mult * (evaluation?.evaluation ?? 0)) / 1000) + 1) * 50; // Map -1 to 1 to 0% to 100%
 
-    fillRef.current?.style.setProperty(`${mobile ? "width" : "height"}`, `${length}%`);
-    fillRef.current?.style.setProperty(`${mobile ? "height" : "width"}`, `100%`);
+    fillRef.current?.style.setProperty(
+      `${mobile ? "width" : "height"}`,
+      `${length}%`,
+    );
+    fillRef.current?.style.setProperty(
+      `${mobile ? "height" : "width"}`,
+      `100%`,
+    );
     barRef.current?.style.setProperty(`${mobile ? "height" : "width"}`, `24px`);
-    barRef.current?.style.setProperty(`${mobile ? "width" : "height"}`, `${barLength}px`)
+    barRef.current?.style.setProperty(
+      `${mobile ? "width" : "height"}`,
+      `${barLength}px`,
+    );
   }, [evals, orientation, mobile, barLength]);
 
   useEffect(() => {
-    if (isReady && game.fen() !== evals.at(-1)?.evaledFen && gameId && !gameComplete) {
+    if (
+      isReady &&
+      game.fen() !== evals.at(-1)?.evaledFen &&
+      gameId &&
+      !gameComplete
+    ) {
       startSearch();
     }
   }, [game, evals, isReady, gameId, gameComplete, startSearch]);
 
   useEffect(() => {
-    barRef.current?.style.setProperty(`${mobile ? "width" : "height"}`, `${barLength}px`)
-  }, [barLength, mobile])
+    barRef.current?.style.setProperty(
+      `${mobile ? "width" : "height"}`,
+      `${barLength}px`,
+    );
+  }, [barLength, mobile]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -77,11 +97,12 @@ export const EvalBar = () => {
   }, []);
 
   return (
-    <Tooltip content={`Eval: ${evals.at(-1) ? evals.at(-1)?.evaluation! / 100 : 0.0 }`}>
+    <Tooltip
+      content={`Eval: ${evals.at(-1) ? evals.at(-1)?.mate ? evals.at(-1)?.evaluation : evals.at(-1)?.evaluation! / 100 : 0.0}`}
+    >
       <div id="eval-bar" ref={barRef}>
         <div id="eval-fill" ref={fillRef}></div>
       </div>
     </Tooltip>
   );
 };
-
