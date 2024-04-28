@@ -37,6 +37,7 @@ import { Label } from "@/components/ui/label";
 import { useStockfish } from "@/providers/StockfishProvider/context";
 import { useGame } from "./GameProvider";
 import { usePathname } from "next/navigation";
+import { useAuth } from "./AuthProvider/context";
 
 export interface SetupProviderContext {
   settingUp: boolean;
@@ -59,6 +60,7 @@ export const useSetup = () => useContext(SetupContext);
 export const SetupProvider = ({ children }: PropsWithChildren) => {
   const { initEngine, uninit, skillLvl } = useStockfish();
   const { newGame, gameId } = useGame();
+  const { session } = useAuth();
   const pathname = usePathname();
 
   const [open, setOpen] = useState(false);
@@ -95,7 +97,7 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
 
   return (
     <SetupContext.Provider value={value}>
-      <Dialog open={open}>
+      <Dialog open={open && !!session}>
         {/* <DialogTrigger ref={setupModalTriggerRef} className='hidden' /> */}
         <DialogContent allowClose={false}>
           <DialogHeader className="flex flex-col items-center space-y-0">
