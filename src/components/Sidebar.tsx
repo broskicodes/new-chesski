@@ -257,11 +257,6 @@ export const Sidebar = ({ children }: Props) => {
                       className="w-full"
                       onClick={async () => {
                         await signOut();
-                        router.push(
-                          process.env.NEXT_PUBLIC_ENV === "dev"
-                            ? "/"
-                            : "https://chesski.lol",
-                        );
                       }}
                     >
                       Confirm

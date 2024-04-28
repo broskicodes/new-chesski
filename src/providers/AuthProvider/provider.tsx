@@ -10,6 +10,10 @@ import {
 import { AuthContext } from "./context";
 import posthog from "posthog-js";
 import { setCurrGameState } from "@/utils/clientHelpers";
+import { Dialog, DialogContent, DialogFooter, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowTrendUp, faMagnifyingGlassChart, faRobot } from "@fortawesome/free-solid-svg-icons";
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [origin, setOrigin] = useState("");
@@ -101,5 +105,26 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     [session, supabase, signInWithOAuth, signOut],
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      <Dialog open={!session}>
+        <DialogContent allowClose={false}>
+          <DialogTitle className="text-3xl">
+            Train like a Grandmaster
+          </DialogTitle>
+          <div className="grid grid-cols-12 grid-rows-3 w-full items-center">
+            <FontAwesomeIcon icon={faRobot} /><p className="col-span-11">Get personal coaching from AI</p>
+            <FontAwesomeIcon icon={faMagnifyingGlassChart} /><p className="col-span-11">Analyze your games</p>
+            <FontAwesomeIcon icon={faArrowTrendUp} /><p className="col-span-11">Imporve your weaknesses</p>
+          </div>
+          <DialogFooter>
+            <Button className="w-full font-bold text-lg" onClick={() => signInWithOAuth()}>
+              Sign in with Google
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {children}
+    </AuthContext.Provider>
+  );
 };
