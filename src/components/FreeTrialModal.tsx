@@ -28,7 +28,7 @@ export const FreeTrialModal = () => {
   }, [param]);
 
   return (
-    <Dialog open={!!ad && ad === "freeTrial"}>
+    <Dialog open={!!ad && ad === "freeTrial" && !!session}>
       <DialogContent allowClose={false}>
         <DialogHeader className="flex flex-col items-center">
           <p className="py-1.5 px-4 border border-1 border-indigo-500 text-indigo-500 rounded-full text-sm font-semibold uppercase tracking-wide">
@@ -43,7 +43,6 @@ export const FreeTrialModal = () => {
         </DialogHeader>
         <DialogFooter className="mt-2">
           <div className="flex flex-col w-full space-y-2">
-            {session && (
               <Button
                 className="w-full py-6"
                 variant="default"
@@ -67,25 +66,12 @@ export const FreeTrialModal = () => {
               >
                 <span className="font-bold text-xl">Start Free Trial</span>
               </Button>
-            )}
-            {!session && (
-              <Button
-                className="w-full py-6"
-                variant="default"
-                size="lg"
-                onClick={async () => {
-                  signInWithOAuth("subscribe?ad=freeTrial");
-                }}
-              >
-                <span className="font-bold text-xl">Sign In</span>
-              </Button>
-            )}
             <DialogDescription className="text-center">
               <span className="font-bold">Cancel Anytime</span> | Renews at
               $10/month
             </DialogDescription>
             <Link
-              href={`/play`}
+              href={`/`}
               className={buttonVariants({ variant: "link" })}
             >
               No interested
