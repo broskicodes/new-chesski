@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
-import { SubType } from "@/utils/types";
+import { CHESSKI_MONTHLY_PRICE, SubType } from "@/utils/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -68,7 +68,7 @@ export const FreeTrialModal = () => {
               </Button>
             <DialogDescription className="text-center">
               <span className="font-bold">Cancel Anytime</span> | Renews at
-              $10/month
+              ${CHESSKI_MONTHLY_PRICE}/month
             </DialogDescription>
             <Link
               href={`/`}

@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/providers/AuthProvider/context";
 import { useUserData } from "@/providers/UserDataProvider/context";
-import { SubType } from "@/utils/types";
+import { CHESSKI_MONTHLY_PRICE, CHESSKI_YEARLY_PRICE, SubType } from "@/utils/types";
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/navigation";
@@ -43,7 +43,7 @@ const SubPage = () => {
         },
         {
           title: "Pro",
-          price: annual ? 80 : 10,
+          price: annual ? CHESSKI_YEARLY_PRICE : CHESSKI_MONTHLY_PRICE,
           description: "Unlimited access to all features.",
           features: [
             "Unlimited games",

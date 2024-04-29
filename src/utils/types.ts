@@ -81,3 +81,6 @@ export const SanRegex =
   /(O-O(-O)?|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](=[QRBN])?[\+#]?|([a-h]x)?[a-h][1-8](=[QRBN])?[\+#]?)/g;
 export const ONBOARDING_UPDATE_DATE = new Date("2024-03-04 22:00:34.202959+00");
 export const STRIPE_LINK = "https://donate.stripe.com/7sIaHVg9WbnLcla4gg";
+
+export const CHESSKI_MONTHLY_PRICE = 5;
+export const CHESSKI_YEARLY_PRICE = 40;
