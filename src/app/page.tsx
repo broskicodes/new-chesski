@@ -10,105 +10,16 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ONBOARDING_UPDATE_DATE } from "@/utils/types";
+import { Navbar } from "@/components/Navbar";
 
 export default function Home() {
-  const [onboarded, setOnboarded] = useState(false);
-  const [picSize, setPicSize] = useState(520);
 
   const router = useRouter();
   const { session, supabase } = useAuth();
 
-  useEffect(() => {
-    (async () => {
-      if (session) {
-        const { data: userData } = await supabase!
-          .from("user_data")
-          .select()
-          .eq("uuid", session.id);
-
-        if (userData && userData[0]) {
-          const updateDate = new Date(userData[0].updated_at);
-
-          if (updateDate > ONBOARDING_UPDATE_DATE) {
-            setOnboarded(true);
-          } else {
-            setOnboarded(false);
-          }
-        }
-      } else {
-        const item = localStorage.getItem("userData");
-
-        if (item) {
-          setOnboarded(true);
-        }
-      }
-    })();
-  }, [session, supabase]);
-
-  useEffect(() => {
-    const resizeHandler = () => {
-      if (window.innerWidth < 640) {
-        setPicSize(360);
-      } else {
-        if (window.innerHeight < 832) {
-          setPicSize(480);
-        } else {
-          setPicSize(520);
-        }
-      }
-    };
-
-    resizeHandler();
-    window.addEventListener("resize", resizeHandler);
-    return () => window.removeEventListener("resize", resizeHandler);
-  }, []);
-
   return (
     <div className="h-full">
-      <div className="flex flex-col justify-center items-center h-full">
-        <div className="header logo">CHESSKI</div>
-        <div className="">
-          <Image
-            className="lp-img"
-            src="/chesski-lp.png"
-            alt="chess pieces"
-            width={picSize}
-            height={picSize}
-          />
-        </div>
-        <div className="header -mt-12 sm:-mt-8">Get better at chess.</div>
-        <div className="sub-header mt-0 sm:mt-4">
-          <p>
-            Chesski helps you{" "}
-            <span className="emph">improve your chess skills</span> with
-            adaptive <span className="emph">AI coaching</span>.
-          </p>
-        </div>
-        <div className="sign-up mt-6 sm:mt-12">
-          {!onboarded && (
-            <Drawer shouldScaleBackground={false}>
-              <DrawerTrigger>
-                <Button size="lg">Get Started</Button>
-              </DrawerTrigger>
-              <DrawerContent>
-                <div className="mx-auto w-full max-w-5xl">
-                  <Onboarding />
-                </div>
-              </DrawerContent>
-            </Drawer>
-          )}
-          {onboarded && (
-            <Button
-              size="lg"
-              onClick={() => {
-                router.push("/play");
-              }}
-            >
-              Start Playing
-            </Button>
-          )}
-        </div>
-      </div>
+      <Navbar />
     </div>
   );
 }
