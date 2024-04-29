@@ -18,7 +18,7 @@ import { faArrowTrendUp, faMagnifyingGlassChart, faRobot } from "@fortawesome/fr
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [origin, setOrigin] = useState("");
   const [session, setSession] = useState<User | null>(null);
-
+  
   const supabase = useMemo(() => {
     return createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -28,13 +28,11 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
   const signInWithOAuth = useCallback(
     async (next?: string) => {
+      // console.log(next);
       await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: `${origin}/auth/callback${next ? `?next=${next}` : ""}`,
-          queryParams: {
-            next: "subscribe",
-          },
         },
       });
     },
@@ -118,7 +116,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
             <FontAwesomeIcon icon={faArrowTrendUp} /><p className="col-span-11">Imporve your weaknesses</p>
           </div>
           <DialogFooter>
-            <Button className="w-full font-bold text-lg" onClick={() => signInWithOAuth()}>
+            <Button className="w-full font-bold text-lg" onClick={() => signInWithOAuth(`${window.location.pathname.slice(1)}${window.location.search}`)}>
               Sign in with Google
             </Button>
           </DialogFooter>
