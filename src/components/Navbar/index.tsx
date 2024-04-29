@@ -32,7 +32,7 @@ export const Navbar = ({ showMobile }: Props) => {
     <div className={`navbar ${showMobile ? "" : "hidden"} sm:block z-40`}>
       <header className="navbar-container flex flex-row w-full items-center py-2 text-white">
         <Link
-          href={`${process.env.NEXT_PUBLIC_ENV === "dev" ? "/" : "https://chesski.lol"}`}
+          href={"/"}
           className="text-2xl font-bold arvo cursor-pointer"
         >
           CHESSKI
