@@ -6,6 +6,7 @@ import { useStockfish } from "./StockfishProvider/context";
 import { Chess } from "chess.js";
 import { useCoach } from "./CoachProvider/context";
 import { useToast } from "@/components/ui/use-toast";
+import posthog from "posthog-js";
 
 export interface AnalysisProviderContext {
   analyzed: boolean;
@@ -149,9 +150,11 @@ Be sure to analyze the game from ${orientation}'s perspective. Closely follow al
 
   useEffect(() => {
     if (analyzed && classified) {
+      posthog.capture("game_analyzed");
+
       toast({
         title: "Game Analyzed.",
-        description: "Now generating game insights"
+        description: "Now generating insights"
       });
     }
   }, [analyzed, classified, toast])
