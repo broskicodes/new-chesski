@@ -7,43 +7,17 @@ import { useAnalysis } from "@/providers/AnalysisProvider";
 import { useAuth } from "@/providers/AuthProvider/context";
 import { useCoach } from "@/providers/CoachProvider/context";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 
-const AnalyzePage = () => {
-  const [gameId, setGameId] = useState<string | null>(null);
+const UselessComp = () => {
   const [findingGame, setFindingGame] = useState(false);
   const [found, setFound] = useState(false);
+  const [gameId, setGameId] = useState<string | null>(null);
 
-  const { processing } = useCoach();
+  const { setGamePgn } = useAnalysis();
   const { session, supabase } = useAuth();
-  const { nextMove, prevMove, firstMove, lastMove, analyzed, classified, setGamePgn } = useAnalysis();
-
-  const chessRef = useRef<HTMLDivElement>(null);
-  const divRef = useRef<HTMLDivElement>(null);
 
   const params = useSearchParams();
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowRight') {
-        nextMove();
-      } else if (event.key === 'ArrowLeft') {
-        prevMove();
-      } else if (event.key === 'ArrowDown') {
-        lastMove();
-      } else if (event.key === 'ArrowUp') {
-        firstMove();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [firstMove, lastMove, nextMove, prevMove]);
-  
-  
 
   useEffect(() => {
     setGameId(params?.get("gameId") ?? null);
@@ -81,6 +55,38 @@ const AnalyzePage = () => {
     // }      
   }, [gameId, session, supabase, findingGame, found, setGamePgn]);
 
+  return (
+    <div className="hidden" />
+  )
+}
+
+const AnalyzePage = () => {
+  const { processing } = useCoach();
+  const { nextMove, prevMove, firstMove, lastMove, analyzed, classified } = useAnalysis();
+
+  const chessRef = useRef<HTMLDivElement>(null);
+  const divRef = useRef<HTMLDivElement>(null);
+
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowRight') {
+        nextMove();
+      } else if (event.key === 'ArrowLeft') {
+        prevMove();
+      } else if (event.key === 'ArrowDown') {
+        lastMove();
+      } else if (event.key === 'ArrowUp') {
+        firstMove();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [firstMove, lastMove, nextMove, prevMove]);
 
   useEffect(() => {
     const resizeHandler = () => {
@@ -99,6 +105,9 @@ const AnalyzePage = () => {
   return (
     <div className="sm:justify-center flex flex-col h-full">
       <Navbar />
+      <Suspense>
+        <UselessComp />
+      </Suspense>
       <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-16 h-full sm:h-min">
         <div
           className="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0 sm:space-y-0"
