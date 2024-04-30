@@ -1,29 +1,27 @@
 "use client"
 
 import { AnalysisBoard } from "@/components/AnalysisBoard";
-import { EvalBar } from "@/components/EvalBar";
-import { GameSelect } from "@/components/GameSelect";
 import { MoveList } from "@/components/MoveList";
 import { Navbar } from "@/components/Navbar";
-import { Chessboard } from "@/components/Playboard";
-import { Button } from "@/components/ui/button";
 import { useAnalysis } from "@/providers/AnalysisProvider";
 import { useAuth } from "@/providers/AuthProvider/context";
-import { useChess } from "@/providers/ChessProvider/context";
 import { useCoach } from "@/providers/CoachProvider/context";
-import { Classification, useEvaluation } from "@/providers/EvaluationProvider/context";
-import { useStockfish } from "@/providers/StockfishProvider/context";
-import { getClassColor } from "@/utils/clientHelpers";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const AnalyzePage = () => {
+  const [gameId, setGameId] = useState<string | null>(null);
+  const [findingGame, setFindingGame] = useState(false);
+  const [found, setFound] = useState(false);
 
   const { processing } = useCoach();
-  const { nextMove, prevMove, firstMove, lastMove, analyzed, classified } = useAnalysis();
+  const { session, supabase } = useAuth();
+  const { nextMove, prevMove, firstMove, lastMove, analyzed, classified, setGamePgn } = useAnalysis();
 
   const chessRef = useRef<HTMLDivElement>(null);
   const divRef = useRef<HTMLDivElement>(null);
+
+  const params = useSearchParams();
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -43,69 +41,46 @@ const AnalyzePage = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [nextMove, prevMove]);
+  }, [firstMove, lastMove, nextMove, prevMove]);
   
   
 
-  // useEffect(() => {
-  //   setGameId(params?.get("gameId") ?? null);
-  // }, [params]);
+  useEffect(() => {
+    setGameId(params?.get("gameId") ?? null);
+  }, [params]);
 
-  // useEffect(() => {
-  //   if (!gameId || !session || !supabase || findingGame) return;
+  useEffect(() => {
+    if (!gameId || !session || !supabase || findingGame || found) return;
 
-  //   setFindingGame(true);
-  //   // (async () => {
-  //     supabase.from("games")
-  //       .select("starting_pos,result,user_color,moves")
-  //       .eq("id", gameId)
-  //       .then(({ data, error }) => {
-  //         if (error) {
-  //           console.log(error);
-  //           return
-  //         }
+    setFindingGame(true);
+    // (async () => {
+      supabase.from("games")
+        .select("starting_pos,result,user_color,moves")
+        .eq("id", gameId)
+        .then(({ data, error }) => {
+          if (error) {
+            console.log(error);
+            return
+          }
     
-  //         if (!data || !data[0]) {
-  //           return;
-  //         }
+          if (!data || !data[0]) {
+            return;
+          }
     
-  //         const g = data[0];
+          const g = data[0];
 
-  //         if (!g || moves.length > 0) {
-  //           return;
-  //         }
+          if (!g) {
+            return;
+          }
     
-  //         if (orientation !== g.user_color) {
-  //           swapOrientation();
-  //         }
-        
-  //         setMoves(g.moves);
-  //         setMoveIdx(-1);
-  //         setFindingGame(false)
-  //       })
-  //   // }      
-  // }, [gameId, session, supabase, orientation, moves, findingGame, swapOrientation]);
+          setGamePgn(g.moves.join(" "), g.user_color, g.result);
+          setFound(true);
+          
+          setFindingGame(false);
+        })
+    // }      
+  }, [gameId, session, supabase, findingGame, found, setGamePgn]);
 
-  
-
-  // useEffect(() => {
-  //   if (moves.length <= 0 || !isInit || !isReady) return;
-
-
-  // }, [moves, isInit, isReady])
-  // useEffect(() => {
-  //   const resizeHandler = () => {
-  //     if (window.innerWidth < 640) {
-  //       divRef.current!.style.height = `${window.innerHeight - chessRef.current!.offsetHeight - 8}px`;
-  //       divRef.current!.style.width = `${window.innerWidth > 480 ? 480 : window.innerWidth}px`;
-  //     } else {
-  //     }
-  //   };
-
-  //   resizeHandler();
-  //   window.addEventListener("resize", resizeHandler);
-  //   return () => window.removeEventListener("resize", resizeHandler);
-  // }, [contentRef.current, chessRef.current, divRef.current]);
 
   useEffect(() => {
     const resizeHandler = () => {
@@ -124,12 +99,6 @@ const AnalyzePage = () => {
   return (
     <div className="sm:justify-center flex flex-col h-full">
       <Navbar />
-      {/* <GameSelect /> */}
-      {/* <Button onClick={() => {
-        getMoveComments();
-      }}>
-        Get Comments
-      </Button> */}
       <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-16 h-full sm:h-min">
         <div
           className="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0 sm:space-y-0"
@@ -140,7 +109,6 @@ const AnalyzePage = () => {
             <div>
               <AnalysisBoard freeze={!analyzed || !classified || processing} />
             </div>
-            {/* <BoardControl className={settingUp ? "z-40" : ""} /> */}
           </div>
         </div>
         <div ref={divRef}>

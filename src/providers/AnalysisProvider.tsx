@@ -118,7 +118,7 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
     reset();
     setLastMoveHighlightColor("")
     setMoveIdx(-1);
-  }, [reset, analyzed, classifications, setLastMoveHighlightColor]);
+  }, [reset, analyzed, setLastMoveHighlightColor]);
 
   const lastMove = useCallback(() => {
     if (!analyzed) return;
@@ -146,7 +146,7 @@ Be sure to analyze the game from ${orientation}'s perspective. Closely follow al
       role: "user",
       content: userPrompt
     });
-  }, [reqGameAnalysis, evals, classifications, orientation, result])
+  }, [reqGameAnalysis, evals, classifications, orientation, result, moves])
 
   useEffect(() => {
     if (analyzed && classified) {
@@ -227,7 +227,7 @@ Be sure to analyze the game from ${orientation}'s perspective. Closely follow al
         title: "Insights Generated",
       });
     }
-  }, [generated, processing]);
+  }, [generated, processing, toast]);
 
   useEffect(() => {
     if (
@@ -256,7 +256,7 @@ Be sure to analyze the game from ${orientation}'s perspective. Closely follow al
 
       window.dispatchEvent(customEvent);
     }
-  }, [gameOver, analyzed])
+  }, [gameOver, analyzed, game])
 
   useEffect(() => {
     const evalHandler = (event: Event) => {

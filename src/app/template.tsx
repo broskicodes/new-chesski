@@ -12,8 +12,6 @@ import { CoachProvider } from "@/providers/CoachProvider/provider";
 import { AuthProvider } from "@/providers/AuthProvider/provider";
 import { EvaluationProvider } from "@/providers/EvaluationProvider/provider";
 import { UserDataProvider } from "@/providers/UserDataProvider/provider";
-import { SetupProvider } from "@/providers/SetupProvider";
-import { GameProvider } from "@/providers/GameProvider";
 
 const PostHogPageView = dynamic(() => import("../components/PostHogPageView"), {
   ssr: false,
@@ -36,12 +34,8 @@ export default function Template({ children }: PropsWithChildren) {
               <EvaluationProvider>
                 <PuzzleProvider>
                   <CoachProvider>
-                    <GameProvider>
-                      <SetupProvider>
-                        <PostHogPageView />
-                        {children}
-                      </SetupProvider>
-                    </GameProvider>
+                    <PostHogPageView />
+                    {children}
                   </CoachProvider>
                 </PuzzleProvider>
               </EvaluationProvider>

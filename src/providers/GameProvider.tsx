@@ -145,41 +145,41 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     }
   }, [game, orientation, session, supabase]);
 
-  const classifyMoves = useCallback((moveHistory: string[]) => {
-    const hits = evals.slice(1)
-      .map((ev, i) => {
-        const qual = evaluateMoveQuality(evals[i], ev, moveHistory[i], i % 2 === 0 ? Player.White : Player.Black);
+  // const classifyMoves = useCallback((moveHistory: string[]) => {
+  //   const hits = evals.slice(1)
+  //     .map((ev, i) => {
+  //       const qual = evaluateMoveQuality(evals[i], ev, moveHistory[i], i % 2 === 0 ? Player.White : Player.Black);
 
+  //       console.log(qual, moveHistory[i])
+  //       return qual;
+  //     })
+  //     .filter((_, i) => orientation === "white" ? i % 2 === 0 : i % 2 === 1);
 
-        return qual;
-      })
-      .filter((_, i) => orientation === "white" ? i % 2 === 0 : i % 2 === 1);
+  //   setQualMap((_) => {
+  //     const prev = {
+  //       [Classification.Best]: 0,
+  //       [Classification.Good]: 0,
+  //       [Classification.Book]: 0,
+  //       [Classification.Inaccuracy]: 0,
+  //       [Classification.Mistake]: 0,
+  //       [Classification.Blunder]: 0,    
+  //     }
 
-    setQualMap((_) => {
-      const prev = {
-        [Classification.Best]: 0,
-        [Classification.Good]: 0,
-        [Classification.Book]: 0,
-        [Classification.Inaccuracy]: 0,
-        [Classification.Mistake]: 0,
-        [Classification.Blunder]: 0,    
-      }
+  //     hits.forEach((qual) => {
+  //       console.log(prev[qual!], qual)
+  //       prev[qual!] += 1;
+  //     })
 
-      hits.forEach((qual) => {
-        prev[qual!] += 1;
-      })
-
-      // console.log(prev)
-      return prev;
-    })
+  //     // console.log(prev)
+  //     return prev;
+  //   })
 
     // console.log(hits);
-  }, [orientation, evals, evaluateMoveQuality]);
+  // }, [orientation, evals, evaluateMoveQuality]);
 
   const resign = useCallback(async () => {
     gameModalTriggerRef.current?.click();
     setGameResult(GameResult.Resign);
-    classifyMoves(game.history());
 
     if (session && supabase) {
       const { data, error } = await supabase
@@ -202,7 +202,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     setCurrGameState({
       complete: true,
     });
-  }, [game, orientation, id, session, supabase, evals, classifyMoves]);
+  }, [game, orientation, id, session, supabase]);
 
   const clearGame = useCallback(() => {
     setId(null);
@@ -276,34 +276,33 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     }
   }, []);
 
-  // useEffect(() => {
-  //   if (gameOver && game.isGameOver()) {
-  //     gameModalTriggerRef.current?.click();
-  //     classifyMoves(game.history());
+  useEffect(() => {
+    if (gameOver && game.isGameOver()) {
+      gameModalTriggerRef.current?.click();
 
-  //     setComplete(true);
-  //     setMoves(game.history());
-  //     setMoveIdx(game.history().length - 1);
+      setComplete(true);
+      setMoves(game.history());
+      setMoveIdx(game.history().length - 1);
 
-  //     if (game.isCheckmate()) {
-  //       if (turn === orientation) {
-  //         setGameResult(GameResult.Loss);
-  //       } else {
-  //         setGameResult(GameResult.Win);
-  //       }
-  //     } else if (game.isDraw()) {
-  //       setGameResult(GameResult.Draw);
+      if (game.isCheckmate()) {
+        if (turn === orientation) {
+          setGameResult(GameResult.Loss);
+        } else {
+          setGameResult(GameResult.Win);
+        }
+      } else if (game.isDraw()) {
+        setGameResult(GameResult.Draw);
 
-  //       if (game.isStalemate()) {
-  //         setDrawType(DrawType.Stalemate);
-  //       } else if (game.isThreefoldRepetition()) {
-  //         setDrawType(DrawType.Repetition);
-  //       } else if (game.isInsufficientMaterial()) {
-  //         setDrawType(DrawType.InsufficientMaterial);
-  //       }
-  //     }
-  //   }
-  // }, [game, gameOver, turn, orientation, evals, classifyMoves]);
+        if (game.isStalemate()) {
+          setDrawType(DrawType.Stalemate);
+        } else if (game.isThreefoldRepetition()) {
+          setDrawType(DrawType.Repetition);
+        } else if (game.isInsufficientMaterial()) {
+          setDrawType(DrawType.InsufficientMaterial);
+        }
+      }
+    }
+  }, [game, gameOver, turn, orientation, evals]);
 
   useEffect(() => {
     if (!gameOver || !gameResult || !id || moves.length < 1) return;
@@ -398,7 +397,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
                 <Button
                   className="w-full font-bold text-lg py-4"
                   onClick={() => {
-                    router.push(`/analyze?gameId=${id}`)
+                    router.push(`/analysis?gameId=${id}`)
                   }}
                 >
                   Analyze Game

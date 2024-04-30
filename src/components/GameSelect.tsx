@@ -9,6 +9,7 @@ import { useAnalysis } from "@/providers/AnalysisProvider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Label } from "./ui/label";
 import { ScrollArea } from "./ui/scroll-area";
+import { useAuth } from "@/providers/AuthProvider/context";
 
 interface Props {
   className?: string;
@@ -38,6 +39,8 @@ export const GameSelect = ({ className }: Props) => {
   const [chesscomEdit, setChesscomEdit] = useState(false);
   const [lichessEdit, setlichessEdit] = useState(false);
 
+  const [cheskiGames, setChesskiGames] = useState<GameData[]>([]);
+
   const [chesscomArchives, setChesscomArchives] = useState<string[]>([]);
   const [caIdx, setCaIdx] = useState(0);
   const [chesscomGames, setChesscomGames] = useState<GameData[]>([]);
@@ -47,10 +50,38 @@ export const GameSelect = ({ className }: Props) => {
 
   const [selectedGame, setSelectedGame] = useState<GameData | null>(null);
 
+  const { session, supabase } = useAuth();
   const { setGamePgn, moves } = useAnalysis();
   const { chesscom, lichess, updateChesscom, updateLichess, saveData } = useUserData();
 
   const dialogCloseRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!session || !supabase) return;
+
+    supabase.from("games")
+      .select("starting_pos,result,user_color,moves")
+      .eq("user_id", session.id)
+      .neq("result", null)
+      .order("finished_at", { ascending: false })
+      // .contains("moves", "*")
+      .then(({ error, data }) => {
+
+        const games: GameData[] = data
+          ?.filter((d) => d.moves != null)
+          .map((d) => {
+            return {
+              class: "unlimited",
+              white: d.user_color === "white" ? { rating: 0, username: "User" } : { rating: 0, username: "Chesski" },
+              black: d.user_color === "black" ? { rating: 0, username: "User" } : { rating: 0, username: "Chesski" },
+              pgn: d.moves.join(" "),
+              result: d.result
+            }
+          }) ?? []
+
+        setChesskiGames(games);
+      })
+  }, [session, supabase])
 
   useEffect(() => {
     if (lichess && !lichessEdit) {
@@ -165,7 +196,27 @@ export const GameSelect = ({ className }: Props) => {
               <TabsTrigger value="chesscom" className="w-full">Chess.com</TabsTrigger>
               <TabsTrigger value="lichess" className="w-full">Lichess</TabsTrigger>
               <TabsTrigger value="pgn" className="w-full">PGN</TabsTrigger>
+              <TabsTrigger value="chesski" className="w-full">Chesski</TabsTrigger>
             </TabsList>
+            <TabsContent value="chesski">
+              <ScrollArea className="h-60 overflow-y-auto my-4">
+                  {cheskiGames.map((g, i) => {
+
+                    return (
+                      <div key={i} className={`flex flex-row justify-between space-y-1 cursor-pointer hover:bg-indigo-600/10 rounded-md ${g.pgn === selectedGame?.pgn ? "bg-indigo-600/25" : ""}`}
+                        onClick={() => {
+                          setSelectedGame(g);
+                        }}>
+                        <div>{g.class}</div>
+                        <div>
+                          <span>{g.white.username}</span>{" vs. "}
+                          <span>{g.black.username}</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </ScrollArea>
+              </TabsContent>
             <TabsContent className="mt-4" value="chesscom">
               <Label>Username</Label>
               <div className="flex flex-row space-x-2">
@@ -272,9 +323,9 @@ export const GameSelect = ({ className }: Props) => {
                     </SelectContent>
                   </Select>
                   <Label>Result</Label>
-                  <Select value={pgnRes} onValueChange={(val) => setPgnColor(val)}>
+                  <Select value={pgnRes} onValueChange={(val) => setPgnRes(val)}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Color" />
+                      <SelectValue placeholder="Result" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="1-0">1-0</SelectItem>
@@ -300,7 +351,7 @@ export const GameSelect = ({ className }: Props) => {
             {currTab !== "pgn" &&  (
               <DialogClose className="w-full">
                 <Button disabled={!selectedGame} className="w-full" onClick={() => {
-                  const color = selectedGame?.white.username === lichess || selectedGame?.white.username === chesscom ? "white" : "black";
+                  const color = selectedGame?.white.username === lichess || selectedGame?.white.username === chesscom || selectedGame?.white.username === "User" ? "white" : "black";
 
                   setGamePgn(selectedGame!.pgn, color, selectedGame!.result);
                 }}>

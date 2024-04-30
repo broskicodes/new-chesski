@@ -91,7 +91,7 @@ export const EvaluationProvider = ({ children }: PropsWithChildren<{}>) => {
         return Classification.Good;
       }
     },
-    [orientation, lastMoveHighlight],
+    [orientation],
   );
 
   const value = useMemo(
