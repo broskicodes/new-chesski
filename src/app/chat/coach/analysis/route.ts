@@ -8,43 +8,6 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// const functions: ChatCompletionTool[] = [
-//   {
-//     type: "function",
-//     function: {
-//       name: "generate_user_queries",
-//       description:
-//         "Generate up to 3 possible queries about the provided message that will help the user deepen their understanding of the content.",
-//       parameters: {
-//         type: "object",
-//         properties: {
-//           queries: {
-//             type: "array",
-//             description: "An array of the generated queries the user can ask.",
-//             items: {
-//               type: "object",
-//               properties: {
-//                 query: {
-//                   type: "string",
-//                   description:
-//                     "The query the user can ask. These should be short and consise questions. Should be a maximum of 10 words.",
-//                 },
-//                 title: {
-//                   type: "string",
-//                   description:
-//                     "The title of the query. Should be a maximum of 3 words.",
-//                 },
-//               },
-//             },
-//             minItems: 1,
-//             maxItems: 3,
-//           },
-//         },
-//         required: ["queries", "query_titles"],
-//       },
-//     },
-//   },
-// ];
 
 const systemPrompt = `You are a chess analyst. You analyze completed games and attempt to identify the weaknesses in the play of one of the players.
 

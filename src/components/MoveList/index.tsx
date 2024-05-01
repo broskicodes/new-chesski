@@ -2,25 +2,55 @@ import { Classification, useEvaluation } from "@/providers/EvaluationProvider/co
 import { Card, CardFooter, CardHeader, CardTitle } from "../ui/card"
 import { useChess } from "@/providers/ChessProvider/context";
 import { getClassColor } from "@/utils/clientHelpers";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAnalysis } from "@/providers/AnalysisProvider";
 import { ScrollArea } from "../ui/scroll-area";
 import { GameSelect } from "../GameSelect";
 import { Table, TableBody, TableCell, TableRow } from "../ui/table";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleDoubleRight, faAnglesLeft, faAnglesRight, faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import { faAnglesLeft, faAnglesRight, faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import { Tooltip } from "../Tooltip";
 import { useCoach } from "@/providers/CoachProvider/context";
 import ReactMarkdown from "react-markdown";
+import { Button } from "../ui/button";
 
 export const MoveList = () => {
   const { evals } = useEvaluation();
   const { weaknesses } = useCoach()
   const { game, playContinuation, setLastMoveHighlightColor } = useChess();
-  const { moves, classifications, classified, setMoveIdx, nextMove, prevMove, firstMove, lastMove } = useAnalysis();
+  const { moves, classifications, classified, setMoveIdx, nextMove, prevMove, firstMove, lastMove, getMoveExplaination } = useAnalysis();
 
   const [height, setHeight] = useState(1);
   const [qualMap, setQualMap] = useState<{ [key in Classification]: [number, number] } | null>(null);
+
+  const getMoveMsg = useCallback((classif: Classification) => {
+    let msg: string;
+
+    switch (classif) {
+      case Classification.Book:
+        msg = "is a book move";
+        break;
+      case Classification.Best:
+        msg = "is best";
+        break;
+      case Classification.Good:
+        msg = "is good";
+        break;
+      case Classification.Inaccuracy:
+        msg = "is an inaccuracy";
+        break;
+      case Classification.Mistake:
+        msg = "is a mistake";
+        break;
+      case Classification.Blunder:
+        msg = "is a blunder";
+        break;
+      default:
+        msg = "is trash";
+    }
+
+    return msg;
+  }, [])
 
   useEffect(() => {
     setQualMap((_) => {
@@ -103,7 +133,8 @@ export const MoveList = () => {
         <Table className="grid grid-cols-2 gap-y-1 gap-x-8 font-semibold">
           <TableBody>
             {Array.from({length: Math.ceil(moves.length / 2)}, (_, i) => i).map(i => [moves[2*i], moves[2*i + 1]]).map((movePair, i) => (
-              <TableRow key={i}>
+              <TableRow key={i} className="flex flex-col">
+                <div>
                 <TableCell className="text-gray-500">
                   {i+1}.
                 </TableCell>
@@ -125,6 +156,32 @@ export const MoveList = () => {
                   }}>
                     <span style={classifications[2*i + 1] === Classification.Blunder || classifications[2*i + 1] === Classification.Mistake || classifications[2*i + 1] === Classification.Inaccuracy ?  { color: getClassColor(classifications[2*i + 1]) } : {}}>{movePair[1]}</span>
                   </TableCell>
+                  </div>
+                  {[1, 2].map((num) => {
+                    return (
+                      <div className={`flex flex-col ${game.fen() === evals[2*i + num]?.evaledFen ? "" : "hidden"} `}>
+                        <div>{movePair[num - 1]} {getMoveMsg(classifications[2*i + num - 1])}</div>
+                        <div>{evals[2*i + num]?.mate ? `M${evals[2*i + num].evaluation}` : evals[2*i + num]?.evaluation /  100} </div>
+                        <div className="flex flex-row">
+                          <Button onClick={() => {
+                              getMoveExplaination(evals[2*i + num - 1], moves.slice(0, 2*i + num), classifications[2*i + num - 1])
+                            }}>
+                            Explain
+                          </Button>
+                          {!(classifications[2*i + num - 1] === Classification.Best) && (
+                            <Button 
+                              onClick={() => {
+                                const bestMove = evals[2*i + num - 1].bestMove;
+                                playContinuation([...moves.slice(0, 2*i + num - 1), bestMove], true);
+                                setLastMoveHighlightColor(getClassColor(Classification.Best));
+                              }}>
+                              Best Move
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
               </TableRow>
             ))}
           </TableBody>

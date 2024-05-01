@@ -137,6 +137,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
           { square: lastMove.from, color: "" },
           { square: lastMove.to, color: "" }
         ])
+        !lastMove && setMoveHighlight(null);
         setArrows([]);
 
         setCurrGameState({ moves: tempGame.history() });

@@ -1,5 +1,5 @@
 import { Dispatch, PropsWithChildren, SetStateAction, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
-import { Classification, useEvaluation } from "./EvaluationProvider/context";
+import { Classification, PositionEval, useEvaluation } from "./EvaluationProvider/context";
 import { Player, useChess } from "./ChessProvider/context";
 import { getClassColor } from "@/utils/clientHelpers";
 import { useStockfish } from "./StockfishProvider/context";
@@ -23,7 +23,8 @@ export interface AnalysisProviderContext {
   lastMove: () => void;
   nextMove: () => void;
   prevMove: () => void;
-  getMoveComments: () => void;
+  analyzeGame: () => void;
+  getMoveExplaination: (evl: PositionEval, lm: string[], classif: Classification) => void;
 }
 
 export const AnalysisContext = createContext<AnalysisProviderContext>({
@@ -53,7 +54,10 @@ export const AnalysisContext = createContext<AnalysisProviderContext>({
   prevMove: () => {
     throw new Error("AnalysisProvider not initialized");
   },
-  getMoveComments: () => {
+  analyzeGame: () => {
+    throw new Error("AnalysisProvider not initialized");
+  },
+  getMoveExplaination: (_e, _lm) => {
     throw new Error("AnalysisProvider not initialized");
   }
 });
@@ -75,7 +79,7 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
 
   const { toast } = useToast();
 
-  const { reqGameAnalysis, clearInsights, processing } = useCoach();
+  const { reqGameAnalysis, clearInsights, getExplantion, processing } = useCoach();
   const { isReady, initEngine, startSearch } = useStockfish();
   const { evals, evaluateMoveQuality, clearEvaluations } = useEvaluation();
   const { game, gameOver, orientation, setLastMoveHighlightColor, makeMove, undo, swapOrientation, reset, playContinuation } = useChess();
@@ -97,7 +101,7 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
   const nextMove = useCallback(() => {
     if (!analyzed) return;
 
-    if (makeMove(moves[moveIdx + 1])) {
+    if (moveIdx + 1 < moves.length && playContinuation(moves.slice(0, moveIdx + 2), true)) {
       setLastMoveHighlightColor(getClassColor(classifications[moveIdx + 1]))
       setMoveIdx(moveIdx + 1);
     }
@@ -128,7 +132,7 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
     setMoveIdx(moves.length - 1);
   }, [playContinuation, moves, analyzed, classifications, setLastMoveHighlightColor]);
 
-  const getMoveComments = useCallback(() => {
+  const analyzeGame = useCallback(() => {
     const userPrompt = `Please analyze this game:
 <moves>
 ${
@@ -146,7 +150,34 @@ Be sure to analyze the game from ${orientation}'s perspective. Closely follow al
       role: "user",
       content: userPrompt
     });
-  }, [reqGameAnalysis, evals, classifications, orientation, result, moves])
+  }, [reqGameAnalysis, evals, classifications, orientation, result, moves]);
+
+  const getMoveExplaination = useCallback((evl: PositionEval, lm: string[], classif: Classification) => {
+    const m = lm.slice(0, -1).join(" ");
+    const pre = new Chess();
+    pre.loadPgn(m);
+
+    const post = new Chess();
+    post.loadPgn(lm.join(" "))
+
+
+    const userPrompt = `Here is some information about the position:
+<pre>${pre.ascii()}</pre>
+<post>${post.ascii()}</post>
+<moves>${m}</moves>
+<played>${lm.at(-1)}</played>
+<class>${classif}</class>
+<best>${evl.bestMove}</best>
+<line>${evl.pv.join(" ")}</line>
+<eval>${evl.mate ? `mate in ${evl.evaluation}` : evl.evaluation}</eval>
+
+Please explain why ${lm.at(-1)} is a ${classif}`;
+
+    getExplantion({
+      role: "user",
+      content: userPrompt
+    })
+  }, [getExplantion]);
 
   useEffect(() => {
     if (analyzed && classified) {
@@ -217,9 +248,9 @@ Be sure to analyze the game from ${orientation}'s perspective. Closely follow al
   useEffect(() => {
     if (analyzed && classified && !generated) {
       setGenerated(true);
-      getMoveComments();
+      analyzeGame();
     }
-  }, [analyzed, classified, generated, getMoveComments]);
+  }, [analyzed, classified, generated, analyzeGame]);
 
   useEffect(() => {
     if (generated && !processing) {
@@ -261,7 +292,6 @@ Be sure to analyze the game from ${orientation}'s perspective. Closely follow al
   useEffect(() => {
     const evalHandler = (event: Event) => {
       const { multiPv } = (event as CustomEvent).detail;
-      // console.log(game.isGameOver())
 
       if (multiPv === 1) {
         if (moveIdx + 1 < moves.length) {
@@ -298,7 +328,8 @@ Be sure to analyze the game from ${orientation}'s perspective. Closely follow al
     lastMove,
     nextMove,
     prevMove,
-    getMoveComments
+    analyzeGame,
+    getMoveExplaination
   }), [
     classified,
     analyzed,
@@ -313,7 +344,8 @@ Be sure to analyze the game from ${orientation}'s perspective. Closely follow al
     setGamePgn,
     nextMove,
     prevMove,
-    getMoveComments
+    analyzeGame,
+    getMoveExplaination
   ])
 
   return (

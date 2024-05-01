@@ -50,37 +50,19 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
       posthog.capture("ai_msg_sent");
       setProcessing(false);
     },
-    // experimental_onToolCall: async (_msgs: Message[], toolCalls: ToolCall[]) => {
-    // if (toolCalls.length > 0) {
-    //   const call = toolCalls.at(-1);
-
-    //   if (call?.function.name !== "advise") {
-    //     return;
-    //   }
-
-    //   const args = JSON.parse(call?.function.arguments);
-    //   setMessages([...gameMessages, {
-    //     id: Math.random().toString(36).substring(7),
-    //     role: "assistant",
-    //     content: args.advice
-    //   }]);
-    //   setQueries(args.queries);
-    //   setProcessing(false);
-
-    //   // console.log(args)
-    // }
-    // },
   });
 
   const {
-    append: appendExplanationContext,
+    append: appendExplanation,
     setMessages: addExplanationContext,
     reload,
   } = useChat({
     api: "/chat/coach/explanations",
     onFinish: (msg: Message) => {
-      posthog.capture("ai_msg_sent");
-      setMessages([...gameMessages, msg]);
+      console.log(msg.content);
+      setProcessing(false);
+      // posthog.capture("ai_msg_sent");
+      // setMessages([...gameMessages, msg]);
       // findQueries(msg);
     },
   });
@@ -115,33 +97,30 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
   }, [setMessages]);
 
   const getExplantion = useCallback(
-    (query: string) => {
+    (msg: Message | CreateMessage) => {
       setProcessing(true);
+      appendExplanation(msg);
+      // addExplanationContext([
+      //   {
+      //     id: Math.random().toString(36).substring(7),
+      //     role: "user",
+      //     content: `The user's query is in response to this message: ${gameMessages.at(-1)?.content}`,
+      //   },
+      //   {
+      //     id: Math.random().toString(36).substring(7),
+      //     role: "user",
+      //     content: `The user is playing as ${orientation}. The current position is ${fen}. The moves leading up to this position are ${moves.join(" ")}. ${turn === "white" ? "Black" : "White"} just played ${moves.at(-1)}.`,
+      //   },
+      //   {
+      //     id: Math.random().toString(36).substring(7),
+      //     role: "user",
+      //     content: `The user's query is: ${query}`,
+      //   },
+      // ]);
 
-      const moves = game.history();
-      const fen = game.fen();
-
-      addExplanationContext([
-        {
-          id: Math.random().toString(36).substring(7),
-          role: "user",
-          content: `The user's query is in response to this message: ${gameMessages.at(-1)?.content}`,
-        },
-        {
-          id: Math.random().toString(36).substring(7),
-          role: "user",
-          content: `The user is playing as ${orientation}. The current position is ${fen}. The moves leading up to this position are ${moves.join(" ")}. ${turn === "white" ? "Black" : "White"} just played ${moves.at(-1)}.`,
-        },
-        {
-          id: Math.random().toString(36).substring(7),
-          role: "user",
-          content: `The user's query is: ${query}`,
-        },
-      ]);
-
-      reload();
+      // reload();
     },
-    [gameMessages, game, orientation, turn, addExplanationContext, reload],
+    [appendExplanation],
   );
 
   const value: CoachProviderContext = useMemo(

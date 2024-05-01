@@ -15,7 +15,7 @@ export interface CoachProviderContext {
   appendGameMessage: (msg: Message | CreateMessage) => void;
   clearGameMessages: () => void;
   setGameMessages: (msgs: Message[]) => void;
-  getExplantion: (query: string) => void;
+  getExplantion: (msg: Message | CreateMessage) => void;
   reqGameAnalysis: (msg: Message | CreateMessage) => void;
   clearInsights: () => void;
 }

@@ -42,7 +42,7 @@ export interface ChessProviderContext {
   addHighlightedSquares: (sqrs: SquareHighlight[], reset: boolean) => void;
   resetHighlightedMoves: (moves: Move[]) => void;
   setLastMoveHighlightColor: (color: string) => void;
-  playContinuation: (moves: string[], reset: boolean) => void;
+  playContinuation: (moves: string[], reset: boolean) => boolean;
 }
 
 export const ChessContext = createContext<ChessProviderContext>({
