@@ -113,7 +113,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
           <div className="grid grid-cols-12 grid-rows-3 w-full items-center">
             <FontAwesomeIcon icon={faRobot} /><p className="col-span-11">Get personal coaching from AI</p>
             <FontAwesomeIcon icon={faMagnifyingGlassChart} /><p className="col-span-11">Analyze your games</p>
-            <FontAwesomeIcon icon={faArrowTrendUp} /><p className="col-span-11">Imporve your weaknesses</p>
+            <FontAwesomeIcon icon={faArrowTrendUp} /><p className="col-span-11">Improve your weaknesses</p>
           </div>
           <DialogFooter>
             <Button className="w-full font-bold text-lg" onClick={() => signInWithOAuth(`${window.location.pathname.slice(1)}${window.location.search}`)}>
