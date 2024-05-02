@@ -2,7 +2,7 @@ import { Classification, useEvaluation } from "@/providers/EvaluationProvider/co
 import { Card, CardFooter, CardHeader, CardTitle } from "../ui/card"
 import { useChess } from "@/providers/ChessProvider/context";
 import { getClassColor } from "@/utils/clientHelpers";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAnalysis } from "@/providers/AnalysisProvider";
 import { ScrollArea } from "../ui/scroll-area";
 import { GameSelect } from "../GameSelect";
@@ -13,15 +13,21 @@ import { Tooltip } from "../Tooltip";
 import { useCoach } from "@/providers/CoachProvider/context";
 import ReactMarkdown from "react-markdown";
 import { Button } from "../ui/button";
+import { useToast } from "../ui/use-toast";
 
 export const MoveList = () => {
   const { evals } = useEvaluation();
-  const { weaknesses } = useCoach()
+  const { insights, lastExp, expProc } = useCoach()
   const { game, playContinuation, setLastMoveHighlightColor } = useChess();
-  const { moves, classifications, classified, setMoveIdx, nextMove, prevMove, firstMove, lastMove, getMoveExplaination } = useAnalysis();
+  const { moves, moveIdx, classifications, classified, setMoveIdx, nextMove, prevMove, firstMove, lastMove, getMoveExplaination } = useAnalysis();
+
+  const { toast } = useToast();
 
   const [height, setHeight] = useState(1);
   const [qualMap, setQualMap] = useState<{ [key in Classification]: [number, number] } | null>(null);
+  const [explanations, setExplanations] = useState<{ exp: string, idx: number}[]>([]);
+
+  const currMoveRef = useRef<HTMLDivElement>(null);
 
   const getMoveMsg = useCallback((classif: Classification) => {
     let msg: string;
@@ -51,6 +57,16 @@ export const MoveList = () => {
 
     return msg;
   }, [])
+
+  useEffect(() => {
+    // @ts-ignore
+    setExplanations((prev) => {
+      return [
+        ...prev.slice(0, -1),
+        { ...prev.at(-1), exp: lastExp }
+      ]
+    })
+  }, [lastExp])
 
   useEffect(() => {
     setQualMap((_) => {
@@ -88,6 +104,11 @@ export const MoveList = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    if (!classified) return;
+    currMoveRef.current?.scrollIntoView();
+  }, [game, classified, currMoveRef.current])
 
   return (
     <Card style={height ? { height } : {}} className={`w-full sm:w-96 py-2 sm:py-4 px-2 flex flex-col ${height ? "" : "h-full"}`}>
@@ -130,46 +151,65 @@ export const MoveList = () => {
           </div>
         )}
         {moves.length > 0 && <span className="text-lg font-semibold">Moves</span>}
-        <Table className="grid grid-cols-2 gap-y-1 gap-x-8 font-semibold">
-          <TableBody>
+        <Table className=" font-semibold w-full">
+          <TableBody className="w-full">
             {Array.from({length: Math.ceil(moves.length / 2)}, (_, i) => i).map(i => [moves[2*i], moves[2*i + 1]]).map((movePair, i) => (
               <TableRow key={i} className="flex flex-col">
-                <div>
-                <TableCell className="text-gray-500">
-                  {i+1}.
-                </TableCell>
-                <TableCell
-                  className={`cursor-pointer rounded-sm hover:bg-indigo-100/25 ${game.fen() === evals[2*i + 1]?.evaledFen ? "bg-indigo-100/50" : ""}`}
-                  onClick={() => {
-                    playContinuation(moves.slice(0, 2*i + 1), true);
-                    setLastMoveHighlightColor(getClassColor(classifications[2*i]))
-                    setMoveIdx(2*i);
-                  }}>
-                    <span style={classifications[2*i] === Classification.Blunder || classifications[2*i] === Classification.Mistake || classifications[2*i] === Classification.Inaccuracy ? { color: getClassColor(classifications[2*i]) } : {}}>{movePair[0]}</span>
+                <div ref={classified && (moveIdx === 2*i || moveIdx === 2*i + 1) ? currMoveRef : undefined}>
+                  <TableCell className="text-gray-500">
+                    {i+1}.
                   </TableCell>
                   <TableCell
-                  className={`cursor-pointer rounded-sm hover:bg-indigo-100/25 ${game.fen() === evals[2*i + 2]?.evaledFen ? "bg-indigo-100/50" : ""}`}
-                  onClick={() => {
-                    playContinuation(moves.slice(0, 2*i + 2), true);
-                    setLastMoveHighlightColor(getClassColor(classifications[2*i + 1]))
-                    setMoveIdx(2*i + 1);
-                  }}>
-                    <span style={classifications[2*i + 1] === Classification.Blunder || classifications[2*i + 1] === Classification.Mistake || classifications[2*i + 1] === Classification.Inaccuracy ?  { color: getClassColor(classifications[2*i + 1]) } : {}}>{movePair[1]}</span>
-                  </TableCell>
+                    className={`cursor-pointer rounded-sm hover:bg-indigo-100/25 ${classified && moveIdx === 2*i ? "bg-indigo-100/50" : ""}`}
+                    onClick={() => {
+                      playContinuation(moves.slice(0, 2*i + 1), true);
+                      setLastMoveHighlightColor(getClassColor(classifications[2*i]))
+                      setMoveIdx(2*i);
+                    }}>
+                      <span style={classifications[2*i] === Classification.Blunder || classifications[2*i] === Classification.Mistake || classifications[2*i] === Classification.Inaccuracy ? { color: getClassColor(classifications[2*i]) } : {}}>{movePair[0]}</span>
+                    </TableCell>
+                    <TableCell
+                    className={`cursor-pointer rounded-sm hover:bg-indigo-100/25 ${classified && moveIdx === 2*i + 1 ? "bg-indigo-100/50" : ""}`}
+                    onClick={() => {
+                      playContinuation(moves.slice(0, 2*i + 2), true);
+                      setLastMoveHighlightColor(getClassColor(classifications[2*i + 1]))
+                      setMoveIdx(2*i + 1);
+                    }}>
+                      <span style={classifications[2*i + 1] === Classification.Blunder || classifications[2*i + 1] === Classification.Mistake || classifications[2*i + 1] === Classification.Inaccuracy ?  { color: getClassColor(classifications[2*i + 1]) } : {}}>{movePair[1]}</span>
+                    </TableCell>
                   </div>
                   {[1, 2].map((num) => {
                     return (
-                      <div className={`flex flex-col ${game.fen() === evals[2*i + num]?.evaledFen ? "" : "hidden"} `}>
-                        <div>{movePair[num - 1]} {getMoveMsg(classifications[2*i + num - 1])}</div>
-                        <div>{evals[2*i + num]?.mate ? `M${evals[2*i + num].evaluation}` : evals[2*i + num]?.evaluation /  100} </div>
-                        <div className="flex flex-row">
-                          <Button onClick={() => {
+                      <div key={num} className={`mt-1 px-3 flex flex-col ${classified && moveIdx === 2*i + num - 1 ? "" : "hidden"} `}>
+                        <div className="flex flex-row space-x-24 mb-2">
+                          <div>{movePair[num - 1]} {getMoveMsg(classifications[2*i + num - 1])}</div>
+                          <div className="font-normal">Eval: {evals[2*i + num]?.mate ? `${Math.sign(evals[2*i + num].evaluation).toString().at(-2) ?? ""}M${Math.abs(evals[2*i + num].evaluation)}` : evals[2*i + num]?.evaluation /  100} </div>
+                        </div>
+                        {explanations
+                          .filter((exp) => exp.idx === 2*i + num - 1)
+                          .slice(-1)
+                          .map((exp) => (
+                            <div className="font-normal">{exp.exp}</div>
+                          ))}
+                        <div className="flex flex-row w-full space-x-2 mt-2">
+                          <Button 
+                          disabled={expProc}
+                          className="w-full"
+                          onClick={() => {
+                              setExplanations((prev) => {
+                                const idx = 2*i + num - 1;
+                                
+                                return [...prev, { idx, exp: "" }]
+                              });
                               getMoveExplaination(evals[2*i + num - 1], moves.slice(0, 2*i + num), classifications[2*i + num - 1])
                             }}>
-                            Explain
+                            {!expProc 
+                              ? <span>Explain</span>
+                              : <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#1B03A3]" />}
                           </Button>
                           {!(classifications[2*i + num - 1] === Classification.Best) && (
-                            <Button 
+                            <Button
+                              className="w-full" 
                               onClick={() => {
                                 const bestMove = evals[2*i + num - 1].bestMove;
                                 playContinuation([...moves.slice(0, 2*i + num - 1), bestMove], true);
@@ -186,11 +226,11 @@ export const MoveList = () => {
             ))}
           </TableBody>
         </Table>
-        {weaknesses && weaknesses.length > 0 && (
+        {insights && insights.length > 0 && (
           <div className="flex flex-col mt-2 mb-1">
             <span className="font-bold text-lg">Weaknesses and Insights</span>
             <ReactMarkdown>
-              {weaknesses}
+              {insights}
             </ReactMarkdown>
           </div>
         )}

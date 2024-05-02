@@ -12,7 +12,10 @@ import { useAnalysis } from "../AnalysisProvider";
 
 export const CoachProvider = ({ children }: PropsWithChildren) => {
   const [processing, setProcessing] = useState(false);
-  const [weaknesses, setWeaknesses] = useState("");
+  const [insights, setInsights] = useState("");
+  const [phases, setPhases] = useState("");
+  const [lastExp, setLastExp] = useState("");
+  const [expProc, setExpProc] = useState(false);
   // const [queries, setQueries] = useState<Query[]>([]);
 
   const { experience } = useUserData();
@@ -25,7 +28,8 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
     onFinish: (msg: Message) => {
       console.log(msg.content);
       setProcessing(false);
-      setWeaknesses(msg.content.split('"""').at(-2)!)
+      setInsights(msg.content.split('"""').at(-2)!)
+      setPhases(msg.content.split("'''").at(-2)!)
     },
   });
 
@@ -60,7 +64,9 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
     api: "/chat/coach/explanations",
     onFinish: (msg: Message) => {
       console.log(msg.content);
-      setProcessing(false);
+      setExpProc(false);
+      setLastExp(msg.content.split('"""').at(-2)!)
+
       // posthog.capture("ai_msg_sent");
       // setMessages([...gameMessages, msg]);
       // findQueries(msg);
@@ -68,7 +74,7 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
   });
 
   const clearInsights = useCallback(() => {
-    setWeaknesses("");
+    setInsights("");
   }, []);
 
   const reqGameAnalysis = useCallback((msg: Message | CreateMessage) => {
@@ -98,7 +104,7 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
 
   const getExplantion = useCallback(
     (msg: Message | CreateMessage) => {
-      setProcessing(true);
+      setExpProc(true);
       appendExplanation(msg);
       // addExplanationContext([
       //   {
@@ -126,8 +132,11 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
   const value: CoachProviderContext = useMemo(
     () => ({
       processing,
-      weaknesses,
+      insights,
+      phases,
       gameMessages: gameMessages,
+      lastExp,
+      expProc,
       addGameMessage: addGameMessage,
       appendGameMessage: appendGameMessage,
       clearGameMessages: clearGameMessages,
@@ -138,8 +147,11 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
     }),
     [
       processing,
+      expProc,
+      lastExp,
       gameMessages,
-      weaknesses,
+      insights,
+      phases,
       appendGameMessage,
       addGameMessage,
       clearGameMessages,

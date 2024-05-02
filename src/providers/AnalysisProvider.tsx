@@ -7,6 +7,7 @@ import { Chess } from "chess.js";
 import { useCoach } from "./CoachProvider/context";
 import { useToast } from "@/components/ui/use-toast";
 import posthog from "posthog-js";
+import { useAuth } from "./AuthProvider/context";
 
 export interface AnalysisProviderContext {
   analyzed: boolean;
@@ -18,7 +19,7 @@ export interface AnalysisProviderContext {
   moveIdx: number;
   classifications: Classification[];
   setMoveIdx: Dispatch<SetStateAction<number>>;
-  setGamePgn: (pgn: string, color: string, result: string) => boolean;
+  setGamePgn: (id: string, pgn: string, color: string, result: string) => boolean;
   firstMove: () => void;
   lastMove: () => void;
   nextMove: () => void;
@@ -65,6 +66,7 @@ export const AnalysisContext = createContext<AnalysisProviderContext>({
 export const useAnalysis = () => useContext(AnalysisContext);
 
 export const AnalysisProvider = ({ children }: PropsWithChildren) => {
+  const [id, setId] = useState<string | null>(null);
   const [gamePgn, setGamePgnState] = useState<string |null>(null);
   const [color, setColor] = useState<string |null>(null);
   const [result, setResult] = useState<string | null>(null);
@@ -76,15 +78,18 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
   const [analyzed, setAnalyzed] = useState(false);
   const [classified, setClassified] = useState(false);
   const [generated, setGenerated] = useState(false);
+  const [saved, setSaved] = useState(false);
+
 
   const { toast } = useToast();
 
-  const { reqGameAnalysis, clearInsights, getExplantion, processing } = useCoach();
+  const { session, supabase } = useAuth();
+  const { reqGameAnalysis, clearInsights, getExplantion, processing, insights, phases } = useCoach();
   const { isReady, initEngine, startSearch } = useStockfish();
   const { evals, evaluateMoveQuality, clearEvaluations } = useEvaluation();
   const { game, gameOver, orientation, setLastMoveHighlightColor, makeMove, undo, swapOrientation, reset, playContinuation } = useChess();
 
-  const setGamePgn = useCallback((pgn: string, color: string, result: string) => {
+  const setGamePgn = useCallback((id: string, pgn: string, color: string, result: string) => {
     const tempGame = new Chess();
     try {
       tempGame.loadPgn(pgn)
@@ -92,6 +97,7 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
       return false;
     }
 
+    setId(id);
     setColor(color);
     setResult(result);
     setGamePgnState(pgn);
@@ -105,7 +111,7 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
       setLastMoveHighlightColor(getClassColor(classifications[moveIdx + 1]))
       setMoveIdx(moveIdx + 1);
     }
-  }, [makeMove, moveIdx, moves, analyzed, classifications, setLastMoveHighlightColor]);
+  }, [playContinuation, moveIdx, moves, analyzed, classifications, setLastMoveHighlightColor]);
 
   const prevMove = useCallback(() => {
     if (!analyzed) return;
@@ -144,7 +150,9 @@ ${
 <result>${result}</result>
 <player>${orientation}</player>
 
-Be sure to analyze the game from ${orientation}'s perspective. Closely follow all instructions in the system prompt.`;
+Be sure to analyze the game from ${orientation}'s perspective. 
+Closely follow all instructions in the system prompt. 
+Be sure to use the correct delimitres for relevant sections and pay careful attention to where to use apostrophes vs quotes.`;
 
     reqGameAnalysis({
       role: "user",
@@ -188,7 +196,30 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
         description: "Now generating insights"
       });
     }
-  }, [analyzed, classified, toast])
+  }, [analyzed, classified, toast]);
+
+  useEffect(() => {
+    if (analyzed && classified && !saved) {
+      if (!session || !supabase) return;
+
+      (async () => {
+        const { data, error } = await supabase.from("analyzed_games")
+          .insert({
+            id,
+            pgn: gamePgn,
+            color: color,
+            result,
+            moves,
+            classifications,
+            evals
+          })
+
+          console.log(data, error);
+      })();
+
+      setSaved(true);
+    }
+  }, [session, supabase, analyzed, classified, saved, id, gamePgn, color, result, moves, classifications, evals])
 
   useEffect(() => {
     if (!gamePgn) return;
@@ -201,7 +232,7 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
     }
 
     reset();
-    setGamePgnState(null);
+    // setGamePgnState(null);
     setAnalyzed(false);
     setClassified(false);
     setGenerated(false);
@@ -219,7 +250,6 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
 
   useEffect(() => {
     if (color && color !== orientation) {
-      setColor(null);
       swapOrientation();
     }
   }, [color, orientation, swapOrientation]);
@@ -259,6 +289,25 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
       });
     }
   }, [generated, processing, toast]);
+
+  useEffect(() => {
+    if (generated && !processing) {
+      if (!session || !supabase) return;
+
+      (async () => {
+        const { data, error } = await supabase.from("analyzed_games")
+          .update({
+            insights,
+            phase_rev: phases
+          })
+          .eq("id", id)
+
+          console.log(data, error);
+      })();
+
+      setSaved(true);
+    }
+  }, [session, supabase, generated, processing, insights, phases])
 
   useEffect(() => {
     if (

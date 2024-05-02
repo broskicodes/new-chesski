@@ -21,6 +21,7 @@ interface PlayerData {
 }
 
 interface GameData {
+  id: string;
   class: string;
   pgn: string;
   black: PlayerData;
@@ -60,7 +61,7 @@ export const GameSelect = ({ className }: Props) => {
     if (!session || !supabase) return;
 
     supabase.from("games")
-      .select("starting_pos,result,user_color,moves")
+      .select("starting_pos,result,user_color,moves,id")
       .eq("user_id", session.id)
       .neq("result", null)
       .order("finished_at", { ascending: false })
@@ -71,6 +72,7 @@ export const GameSelect = ({ className }: Props) => {
           ?.filter((d) => d.moves != null)
           .map((d) => {
             return {
+              id: d.id,
               class: "unlimited",
               white: d.user_color === "white" ? { rating: 0, username: "User" } : { rating: 0, username: "Chesski" },
               black: d.user_color === "black" ? { rating: 0, username: "User" } : { rating: 0, username: "Chesski" },
@@ -103,6 +105,7 @@ export const GameSelect = ({ className }: Props) => {
 
         const games = lichessGameData.map((res) => {
           return {
+            id: res.id,
             class: res.perf,
             black: {
               rating: res.players.black.rating,
@@ -155,11 +158,11 @@ export const GameSelect = ({ className }: Props) => {
       );
       const chesscomarchiveData = await chesscomarchiveRes.json();
 
-
       const games = chesscomarchiveData.games
         .filter((res: any) => res.rules === "chess")
         .map((res: any) => {
           return {
+            id: res.uuid,
             class: res.time_class,
             black: {
               rating: res.black.rating,
@@ -353,7 +356,7 @@ export const GameSelect = ({ className }: Props) => {
                 <Button disabled={!selectedGame} className="w-full" onClick={() => {
                   const color = selectedGame?.white.username === lichess || selectedGame?.white.username === chesscom || selectedGame?.white.username === "User" ? "white" : "black";
 
-                  setGamePgn(selectedGame!.pgn, color, selectedGame!.result);
+                  setGamePgn(selectedGame!.id, selectedGame!.pgn, color, selectedGame!.result);
                 }}>
                   Select
                 </Button>
@@ -361,7 +364,8 @@ export const GameSelect = ({ className }: Props) => {
             )}
             {currTab === "pgn" && (
               <Button className="w-full" onClick={() => {
-                if (pgnInput === "" || !setGamePgn(pgnInput, pgnColor, pgnRes)) {
+                if (pgnInput === "" || !setGamePgn(Math.random().toString().substring(32), pgnInput, pgnColor, pgnRes)) {
+                  
                   setBadPgn(true);
                 } else {
                   dialogCloseRef.current?.click();
