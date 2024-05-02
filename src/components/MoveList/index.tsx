@@ -84,9 +84,15 @@ export const MoveList = () => {
   useEffect(() => {
     // @ts-ignore
     setExplanations((prev) => {
+      toast({
+        title: `Explaination generated for move ${moves[prev.at(-1)!.idx]}`
+      })
+
       return [...prev.slice(0, -1), { ...prev.at(-1), exp: lastExp }];
     });
-  }, [lastExp]);
+
+    
+  }, [lastExp, toast, moves]);
 
   useEffect(() => {
     setQualMap((_) => {
