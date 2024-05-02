@@ -24,12 +24,12 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
 
   const { append: appendAnal } = useChat({
     api: "/chat/coach/analysis",
-    
+
     onFinish: (msg: Message) => {
       console.log(msg.content);
       setProcessing(false);
-      setInsights(msg.content.split('"""').at(-2)!)
-      setPhases(msg.content.split("'''").at(-2)!)
+      setInsights(msg.content.split('"""').at(-2)!);
+      setPhases(msg.content.split("'''").at(-2)!);
     },
   });
 
@@ -65,7 +65,7 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
     onFinish: (msg: Message) => {
       console.log(msg.content);
       setExpProc(false);
-      setLastExp(msg.content.split('"""').at(-2)!)
+      setLastExp(msg.content.split('"""').at(-2)!);
 
       // posthog.capture("ai_msg_sent");
       // setMessages([...gameMessages, msg]);
@@ -77,10 +77,13 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
     setInsights("");
   }, []);
 
-  const reqGameAnalysis = useCallback((msg: Message | CreateMessage) => {
-    setProcessing(true);
-    appendAnal(msg);
-  }, [appendAnal]);
+  const reqGameAnalysis = useCallback(
+    (msg: Message | CreateMessage) => {
+      setProcessing(true);
+      appendAnal(msg);
+    },
+    [appendAnal],
+  );
 
   const addGameMessage = useCallback(
     (msg: Message) => {
@@ -143,7 +146,7 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
       setGameMessages: setMessages,
       getExplantion: getExplantion,
       reqGameAnalysis,
-      clearInsights
+      clearInsights,
     }),
     [
       processing,
@@ -158,7 +161,7 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
       setMessages,
       getExplantion,
       reqGameAnalysis,
-      clearInsights
+      clearInsights,
     ],
   );
 

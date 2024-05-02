@@ -1,5 +1,19 @@
-import { Dispatch, PropsWithChildren, SetStateAction, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
-import { Classification, PositionEval, useEvaluation } from "./EvaluationProvider/context";
+import {
+  Dispatch,
+  PropsWithChildren,
+  SetStateAction,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import {
+  Classification,
+  PositionEval,
+  useEvaluation,
+} from "./EvaluationProvider/context";
 import { Player, useChess } from "./ChessProvider/context";
 import { getClassColor } from "@/utils/clientHelpers";
 import { useStockfish } from "./StockfishProvider/context";
@@ -15,17 +29,26 @@ export interface AnalysisProviderContext {
   gamePgn: string | null;
   color: string | null;
   result: string | null;
-  moves: string [];
+  moves: string[];
   moveIdx: number;
   classifications: Classification[];
   setMoveIdx: Dispatch<SetStateAction<number>>;
-  setGamePgn: (id: string, pgn: string, color: string, result: string) => boolean;
+  setGamePgn: (
+    id: string,
+    pgn: string,
+    color: string,
+    result: string,
+  ) => boolean;
   firstMove: () => void;
   lastMove: () => void;
   nextMove: () => void;
   prevMove: () => void;
   analyzeGame: () => void;
-  getMoveExplaination: (evl: PositionEval, lm: string[], classif: Classification) => void;
+  getMoveExplaination: (
+    evl: PositionEval,
+    lm: string[],
+    classif: Classification,
+  ) => void;
 }
 
 export const AnalysisContext = createContext<AnalysisProviderContext>({
@@ -60,15 +83,15 @@ export const AnalysisContext = createContext<AnalysisProviderContext>({
   },
   getMoveExplaination: (_e, _lm) => {
     throw new Error("AnalysisProvider not initialized");
-  }
+  },
 });
 
 export const useAnalysis = () => useContext(AnalysisContext);
 
 export const AnalysisProvider = ({ children }: PropsWithChildren) => {
   const [id, setId] = useState<string | null>(null);
-  const [gamePgn, setGamePgnState] = useState<string |null>(null);
-  const [color, setColor] = useState<string |null>(null);
+  const [gamePgn, setGamePgnState] = useState<string | null>(null);
+  const [color, setColor] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
 
   const [moves, setMoves] = useState<string[]>([]);
@@ -80,44 +103,73 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
   const [generated, setGenerated] = useState(false);
   const [saved, setSaved] = useState(false);
 
-
   const { toast } = useToast();
 
   const { session, supabase } = useAuth();
-  const { reqGameAnalysis, clearInsights, getExplantion, processing, insights, phases } = useCoach();
+  const {
+    reqGameAnalysis,
+    clearInsights,
+    getExplantion,
+    processing,
+    insights,
+    phases,
+  } = useCoach();
   const { isReady, initEngine, startSearch } = useStockfish();
   const { evals, evaluateMoveQuality, clearEvaluations } = useEvaluation();
-  const { game, gameOver, orientation, setLastMoveHighlightColor, makeMove, undo, swapOrientation, reset, playContinuation } = useChess();
+  const {
+    game,
+    gameOver,
+    orientation,
+    setLastMoveHighlightColor,
+    makeMove,
+    undo,
+    swapOrientation,
+    reset,
+    playContinuation,
+  } = useChess();
 
-  const setGamePgn = useCallback((id: string, pgn: string, color: string, result: string) => {
-    const tempGame = new Chess();
-    try {
-      tempGame.loadPgn(pgn)
-    } catch (e) {
-      return false;
-    }
+  const setGamePgn = useCallback(
+    (id: string, pgn: string, color: string, result: string) => {
+      const tempGame = new Chess();
+      try {
+        tempGame.loadPgn(pgn);
+      } catch (e) {
+        return false;
+      }
 
-    setId(id);
-    setColor(color);
-    setResult(result);
-    setGamePgnState(pgn);
-    return true;
-  }, []);
+      setId(id);
+      setColor(color);
+      setResult(result);
+      setGamePgnState(pgn);
+      return true;
+    },
+    [],
+  );
 
   const nextMove = useCallback(() => {
     if (!analyzed) return;
 
-    if (moveIdx + 1 < moves.length && playContinuation(moves.slice(0, moveIdx + 2), true)) {
-      setLastMoveHighlightColor(getClassColor(classifications[moveIdx + 1]))
+    if (
+      moveIdx + 1 < moves.length &&
+      playContinuation(moves.slice(0, moveIdx + 2), true)
+    ) {
+      setLastMoveHighlightColor(getClassColor(classifications[moveIdx + 1]));
       setMoveIdx(moveIdx + 1);
     }
-  }, [playContinuation, moveIdx, moves, analyzed, classifications, setLastMoveHighlightColor]);
+  }, [
+    playContinuation,
+    moveIdx,
+    moves,
+    analyzed,
+    classifications,
+    setLastMoveHighlightColor,
+  ]);
 
   const prevMove = useCallback(() => {
     if (!analyzed) return;
 
     if (undo()) {
-      setLastMoveHighlightColor(getClassColor(classifications[moveIdx - 1]))
+      setLastMoveHighlightColor(getClassColor(classifications[moveIdx - 1]));
       setMoveIdx(moveIdx - 1);
     }
   }, [undo, moveIdx, analyzed, classifications, setLastMoveHighlightColor]);
@@ -126,7 +178,7 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
     if (!analyzed) return;
 
     reset();
-    setLastMoveHighlightColor("")
+    setLastMoveHighlightColor("");
     setMoveIdx(-1);
   }, [reset, analyzed, setLastMoveHighlightColor]);
 
@@ -134,18 +186,22 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
     if (!analyzed) return;
 
     playContinuation(moves.slice(0, moves.length), true);
-    setLastMoveHighlightColor(getClassColor(classifications[moves.length - 1]))
+    setLastMoveHighlightColor(getClassColor(classifications[moves.length - 1]));
     setMoveIdx(moves.length - 1);
-  }, [playContinuation, moves, analyzed, classifications, setLastMoveHighlightColor]);
+  }, [
+    playContinuation,
+    moves,
+    analyzed,
+    classifications,
+    setLastMoveHighlightColor,
+  ]);
 
   const analyzeGame = useCallback(() => {
     const userPrompt = `Please analyze this game:
 <moves>
-${
-  moves.map((m, i) => {
-    return `<entry><san>${m}</san> <class>${classifications[i]}</class> <eval>${evals[i].evaluation}</eval>\n`
-  })
-}
+${moves.map((m, i) => {
+  return `<entry><san>${m}</san> <class>${classifications[i]}</class> <eval>${evals[i].evaluation}</eval>\n`;
+})}
 </moves>
 <result>${result}</result>
 <player>${orientation}</player>
@@ -156,20 +212,20 @@ Be sure to use the correct delimitres for relevant sections and pay careful atte
 
     reqGameAnalysis({
       role: "user",
-      content: userPrompt
+      content: userPrompt,
     });
   }, [reqGameAnalysis, evals, classifications, orientation, result, moves]);
 
-  const getMoveExplaination = useCallback((evl: PositionEval, lm: string[], classif: Classification) => {
-    const m = lm.slice(0, -1).join(" ");
-    const pre = new Chess();
-    pre.loadPgn(m);
+  const getMoveExplaination = useCallback(
+    (evl: PositionEval, lm: string[], classif: Classification) => {
+      const m = lm.slice(0, -1).join(" ");
+      const pre = new Chess();
+      pre.loadPgn(m);
 
-    const post = new Chess();
-    post.loadPgn(lm.join(" "))
+      const post = new Chess();
+      post.loadPgn(lm.join(" "));
 
-
-    const userPrompt = `Here is some information about the position:
+      const userPrompt = `Here is some information about the position:
 <pre>${pre.ascii()}</pre>
 <post>${post.ascii()}</post>
 <moves>${m}</moves>
@@ -181,11 +237,13 @@ Be sure to use the correct delimitres for relevant sections and pay careful atte
 
 Please explain why ${lm.at(-1)} is a ${classif}`;
 
-    getExplantion({
-      role: "user",
-      content: userPrompt
-    })
-  }, [getExplantion]);
+      getExplantion({
+        role: "user",
+        content: userPrompt,
+      });
+    },
+    [getExplantion],
+  );
 
   useEffect(() => {
     if (analyzed && classified) {
@@ -193,7 +251,7 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
 
       toast({
         title: "Game Analyzed.",
-        description: "Now generating insights"
+        description: "Now generating insights",
       });
     }
   }, [analyzed, classified, toast]);
@@ -203,30 +261,42 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
       if (!session || !supabase) return;
 
       (async () => {
-        const { data, error } = await supabase.from("analyzed_games")
-          .insert({
-            id,
-            pgn: gamePgn,
-            color: color,
-            result,
-            moves,
-            classifications,
-            evals
-          })
+        const { data, error } = await supabase.from("analyzed_games").insert({
+          id,
+          pgn: gamePgn,
+          color: color,
+          result,
+          moves,
+          classifications,
+          evals,
+        });
 
-          console.log(data, error);
+        console.log(data, error);
       })();
 
       setSaved(true);
     }
-  }, [session, supabase, analyzed, classified, saved, id, gamePgn, color, result, moves, classifications, evals])
+  }, [
+    session,
+    supabase,
+    analyzed,
+    classified,
+    saved,
+    id,
+    gamePgn,
+    color,
+    result,
+    moves,
+    classifications,
+    evals,
+  ]);
 
   useEffect(() => {
     if (!gamePgn) return;
 
     const tempGame = new Chess();
     try {
-      tempGame.loadPgn(gamePgn)  
+      tempGame.loadPgn(gamePgn);
     } catch (e) {
       return;
     }
@@ -244,7 +314,7 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
 
     toast({
       title: "Analyzing your game",
-      description: "This may take a minute."
+      description: "This may take a minute.",
     });
   }, [gamePgn, reset, clearEvaluations, toast, clearInsights]);
 
@@ -256,19 +326,25 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
 
   useEffect(() => {
     initEngine(false);
-  }, [initEngine])
+  }, [initEngine]);
 
   useEffect(() => {
     if (analyzed && !classified) {
       // console.log(evals)
-      const classis = evals.slice(1)
+      const classis = evals
+        .slice(1)
         .map((ev, i) => {
-          const qual = evaluateMoveQuality(evals[i], ev, moves[i], i % 2 === 0 ? Player.White : Player.Black);
+          const qual = evaluateMoveQuality(
+            evals[i],
+            ev,
+            moves[i],
+            i % 2 === 0 ? Player.White : Player.Black,
+          );
 
           return qual;
         })
         .filter((c) => !!c);
-      
+
       // @ts-ignore
       setClassifications(classis);
       setClassified(true);
@@ -295,19 +371,20 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
       if (!session || !supabase) return;
 
       (async () => {
-        const { data, error } = await supabase.from("analyzed_games")
+        const { data, error } = await supabase
+          .from("analyzed_games")
           .update({
             insights,
-            phase_rev: phases
+            phase_rev: phases,
           })
-          .eq("id", id)
+          .eq("id", id);
 
-          console.log(data, error);
+        console.log(data, error);
       })();
 
       setSaved(true);
     }
-  }, [session, supabase, generated, processing, id, insights, phases])
+  }, [session, supabase, generated, processing, id, insights, phases]);
 
   useEffect(() => {
     if (
@@ -336,7 +413,7 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
 
       window.dispatchEvent(customEvent);
     }
-  }, [gameOver, analyzed, game])
+  }, [gameOver, analyzed, game]);
 
   useEffect(() => {
     const evalHandler = (event: Event) => {
@@ -344,9 +421,8 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
 
       if (multiPv === 1) {
         if (moveIdx + 1 < moves.length) {
-          makeMove(moves[moveIdx + 1])
+          makeMove(moves[moveIdx + 1]);
           setMoveIdx(moveIdx + 1);
-
         } else {
           setAnalyzed(true);
           setMoveIdx(-1);
@@ -362,44 +438,47 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
     };
   }, [makeMove, reset, moves, moveIdx]);
 
-  const value: AnalysisProviderContext = useMemo(() => ({
-    classified,
-    analyzed,
-    gamePgn,
-    color,
-    result,
-    moves: moves,
-    moveIdx,
-    classifications,
-    setMoveIdx,
-    setGamePgn,
-    firstMove,
-    lastMove,
-    nextMove,
-    prevMove,
-    analyzeGame,
-    getMoveExplaination
-  }), [
-    classified,
-    analyzed,
-    gamePgn,
-    color,
-    result,
-    moves,
-    moveIdx,
-    classifications,
-    firstMove,
-    lastMove,
-    setGamePgn,
-    nextMove,
-    prevMove,
-    analyzeGame,
-    getMoveExplaination
-  ])
+  const value: AnalysisProviderContext = useMemo(
+    () => ({
+      classified,
+      analyzed,
+      gamePgn,
+      color,
+      result,
+      moves: moves,
+      moveIdx,
+      classifications,
+      setMoveIdx,
+      setGamePgn,
+      firstMove,
+      lastMove,
+      nextMove,
+      prevMove,
+      analyzeGame,
+      getMoveExplaination,
+    }),
+    [
+      classified,
+      analyzed,
+      gamePgn,
+      color,
+      result,
+      moves,
+      moveIdx,
+      classifications,
+      firstMove,
+      lastMove,
+      setGamePgn,
+      nextMove,
+      prevMove,
+      analyzeGame,
+      getMoveExplaination,
+    ],
+  );
 
   return (
     <AnalysisContext.Provider value={value}>
       {children}
     </AnalysisContext.Provider>
-  )
-} 
+  );
+};

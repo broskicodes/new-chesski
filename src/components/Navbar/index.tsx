@@ -8,13 +8,25 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faEnvelope, faUser } from "@fortawesome/free-solid-svg-icons";
 import { useUserData } from "@/providers/UserDataProvider/context";
 import Link from "next/link";
-import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "../ui/navigation-menu";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "../ui/navigation-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Textarea } from "../ui/textarea";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { useState } from "react";
 import { useToast } from "../ui/use-toast";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuShortcut, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 interface Props {
   showMobile?: boolean;
@@ -31,10 +43,7 @@ export const Navbar = ({ showMobile }: Props) => {
   return (
     <div className={`navbar ${showMobile ? "" : "hidden"} sm:block z-40`}>
       <header className="navbar-container flex flex-row w-full items-center py-2 text-white">
-        <Link
-          href={"/"}
-          className="text-2xl font-bold arvo cursor-pointer"
-        >
+        <Link href={"/"} className="text-2xl font-bold arvo cursor-pointer">
           CHESSKI
         </Link>
         <div className="flex flex-row justify-between w-full ml-4">
@@ -66,7 +75,9 @@ export const Navbar = ({ showMobile }: Props) => {
                   <Link href="mailto:braeden@chesski.lol">
                     <DropdownMenuItem className="cursor-pointer w-40">
                       Email Support
-                      <DropdownMenuShortcut><FontAwesomeIcon icon={faEnvelope} size="lg" /></DropdownMenuShortcut>
+                      <DropdownMenuShortcut>
+                        <FontAwesomeIcon icon={faEnvelope} size="lg" />
+                      </DropdownMenuShortcut>
                     </DropdownMenuItem>
                   </Link>
                 </DropdownMenuContent>
@@ -78,28 +89,40 @@ export const Navbar = ({ showMobile }: Props) => {
                   <Button variant="secondary">Feedback</Button>
                 </PopoverTrigger>
                 <PopoverContent className="flex flex-col space-y-2">
-                  <Textarea placeholder="How can we improve Chesski?" value={feedback} onChange={({ target }) => { setFeedback(target.value)}} />
+                  <Textarea
+                    placeholder="How can we improve Chesski?"
+                    value={feedback}
+                    onChange={({ target }) => {
+                      setFeedback(target.value);
+                    }}
+                  />
                   <div className="flex flex-row justify-between">
                     <PopoverClose>
-                      <Button size="thin" variant="outline">Cancel</Button>
+                      <Button size="thin" variant="outline">
+                        Cancel
+                      </Button>
                     </PopoverClose>
                     <PopoverClose>
-                      <Button size="thin"
+                      <Button
+                        size="thin"
                         onClick={async () => {
                           setFeedback("");
                           await fetch("/api/feedback", {
                             method: "POST",
                             body: JSON.stringify({
                               feedback: feedback,
-                              uid: session?.id
-                            })
+                              uid: session?.id,
+                            }),
                           });
 
                           toast({
                             title: "Message sent",
-                            description: "Thanks for your feedback!"
+                            description: "Thanks for your feedback!",
                           });
-                        }}>Send</Button>
+                        }}
+                      >
+                        Send
+                      </Button>
                     </PopoverClose>
                   </div>
                 </PopoverContent>
@@ -115,7 +138,9 @@ export const Navbar = ({ showMobile }: Props) => {
                 </Sidebar>
               )}
               {!isPro && (
-                <Link href="/subscribe" className={buttonVariants()}>Upgrade</Link>
+                <Link href="/subscribe" className={buttonVariants()}>
+                  Upgrade
+                </Link>
               )}
             </li>
             <li>
