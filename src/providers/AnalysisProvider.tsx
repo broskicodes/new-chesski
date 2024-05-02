@@ -307,7 +307,7 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
 
       setSaved(true);
     }
-  }, [session, supabase, generated, processing, insights, phases])
+  }, [session, supabase, generated, processing, id, insights, phases])
 
   useEffect(() => {
     if (

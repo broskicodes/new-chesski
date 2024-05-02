@@ -189,7 +189,7 @@ export const MoveList = () => {
                           .filter((exp) => exp.idx === 2*i + num - 1)
                           .slice(-1)
                           .map((exp) => (
-                            <div className="font-normal">{exp.exp}</div>
+                            <div key={exp.idx} className="font-normal">{exp.exp}</div>
                           ))}
                         <div className="flex flex-row w-full space-x-2 mt-2">
                           <Button 
