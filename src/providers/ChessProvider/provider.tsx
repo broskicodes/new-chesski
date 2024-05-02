@@ -6,7 +6,12 @@ import {
   useMemo,
   useState,
 } from "react";
-import { ChessContext, ChessProviderContext, Player, SquareHighlight } from "./context";
+import {
+  ChessContext,
+  ChessProviderContext,
+  Player,
+  SquareHighlight,
+} from "./context";
 import { Arrow, Square } from "react-chessboard/dist/chessboard/types";
 import posthog from "posthog-js";
 import { setCurrGameState } from "@/utils/clientHelpers";
@@ -105,11 +110,12 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
       }
 
       const lastMove = tempGame.history({ verbose: true }).at(-1);
-      lastMove && setMoveHighlight([
-        { square: lastMove.from, color: "" },
-        { square: lastMove.to, color: "" }
-      ]);
-      
+      lastMove &&
+        setMoveHighlight([
+          { square: lastMove.from, color: "" },
+          { square: lastMove.to, color: "" },
+        ]);
+
       setGame(tempGame);
       setTurn(tempGame.turn() === "w" ? Player.White : Player.Black);
 
@@ -133,10 +139,12 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
         setHighlightedSquares([]);
         setLastMoveHighlight(null);
         setAILastMoveHighlight(null);
-        lastMove && setMoveHighlight([
-          { square: lastMove.from, color: "" },
-          { square: lastMove.to, color: "" }
-        ])
+        lastMove &&
+          setMoveHighlight([
+            { square: lastMove.from, color: "" },
+            { square: lastMove.to, color: "" },
+          ]);
+        !lastMove && setMoveHighlight(null);
         setArrows([]);
 
         setCurrGameState({ moves: tempGame.history() });

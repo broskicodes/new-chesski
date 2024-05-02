@@ -32,7 +32,7 @@ enum GameResult {
   Win = "win",
   Loss = "loss",
   Draw = "draw",
-  Resign = "resign"
+  Resign = "resign",
 }
 
 enum DrawType {
@@ -95,7 +95,9 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
   const [drawType, setDrawType] = useState<DrawType | null>(null);
 
-  const [qualMap, setQualMap] = useState<{ [key in Classification]: number } | null>(null)
+  const [qualMap, setQualMap] = useState<
+    { [key in Classification]: number } | null
+  >(null);
 
   const { clearEvaluations, evaluateMoveQuality, evals } = useEvaluation();
   const { clearGameMessages } = useCoach();
@@ -162,7 +164,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
   //       [Classification.Book]: 0,
   //       [Classification.Inaccuracy]: 0,
   //       [Classification.Mistake]: 0,
-  //       [Classification.Blunder]: 0,    
+  //       [Classification.Blunder]: 0,
   //     }
 
   //     hits.forEach((qual) => {
@@ -174,7 +176,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
   //     return prev;
   //   })
 
-    // console.log(hits);
+  // console.log(hits);
   // }, [orientation, evals, evaluateMoveQuality]);
 
   const resign = useCallback(async () => {
@@ -187,7 +189,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
         .update({
           finished_at: new Date(),
           result: orientation === "white" ? "0-1" : "1-0",
-          moves: game.history()
+          moves: game.history(),
         })
         .eq("id", id)
         .select();
@@ -329,7 +331,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
           .update({
             finished_at: new Date(),
             result: result,
-            moves: moves
+            moves: moves,
           })
           .eq("id", id)
           .select();
@@ -384,12 +386,17 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
             </DialogDescription>
           </DialogHeader>
           <div>
-            {qualMap && Object.keys(qualMap).map((row) => {
-              return (
-                // @ts-ignore
-                <p key={row}>{row} {qualMap[row]}</p>
-              )
-            })}
+            {qualMap &&
+              Object.keys(qualMap).map((row) => {
+                return (
+                  <p key={row}>
+                    {row} {                  
+                      // @ts-ignore
+                      qualMap[row]
+                    }
+                  </p>
+                );
+              })}
           </div>
           {session && (
             <div className="flex flex-col space-y-2 mt-2">
@@ -397,7 +404,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
                 <Button
                   className="w-full font-bold text-lg py-4"
                   onClick={() => {
-                    router.push(`/analysis?gameId=${id}`)
+                    router.push(`/analysis?gameId=${id}`);
                   }}
                 >
                   Analyze Game

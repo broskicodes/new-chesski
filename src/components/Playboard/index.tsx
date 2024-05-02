@@ -54,8 +54,6 @@ export const Chessboard = () => {
 
   // const modalTriggerRef = useRef<HTMLButtonElement>(null);
 
-  
-
   const updateStreak = useCallback(async () => {
     if (!supabase || !session) {
       return;
@@ -80,7 +78,12 @@ export const Chessboard = () => {
         try {
           tempGame.move(prev?.bestMove!);
 
-          const moveStrength = evaluateMoveQuality(prev!, curr!, game.history().at(-2)!, turn);
+          const moveStrength = evaluateMoveQuality(
+            prev!,
+            curr!,
+            game.history().at(-2)!,
+            turn,
+          );
 
           if (!moveStrength) {
             return;
@@ -122,7 +125,7 @@ export const Chessboard = () => {
           const gameMsg: Message = {
             id: Math.random().toString(36).substring(7),
             role: "assistant",
-            content: `"""You played ${game.history().at(-2)}${msg === "Book Move" ? ", its a book move." :  msg !== "Best Move" ? `. The best move was ${tempGame.history().at(-1)}` : ", it was the best move."}"""`,
+            content: `"""You played ${game.history().at(-2)}${msg === "Book Move" ? ", its a book move." : msg !== "Best Move" ? `. The best move was ${tempGame.history().at(-1)}` : ", it was the best move."}"""`,
           };
 
           addGameMessage(gameMsg);

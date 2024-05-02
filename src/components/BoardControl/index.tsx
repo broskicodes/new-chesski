@@ -116,13 +116,16 @@ export const BoardControl = ({ className }: { className?: string }) => {
               </DialogContent>
             </Dialog>
             <Tooltip content="Undo Move">
-              <Button size="icon" onClick={() => {
-                const res = doubleUndo();
-                
-                if (res.length > 0) {
-                  popEvals(res.length);
-                }
-              }}>
+              <Button
+                size="icon"
+                onClick={() => {
+                  const res = doubleUndo();
+
+                  if (res.length > 0) {
+                    popEvals(res.length);
+                  }
+                }}
+              >
                 <FontAwesomeIcon icon={faReply} />
               </Button>
             </Tooltip>

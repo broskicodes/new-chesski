@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { AnalysisBoard } from "@/components/AnalysisBoard";
 import { MoveList } from "@/components/MoveList";
@@ -28,63 +28,62 @@ const UselessComp = () => {
 
     setFindingGame(true);
     // (async () => {
-      supabase.from("games")
-        .select("starting_pos,result,user_color,moves")
-        .eq("id", gameId)
-        .then(({ data, error }) => {
-          if (error) {
-            console.log(error);
-            return
-          }
-    
-          if (!data || !data[0]) {
-            return;
-          }
-    
-          const g = data[0];
+    supabase
+      .from("games")
+      .select("starting_pos,result,user_color,moves")
+      .eq("id", gameId)
+      .then(({ data, error }) => {
+        if (error) {
+          console.log(error);
+          return;
+        }
 
-          if (!g) {
-            return;
-          }
-    
-          setGamePgn(g.moves.join(" "), g.user_color, g.result);
-          setFound(true);
-          
-          setFindingGame(false);
-        })
-    // }      
+        if (!data || !data[0]) {
+          return;
+        }
+
+        const g = data[0];
+
+        if (!g) {
+          return;
+        }
+
+        setGamePgn(gameId, g.moves.join(" "), g.user_color, g.result);
+        setFound(true);
+
+        setFindingGame(false);
+      });
+    // }
   }, [gameId, session, supabase, findingGame, found, setGamePgn]);
 
-  return (
-    <div className="hidden" />
-  )
-}
+  return <div className="hidden" />;
+};
 
 const AnalyzePage = () => {
   const { processing } = useCoach();
-  const { nextMove, prevMove, firstMove, lastMove, analyzed, classified } = useAnalysis();
+  const { nextMove, prevMove, firstMove, lastMove, analyzed, classified } =
+    useAnalysis();
 
   const chessRef = useRef<HTMLDivElement>(null);
   const divRef = useRef<HTMLDivElement>(null);
 
-
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowRight') {
+      if (event.key === "ArrowRight") {
         nextMove();
-      } else if (event.key === 'ArrowLeft') {
+      } else if (event.key === "ArrowLeft") {
         prevMove();
-      } else if (event.key === 'ArrowDown') {
+      } else if (event.key === "ArrowDown") {
         lastMove();
-      } else if (event.key === 'ArrowUp') {
+      } else if (event.key === "ArrowUp") {
         firstMove();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [firstMove, lastMove, nextMove, prevMove]);
 
@@ -126,6 +125,6 @@ const AnalyzePage = () => {
       </div>
     </div>
   );
-}
+};
 
 export default AnalyzePage;

@@ -33,7 +33,7 @@ export interface EvaluationContext {
     prevPosition: PositionEval,
     currentPosition: PositionEval,
     playedMove: string,
-    turn: Player
+    turn: Player,
   ) => Classification | null;
 }
 
@@ -45,12 +45,9 @@ export const EvaluationContext = createContext<EvaluationContext>({
   clearEvaluations: () => {
     throw new Error("EvaluationProvider not initialized");
   },
-  evaluateMoveQuality: (
-    _prevPosition,
-    _currentPosition,
-  ) => {
+  evaluateMoveQuality: (_prevPosition, _currentPosition) => {
     throw new Error("EvaluationProvider not initialized");
-  }
+  },
 });
 
 export const useEvaluation = () => useContext(EvaluationContext);

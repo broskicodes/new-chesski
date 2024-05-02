@@ -9,13 +9,16 @@ export interface Query {
 export interface CoachProviderContext {
   processing: boolean;
   gameMessages: Message[];
-  weaknesses: string;
+  insights: string;
+  phases: string;
+  lastExp: string;
+  expProc: boolean;
   // queries: Query[];
   addGameMessage: (msg: Message) => void;
   appendGameMessage: (msg: Message | CreateMessage) => void;
   clearGameMessages: () => void;
   setGameMessages: (msgs: Message[]) => void;
-  getExplantion: (query: string) => void;
+  getExplantion: (msg: Message | CreateMessage) => void;
   reqGameAnalysis: (msg: Message | CreateMessage) => void;
   clearInsights: () => void;
 }
@@ -23,7 +26,10 @@ export interface CoachProviderContext {
 export const CoachContext = createContext<CoachProviderContext>({
   processing: false,
   gameMessages: [],
-  weaknesses: "",
+  insights: "",
+  phases: "",
+  lastExp: "",
+  expProc: false,
   // queries: [],
   addGameMessage: (_msg) => {
     throw new Error("CoachProvider not initialized");

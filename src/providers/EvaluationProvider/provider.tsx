@@ -19,13 +19,16 @@ export const EvaluationProvider = ({ children }: PropsWithChildren<{}>) => {
     setEvals((prevEvals) => [...prevEvals, newEval]);
   }, []);
 
-  const popEvals = useCallback((num: number) => {
-    const popped = evals.slice(-num);
+  const popEvals = useCallback(
+    (num: number) => {
+      const popped = evals.slice(-num);
 
-    setEvals(evals.slice(0, -num));
+      setEvals(evals.slice(0, -num));
 
-    return popped;
-  }, [evals]);
+      return popped;
+    },
+    [evals],
+  );
 
   const clearEvaluations = useCallback(() => {
     setEvals([]);
@@ -36,7 +39,7 @@ export const EvaluationProvider = ({ children }: PropsWithChildren<{}>) => {
       prevPosition: PositionEval,
       currentPosition: PositionEval,
       playedMove: string,
-      turn: Player
+      turn: Player,
     ): Classification | null => {
       let evalDiff = currentPosition.evaluation - prevPosition.evaluation;
 
@@ -47,11 +50,13 @@ export const EvaluationProvider = ({ children }: PropsWithChildren<{}>) => {
         return null;
       }
 
-      const o = openings.find(opening => currentPosition.evaledFen.includes(opening.fen));
+      const o = openings.find((opening) =>
+        currentPosition.evaledFen.includes(opening.fen),
+      );
 
       if (o) {
         // console.log(o);
-        return Classification.Book
+        return Classification.Book;
       }
 
       if (
@@ -70,7 +75,9 @@ export const EvaluationProvider = ({ children }: PropsWithChildren<{}>) => {
         // Both positions have a mate, so the move didn't change the inevitable outcome
         // This could be considered a 'Blunder' if it was the player's turn to move and they failed to prevent mate
         // or 'Good' if there was no way to prevent the mate.
-        return turn === orientation ? Classification.Blunder : Classification.Good;
+        return turn === orientation
+          ? Classification.Blunder
+          : Classification.Good;
       } else if (prevPosition.mate) {
         // Previous position had a mate, but the current one doesn't, so the move prevented mate
         // This is a 'Good' move as it prevented mate.

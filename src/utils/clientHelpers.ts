@@ -110,8 +110,8 @@ export const getClassColor = (classification: Classification) => {
       break;
     default:
       color = "#F7A28D";
-      // msg = "Trash";
+    // msg = "Trash";
   }
 
   return color;
-}
+};

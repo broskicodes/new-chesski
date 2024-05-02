@@ -14,7 +14,7 @@ export const AnalysisBoard = ({ freeze }: Props) => {
   const { moves } = useAnalysis();
   const { game, moveHighlight, orientation } = useChess();
 
-  useEffect(() => {    
+  useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 640) {
         setBoardWidth(window.innerWidth > 480 ? 480 : window.innerWidth);
@@ -35,13 +35,17 @@ export const AnalysisBoard = ({ freeze }: Props) => {
     <div className="relative">
       {freeze && (
         <div className="absolute inset-0 bg-black/30 z-40 flex justify-center items-center">
-          {moves.length > 0 && <div className="animate-spin rounded-full h-8 w-8 sm:h-16 sm:w-16 border-b-4 border-[#1B03A3]" />}
+          {moves.length > 0 && (
+            <div className="animate-spin rounded-full h-8 w-8 sm:h-16 sm:w-16 border-b-4 border-[#1B03A3]" />
+          )}
           {moves.length === 0 && (
-            <div className="text-white text-2xl font-semibold sm:text-4xl sm:font-bold bg-black/10 px-2">Choose a game to analyze</div>
+            <div className="text-white text-2xl font-semibold sm:text-4xl sm:font-bold bg-black/10 px-2">
+              Choose a game to analyze
+            </div>
           )}
         </div>
       )}
-      <ReactChessboard 
+      <ReactChessboard
         boardWidth={boardWidth}
         position={freeze ? new Chess().fen() : game.fen()}
         isDraggablePiece={() => false}
@@ -62,7 +66,7 @@ export const AnalysisBoard = ({ freeze }: Props) => {
 
           return sqrStyles;
         })()}
-        />
+      />
     </div>
   );
-}
+};
