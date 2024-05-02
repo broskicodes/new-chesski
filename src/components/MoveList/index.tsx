@@ -84,6 +84,10 @@ export const MoveList = () => {
   useEffect(() => {
     // @ts-ignore
     setExplanations((prev) => {
+      if (!prev.at(-1)) {
+        return []
+      }
+      
       toast({
         title: `Explaination generated for move ${moves[prev.at(-1)!.idx]}`
       })
