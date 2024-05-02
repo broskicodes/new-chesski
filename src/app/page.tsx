@@ -17,13 +17,13 @@ const featureCards: {
 }[] = [
   {
     title: "Play",
-    description: "Play a game against an adaptive AI",
+    description: "Learn with AI as you play",
     href: "/play",
     icon: faRobot
   },
   {
     title: "Analyze",
-    description: "Identify mistakes and get insights from your past games",
+    description: "Find mistakes from your past games",
     href: "/analysis",
     icon: faMagnifyingGlassChart
   }
