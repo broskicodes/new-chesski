@@ -38,15 +38,15 @@ export default function Home() {
   return (
     <div className="flex flex-col h-full">
       <Navbar />
-      <div className="flex flex-col justify-center h-full">
-        <div className="text-black mb-12">
-          <CardTitle className="text-4xl">Welcome Back, {name}</CardTitle>
-          <CardDescription className="text-xl font-medium">Choose how you would like to train today</CardDescription>
+      <div className="flex flex-col justify-center items-center h-full">
+        <div className="flex flex-col space-y-2 text-black mb-12">
+          <CardTitle className="text-center sm:text:left text-4xl flex flex-col sm:flex-row space-x-0 sm:space-x-2"><div>Welcome Back,</div> <div>{name}</div></CardTitle>
+          <CardDescription className="text-center sm:text:left text-xl font-medium">Choose how you would like to train today</CardDescription>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="justify-items-center grid grid-cols-1 sm:grid-cols-2 gap-4">
           {featureCards.map((feat) => (
             <Link key={feat.title} href={feat.href}>
-              <Card className="hover:scale-[1.015] max-w-96 h-40">
+              <Card className="hover:scale-[1.015] w-96 h-40">
                 <CardHeader className="items-start">
                   <FontAwesomeIcon icon={feat.icon} color="#999999" />
                 </CardHeader>
