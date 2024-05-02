@@ -47,7 +47,7 @@ const UselessComp = () => {
             return;
           }
     
-          setGamePgn(g.moves.join(" "), g.user_color, g.result);
+          setGamePgn(gameId, g.moves.join(" "), g.user_color, g.result);
           setFound(true);
           
           setFindingGame(false);
