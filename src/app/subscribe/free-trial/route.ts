@@ -32,7 +32,7 @@ export const POST = async (req: Request) => {
   }
 
   const { data: subData, error: subError } = await supabase
-    .from("pro_user")
+    .from("pro_users")
     .select("user_id")
     .eq("user_id", user.id);
 

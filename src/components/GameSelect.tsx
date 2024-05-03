@@ -10,9 +10,9 @@ import {
 } from "./ui/dialog";
 import { useUserData } from "@/providers/UserDataProvider/context";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import { Input } from "./ui/input";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Textarea } from "./ui/textarea";
 import { useAnalysis } from "@/providers/AnalysisProvider";
 import {
@@ -25,6 +25,7 @@ import {
 import { Label } from "./ui/label";
 import { ScrollArea } from "./ui/scroll-area";
 import { useAuth } from "@/providers/AuthProvider/context";
+import Link from "next/link";
 
 interface Props {
   className?: string;
@@ -66,12 +67,38 @@ export const GameSelect = ({ className }: Props) => {
 
   const [selectedGame, setSelectedGame] = useState<GameData | null>(null);
 
+  const [dailyAnalyses, setDailyAnalyses] = useState(0);
+
   const { session, supabase } = useAuth();
   const { setGamePgn, moves } = useAnalysis();
-  const { chesscom, lichess, updateChesscom, updateLichess, saveData } =
+  const { chesscom, lichess, isPro, updateChesscom, updateLichess, saveData } =
     useUserData();
 
   const dialogCloseRef = useRef<HTMLButtonElement>(null);
+
+  const getDailyAnalyses = useCallback(async () => {
+    if (!session || !supabase) {
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("analyzed_games")
+      .select("created_at")
+      .eq("user_id", session.id);
+
+    if (data) {
+      const das = data.filter((a) => {
+        const ad = new Date(a.created_at);
+        const td = new Date();
+
+        return ad.getDate() === td.getDate() && ad.getMonth() === td.getMonth();
+      })
+
+      setDailyAnalyses(das.length);
+    } else {
+      setDailyAnalyses(0);
+    }
+  }, [session, supabase]);
 
   useEffect(() => {
     if (!session || !supabase) return;
@@ -217,283 +244,306 @@ export const GameSelect = ({ className }: Props) => {
   return (
     <Dialog>
       <DialogTrigger>
-        <Button className={className}>
+        <Button
+          onClick={async () => {
+            await getDailyAnalyses();
+          }}
+         className={className}>
           {moves.length === 0 ? "Select Game" : "Select New Game"}
         </Button>
       </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Select Game to Ananalyze</DialogTitle>
-          {currTab === "chesscom" && (
-            <DialogDescription>{chesscomMonth}</DialogDescription>
-          )}
-        </DialogHeader>
-        <Tabs
-          defaultValue="chesscom"
-          className="w-full"
-          onValueChange={(val) => {
-            setSelectedGame(null);
-            setCurrTab(val);
-          }}
-        >
-          <TabsList className="w-full">
-            <TabsTrigger value="chesscom" className="w-full">
-              Chess.com
-            </TabsTrigger>
-            <TabsTrigger value="lichess" className="w-full">
-              Lichess
-            </TabsTrigger>
-            <TabsTrigger value="pgn" className="w-full">
-              PGN
-            </TabsTrigger>
-            <TabsTrigger value="chesski" className="w-full">
-              Chesski
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="chesski">
-            <ScrollArea className="h-60 overflow-y-auto my-4">
-              {cheskiGames.map((g, i) => {
-                return (
-                  <div
-                    key={i}
-                    className={`flex flex-row justify-between space-y-1 cursor-pointer hover:bg-indigo-600/10 rounded-md ${g.pgn === selectedGame?.pgn ? "bg-indigo-600/25" : ""}`}
-                    onClick={() => {
-                      setSelectedGame(g);
-                    }}
-                  >
-                    <div>{g.class}</div>
-                    <div>
-                      <span>{g.white.username}</span>
-                      {" vs. "}
-                      <span>{g.black.username}</span>
+      {dailyAnalyses >= 2 && !isPro && (
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+                Daily analysis limit reached
+            </DialogTitle>
+            <DialogDescription>
+              Please subscribe for unlimited access!
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Link href="/subscribe" className={`w-full text-xl ${buttonVariants({ variant: "default" })}`}>
+              Subscribe
+            </Link>
+          </DialogFooter>
+        </DialogContent>
+      )}
+      {dailyAnalyses < 2 || isPro && (
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Select Game to Ananalyze</DialogTitle>
+            {currTab === "chesscom" && (
+              <DialogDescription>{chesscomMonth}</DialogDescription>
+            )}
+          </DialogHeader>
+          <Tabs
+            defaultValue="chesscom"
+            className="w-full"
+            onValueChange={(val) => {
+              setSelectedGame(null);
+              setCurrTab(val);
+            }}
+          >
+            <TabsList className="w-full">
+              <TabsTrigger value="chesscom" className="w-full">
+                Chess.com
+              </TabsTrigger>
+              <TabsTrigger value="lichess" className="w-full">
+                Lichess
+              </TabsTrigger>
+              <TabsTrigger value="pgn" className="w-full">
+                PGN
+              </TabsTrigger>
+              <TabsTrigger value="chesski" className="w-full">
+                Chesski
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="chesski">
+              <ScrollArea className="h-60 overflow-y-auto my-4">
+                {cheskiGames.map((g, i) => {
+                  return (
+                    <div
+                      key={i}
+                      className={`flex flex-row justify-between space-y-1 cursor-pointer hover:bg-indigo-600/10 rounded-md ${g.pgn === selectedGame?.pgn ? "bg-indigo-600/25" : ""}`}
+                      onClick={() => {
+                        setSelectedGame(g);
+                      }}
+                    >
+                      <div>{g.class}</div>
+                      <div>
+                        <span>{g.white.username}</span>
+                        {" vs. "}
+                        <span>{g.black.username}</span>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </ScrollArea>
-          </TabsContent>
-          <TabsContent className="mt-4" value="chesscom">
-            <Label>Username</Label>
-            <div className="flex flex-row space-x-2">
-              <Input
-                value={chesscom ?? ""}
-                disabled={!chesscomEdit}
-                onChange={({ target }) => updateChesscom(target.value)}
-              />
-              {!chesscomEdit && (
-                <Button
-                  className="w-32"
-                  onClick={() => {
-                    setChesscomEdit(true);
-                  }}
-                >
-                  Edit
-                </Button>
-              )}
-              {chesscomEdit && (
-                <Button
-                  className="w-32"
-                  onClick={() => {
-                    setChesscomEdit(false);
-                    saveData();
-                  }}
-                >
-                  Save
-                </Button>
-              )}
-            </div>
-            <ScrollArea className="h-60 overflow-y-auto my-4">
-              {chesscomGames.map((g, i) => {
-                return (
-                  <div
-                    key={i}
-                    className={`flex flex-row justify-between space-y-1 cursor-pointer hover:bg-indigo-600/10 rounded-md ${g.pgn === selectedGame?.pgn ? "bg-indigo-600/25" : ""}`}
-                    onClick={() => {
-                      setSelectedGame(g);
-                    }}
-                  >
-                    <div>{g.class}</div>
-                    <div>
-                      <span>
-                        {g.white.username} ({g.white.rating})
-                      </span>
-                      {" vs. "}
-                      <span>
-                        {g.black.username} ({g.black.rating})
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </ScrollArea>
-            <div className="w-full flex flex-row space-x-2">
-              <Button
-                className="w-full"
-                disabled={caIdx === 0}
-                onClick={() => {
-                  caIdx > 0 && setCaIdx(caIdx - 1);
-                }}
-              >
-                prev
-              </Button>
-              <Button
-                className="w-full"
-                disabled={caIdx >= chesscomArchives.length - 1}
-                onClick={() => {
-                  caIdx < chesscomArchives.length - 1 && setCaIdx(caIdx + 1);
-                }}
-              >
-                next
-              </Button>
-            </div>
-          </TabsContent>
-          <TabsContent className="mt-4" value="lichess">
-            <Label>Username</Label>
-            <div className="flex flex-row space-x-2">
-              <Input
-                value={lichess ?? ""}
-                disabled={!lichessEdit}
-                onChange={({ target }) => updateLichess(target.value)}
-              />
-              {!lichessEdit && (
-                <Button
-                  className="w-32"
-                  onClick={() => {
-                    setlichessEdit(true);
-                  }}
-                >
-                  Edit
-                </Button>
-              )}
-              {lichessEdit && (
-                <Button
-                  className="w-32"
-                  onClick={() => {
-                    setlichessEdit(false);
-                    saveData();
-                  }}
-                >
-                  Save
-                </Button>
-              )}
-            </div>
-            <ScrollArea className="h-60 overflow-y-auto my-4">
-              {lichessGames.map((g, i) => {
-                return (
-                  <div
-                    key={i}
-                    className={`flex flex-row justify-between space-y-1 cursor-pointer hover:bg-indigo-600/10 rounded-md ${g.pgn === selectedGame?.pgn ? "bg-indigo-600/25" : ""}`}
-                    onClick={() => {
-                      setSelectedGame(g);
-                    }}
-                  >
-                    <div>{g.class}</div>
-                    <div className="text-right">
-                      <span>
-                        {g.white.username} ({g.white.rating})
-                      </span>
-                      {" vs. "}
-                      <span>
-                        {g.black.username} ({g.black.rating})
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </ScrollArea>
-          </TabsContent>
-          <TabsContent className="mt-4" value="pgn">
-            <DialogTitle>Enter a PGN</DialogTitle>
-            <div className="grid grid-cols-2 gap-y-2 my-4">
-              <Label>Board Orientation</Label>
-              <Select
-                value={pgnColor}
-                onValueChange={(val) => setPgnColor(val)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Color" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="white">White</SelectItem>
-                  <SelectItem value="black">Black</SelectItem>
-                </SelectContent>
-              </Select>
-              <Label>Result</Label>
-              <Select value={pgnRes} onValueChange={(val) => setPgnRes(val)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Result" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1-0">1-0</SelectItem>
-                  <SelectItem value="0-1">0-1</SelectItem>
-                  <SelectItem value="1/2-1/2">1/2-1/2</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Label>PGN</Label>
-            <Textarea
-              value={pgnInput}
-              onChange={({ target }) => {
-                setPgnInput(target.value);
-                setBadPgn(false);
-              }}
-              placeholder="Enter PGN string here"
-              className="h-32"
-            />
-            {badPgn && <div className="text-red-600 mt-2">Invalid PGN</div>}
-            <DialogClose ref={dialogCloseRef} className="hidden"></DialogClose>
-          </TabsContent>
-        </Tabs>
-        <DialogFooter>
-          {currTab !== "pgn" && (
-            <DialogClose className="w-full">
-              <Button
-                disabled={!selectedGame}
-                className="w-full"
-                onClick={() => {
-                  const color =
-                    selectedGame?.white.username === lichess ||
-                    selectedGame?.white.username === chesscom ||
-                    selectedGame?.white.username === "User"
-                      ? "white"
-                      : "black";
-
-                  setGamePgn(
-                    selectedGame!.id,
-                    selectedGame!.pgn,
-                    color,
-                    selectedGame!.result,
                   );
+                })}
+              </ScrollArea>
+            </TabsContent>
+            <TabsContent className="mt-4" value="chesscom">
+              <Label>Username</Label>
+              <div className="flex flex-row space-x-2">
+                <Input
+                  value={chesscom ?? ""}
+                  disabled={!chesscomEdit}
+                  onChange={({ target }) => updateChesscom(target.value)}
+                />
+                {!chesscomEdit && (
+                  <Button
+                    className="w-32"
+                    onClick={() => {
+                      setChesscomEdit(true);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                )}
+                {chesscomEdit && (
+                  <Button
+                    className="w-32"
+                    onClick={() => {
+                      setChesscomEdit(false);
+                      saveData();
+                    }}
+                  >
+                    Save
+                  </Button>
+                )}
+              </div>
+              <ScrollArea className="h-60 overflow-y-auto my-4">
+                {chesscomGames.map((g, i) => {
+                  return (
+                    <div
+                      key={i}
+                      className={`flex flex-row justify-between space-y-1 cursor-pointer hover:bg-indigo-600/10 rounded-md ${g.pgn === selectedGame?.pgn ? "bg-indigo-600/25" : ""}`}
+                      onClick={() => {
+                        setSelectedGame(g);
+                      }}
+                    >
+                      <div>{g.class}</div>
+                      <div>
+                        <span>
+                          {g.white.username} ({g.white.rating})
+                        </span>
+                        {" vs. "}
+                        <span>
+                          {g.black.username} ({g.black.rating})
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </ScrollArea>
+              <div className="w-full flex flex-row space-x-2">
+                <Button
+                  className="w-full"
+                  disabled={caIdx === 0}
+                  onClick={() => {
+                    caIdx > 0 && setCaIdx(caIdx - 1);
+                  }}
+                >
+                  prev
+                </Button>
+                <Button
+                  className="w-full"
+                  disabled={caIdx >= chesscomArchives.length - 1}
+                  onClick={() => {
+                    caIdx < chesscomArchives.length - 1 && setCaIdx(caIdx + 1);
+                  }}
+                >
+                  next
+                </Button>
+              </div>
+            </TabsContent>
+            <TabsContent className="mt-4" value="lichess">
+              <Label>Username</Label>
+              <div className="flex flex-row space-x-2">
+                <Input
+                  value={lichess ?? ""}
+                  disabled={!lichessEdit}
+                  onChange={({ target }) => updateLichess(target.value)}
+                />
+                {!lichessEdit && (
+                  <Button
+                    className="w-32"
+                    onClick={() => {
+                      setlichessEdit(true);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                )}
+                {lichessEdit && (
+                  <Button
+                    className="w-32"
+                    onClick={() => {
+                      setlichessEdit(false);
+                      saveData();
+                    }}
+                  >
+                    Save
+                  </Button>
+                )}
+              </div>
+              <ScrollArea className="h-60 overflow-y-auto my-4">
+                {lichessGames.map((g, i) => {
+                  return (
+                    <div
+                      key={i}
+                      className={`flex flex-row justify-between space-y-1 cursor-pointer hover:bg-indigo-600/10 rounded-md ${g.pgn === selectedGame?.pgn ? "bg-indigo-600/25" : ""}`}
+                      onClick={() => {
+                        setSelectedGame(g);
+                      }}
+                    >
+                      <div>{g.class}</div>
+                      <div className="text-right">
+                        <span>
+                          {g.white.username} ({g.white.rating})
+                        </span>
+                        {" vs. "}
+                        <span>
+                          {g.black.username} ({g.black.rating})
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </ScrollArea>
+            </TabsContent>
+            <TabsContent className="mt-4" value="pgn">
+              <DialogTitle>Enter a PGN</DialogTitle>
+              <div className="grid grid-cols-2 gap-y-2 my-4">
+                <Label>Board Orientation</Label>
+                <Select
+                  value={pgnColor}
+                  onValueChange={(val) => setPgnColor(val)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Color" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="white">White</SelectItem>
+                    <SelectItem value="black">Black</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Label>Result</Label>
+                <Select value={pgnRes} onValueChange={(val) => setPgnRes(val)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Result" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1-0">1-0</SelectItem>
+                    <SelectItem value="0-1">0-1</SelectItem>
+                    <SelectItem value="1/2-1/2">1/2-1/2</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Label>PGN</Label>
+              <Textarea
+                value={pgnInput}
+                onChange={({ target }) => {
+                  setPgnInput(target.value);
+                  setBadPgn(false);
+                }}
+                placeholder="Enter PGN string here"
+                className="h-32"
+              />
+              {badPgn && <div className="text-red-600 mt-2">Invalid PGN</div>}
+              <DialogClose ref={dialogCloseRef} className="hidden"></DialogClose>
+            </TabsContent>
+          </Tabs>
+          <DialogFooter>
+            {currTab !== "pgn" && (
+              <DialogClose className="w-full">
+                <Button
+                  disabled={!selectedGame}
+                  className="w-full"
+                  onClick={() => {
+                    const color =
+                      selectedGame?.white.username === lichess ||
+                      selectedGame?.white.username === chesscom ||
+                      selectedGame?.white.username === "User"
+                        ? "white"
+                        : "black";
+
+                    setGamePgn(
+                      selectedGame!.id,
+                      selectedGame!.pgn,
+                      color,
+                      selectedGame!.result,
+                    );
+                  }}
+                >
+                  Select
+                </Button>
+              </DialogClose>
+            )}
+            {currTab === "pgn" && (
+              <Button
+                className="w-full"
+                onClick={() => {
+                  if (
+                    pgnInput === "" ||
+                    !setGamePgn(
+                      Math.random().toString().substring(32),
+                      pgnInput,
+                      pgnColor,
+                      pgnRes,
+                    )
+                  ) {
+                    setBadPgn(true);
+                  } else {
+                    dialogCloseRef.current?.click();
+                  }
                 }}
               >
-                Select
+                Confirm
               </Button>
-            </DialogClose>
-          )}
-          {currTab === "pgn" && (
-            <Button
-              className="w-full"
-              onClick={() => {
-                if (
-                  pgnInput === "" ||
-                  !setGamePgn(
-                    Math.random().toString().substring(32),
-                    pgnInput,
-                    pgnColor,
-                    pgnRes,
-                  )
-                ) {
-                  setBadPgn(true);
-                } else {
-                  dialogCloseRef.current?.click();
-                }
-              }}
-            >
-              Confirm
-            </Button>
-          )}
-        </DialogFooter>
-      </DialogContent>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      )}
     </Dialog>
   );
 };

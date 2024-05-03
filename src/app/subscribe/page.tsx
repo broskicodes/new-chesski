@@ -41,7 +41,7 @@ const SubPage = () => {
           title: "Basic",
           price: 0,
           description: "Get a taste of Chesski.",
-          features: ["1 game per day", "3 analyses per day"],
+          features: ["Unlimited games", "Analyze 3 positions a day", "Analyze 2 games per day"],
           cta: "Monthly billing",
           mostPopular: false,
         },
@@ -51,7 +51,8 @@ const SubPage = () => {
           description: "Unlimited access to all features.",
           features: [
             "Unlimited games",
-            "Unlimited analysis",
+            "Unlimited position analysis",
+            "Unlimited game analysis",
             "Full access to future features",
           ],
           cta: "Subscribe",
@@ -161,7 +162,7 @@ const SubPage = () => {
               )}
             </CardContent>
             <hr />
-            <CardFooter className="h-[128px]">
+            <CardFooter className="h-[164px]">
               <ul role="list" className="mt-4 space-y-2">
                 {tier.features.map((feature) => (
                   <li key={feature} className="flex">
