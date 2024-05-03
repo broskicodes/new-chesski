@@ -93,7 +93,6 @@ export const GameSelect = ({ className }: Props) => {
 
         return ad.getDate() === td.getDate() && ad.getMonth() === td.getMonth();
       })
-      console.log(das.length)
       setDailyAnalyses(das.length);
     } else {
       setDailyAnalyses(0);
