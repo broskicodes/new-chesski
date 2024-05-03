@@ -272,9 +272,8 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
         });
 
         console.log(data, error);
+        setSaved(true);
       })();
-
-      setSaved(true);
     }
   }, [
     session,
@@ -378,12 +377,11 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
             insights,
             phase_rev: phases,
           })
-          .eq("id", id);
+          .eq("id", id)
+          .select();
 
         console.log(data, error);
       })();
-
-      setSaved(true);
     }
   }, [session, supabase, generated, processing, id, insights, phases]);
 
