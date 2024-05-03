@@ -303,6 +303,7 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
 
     reset();
     // setGamePgnState(null);
+    setSaved(false);
     setAnalyzed(false);
     setClassified(false);
     setGenerated(false);
