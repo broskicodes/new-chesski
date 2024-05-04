@@ -92,6 +92,9 @@ body {
   font-family: "Arvo", serif;
 }
 
+.font-m {
+  font-family: "Merriweather Sans", sans-serif;
+}
 /* .sign-up > :not(:last-child) {
   margin-right: 24px;
 } */

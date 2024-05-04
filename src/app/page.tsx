@@ -16,6 +16,7 @@ import {
   IconDefinition,
   faMagnifyingGlassChart,
   faRobot,
+  faRocket,
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 
@@ -25,6 +26,12 @@ const featureCards: {
   href: string;
   icon: IconDefinition;
 }[] = [
+  {
+    title: "Upgrade",
+    description: "Get full access to all Chesski features",
+    href: "/subscribe",
+    icon: faRocket
+  },
   {
     title: "Play",
     description: "Learn with AI as you play",
@@ -58,7 +65,7 @@ export default function Home() {
         <div className="justify-items-center grid grid-cols-1 sm:grid-cols-2 gap-4">
           {featureCards.map((feat) => (
             <Link key={feat.title} href={feat.href}>
-              <Card className="hover:scale-[1.015] w-96 h-40">
+              <Card className="hover:scale-[1.05] w-96 h-40">
                 <CardHeader className="items-start">
                   <FontAwesomeIcon icon={feat.icon} color="#999999" />
                 </CardHeader>

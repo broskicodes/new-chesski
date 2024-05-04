@@ -1,3 +1,12 @@
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 import { useChess } from "@/providers/ChessProvider/context";
 import { Evaluation, SanRegex } from "@/utils/types";
 import { Chess, Square } from "chess.js";
@@ -41,6 +50,7 @@ export const GameLogs = () => {
   const { isPro } = useUserData();
 
   const logRef = useRef<HTMLDivElement>(null);
+  const paymeref = useRef<HTMLButtonElement>(null);
 
   const highlightGameBoard = useCallback(
     (move: string) => {
@@ -144,6 +154,24 @@ export const GameLogs = () => {
 
   return (
     <div className="logs">
+      <Dialog>
+        <DialogTrigger className="hidden" ref={paymeref} />
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+                This is a pro feature
+            </DialogTitle>
+            <DialogDescription>
+              Please subscribe to get access!
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Link href="/subscribe" target="_blank" className={`w-full text-xl ${buttonVariants({ size:"lg", variant: "default" })}`}>
+              Subscribe
+            </Link>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <div className="log-content" ref={logRef}>
         {gameMessages.map((message, i) => {
           if (!message.content) return null;
@@ -223,27 +251,29 @@ export const GameLogs = () => {
                 size="thin"
                 onClick={async () => {
                   if (!isPro) {
-                    if (numQueries >= 3) {
-                      addGameMessage({
-                        id: Math.random().toString(32).substring(7),
-                        role: "assistant",
-                        content: `"""You've reached your daily limit for analysis. Subscribe now for unlimited access."""`,
-                      });
-                      return;
-                    }
+                    paymeref.current?.click();
+                    return;
+                    // if (numQueries >= 3) {
+                    //   addGameMessage({
+                    //     id: Math.random().toString(32).substring(7),
+                    //     role: "assistant",
+                    //     content: `"""You've reached your daily limit for analysis. Subscribe now for unlimited access."""`,
+                    //   });
+                    //   return;
+                    // }
 
-                    if (!supabase) {
-                      return;
-                    }
+                    // if (!supabase) {
+                    //   return;
+                    // }
 
-                    const {} = await supabase
-                      .from("daily_position_queries")
-                      .upsert({
-                        user_id: session.id,
-                        number: numQueries + 1,
-                      });
+                    // const {} = await supabase
+                    //   .from("daily_position_queries")
+                    //   .upsert({
+                    //     user_id: session.id,
+                    //     number: numQueries + 1,
+                    //   });
 
-                    setNumQueries(numQueries + 1);
+                    // setNumQueries(numQueries + 1);
                   }
 
                   const latestEval =

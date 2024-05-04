@@ -58,7 +58,7 @@ export const POST = async (req: Request) => {
     // payment_method_collection: "if_required",
     subscription_data: trial
       ? {
-          trial_period_days: 7,
+          trial_period_days: 3,
           trial_settings: {
             end_behavior: {
               missing_payment_method: "cancel",
