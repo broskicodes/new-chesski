@@ -93,7 +93,6 @@ export const GameSelect = ({ className }: Props) => {
 
         return ad.getDate() === td.getDate() && ad.getMonth() === td.getMonth();
       })
-      console.log(das.length)
       setDailyAnalyses(das.length);
     } else {
       setDailyAnalyses(0);
@@ -252,7 +251,7 @@ export const GameSelect = ({ className }: Props) => {
           {moves.length === 0 ? "Select Game" : "Select New Game"}
         </Button>
       </DialogTrigger>
-      {(dailyAnalyses >= 2 && !isPro) && (
+      {(dailyAnalyses >= 1 && !isPro) && (
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
@@ -263,13 +262,13 @@ export const GameSelect = ({ className }: Props) => {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Link href="/subscribe" className={`w-full text-xl ${buttonVariants({ variant: "default" })}`}>
+            <Link href="/subscribe" target="_blank" className={`w-full text-xl ${buttonVariants({ size: "lg", variant: "default" })}`}>
               Subscribe
             </Link>
           </DialogFooter>
         </DialogContent>
       )}
-      {(dailyAnalyses < 2 || isPro) && (
+      {(dailyAnalyses < 1 || isPro) && (
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Select Game to Ananalyze</DialogTitle>
