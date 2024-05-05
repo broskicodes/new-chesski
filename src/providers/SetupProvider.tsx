@@ -30,7 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Experience } from "@/utils/types";
 import { expToLvl, experienceToTitle } from "@/utils/clientHelpers";
 import { Label } from "@/components/ui/label";
@@ -38,6 +38,8 @@ import { useStockfish } from "@/providers/StockfishProvider/context";
 import { useGame } from "./GameProvider";
 import { usePathname } from "next/navigation";
 import { useAuth } from "./AuthProvider/context";
+import { useUserData } from "./UserDataProvider/context";
+import Link from "next/link";
 
 export interface SetupProviderContext {
   settingUp: boolean;
@@ -60,8 +62,9 @@ export const useSetup = () => useContext(SetupContext);
 export const SetupProvider = ({ children }: PropsWithChildren) => {
   const { initEngine, uninit, skillLvl } = useStockfish();
   const { newGame, gameId } = useGame();
-  const { session } = useAuth();
+  const { session, supabase } = useAuth();
   const pathname = usePathname();
+  const { isPro } = useUserData();
 
   const [open, setOpen] = useState(false);
   const [settingUp, setSettingUp] = useState(false);
@@ -69,9 +72,41 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
     Experience | "Impossible"
   >((Experience as any)[skillLvl] ?? "Impossible");
 
-  const toggleModal = useCallback((show: boolean) => {
+  const [dailyGames, setDailyGames] = useState(0);
+
+  const paymeref = useRef<HTMLButtonElement>(null);
+
+  const getDailyGames = useCallback(async () => {
+    if (!session || !supabase) {
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("games")
+      .select("created_at")
+      .eq("user_id", session.id);
+
+    if (data) {
+      const das = data.filter((a) => {
+        const ad = new Date(a.created_at);
+        const td = new Date();
+
+        return ad.getDate() === td.getDate() && ad.getMonth() === td.getMonth();
+      })
+      setDailyGames(das.length);
+    } else {
+      setDailyGames(0);
+    }
+  }, [session, supabase]);
+
+  const toggleModal = useCallback(async (show: boolean) => {
+    await getDailyGames();
+    if (show) {
+      paymeref.current?.click();
+    }
+
     setOpen(show);
-  }, []);
+  }, [getDailyGames]);
 
   const value: SetupProviderContext = useMemo(
     () => ({
@@ -89,102 +124,123 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (!gameId && pathname === "/play") {
-      setOpen(true);
+      toggleModal(true);
     } else {
-      setOpen(false);
+      toggleModal(false);
     }
-  }, [gameId, pathname]);
+  }, [gameId, pathname, toggleModal]);
 
   return (
     <SetupContext.Provider value={value}>
-      <Dialog open={open && !!session}>
-        {/* <DialogTrigger ref={setupModalTriggerRef} className='hidden' /> */}
-        <DialogContent allowClose={false}>
-          <DialogHeader className="flex flex-col items-center space-y-0">
-            <DialogTitle className="text-2xl">Game setup</DialogTitle>
-            <DialogDescription>
-              Configure the starting position for your game.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid grid-cols-2 gap-y-4 items-center">
-            {/* <div className='flex flex-row items-center space-x-2'> */}
-            <Label className="whitespace-nowrap">Engine Skill Level</Label>
-            <div className="col-span-1 flex-grow">
-              <Select
-                value={
-                  engineSkillLevel === "Impossible"
-                    ? "Impossible"
-                    : experienceToTitle(engineSkillLevel)
-                }
-                onValueChange={(val) =>
-                  setEngineSkillLevel(
-                    val === "Impossible"
+      {(dailyGames >= 1 && !isPro) && (
+        <Dialog>
+          <DialogTrigger ref={paymeref} className='hidden' />
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                  Daily games limit reached
+              </DialogTitle>
+              <DialogDescription>
+                Get unlimited access for only $5!
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Link href="/subscribe" target="_blank" className={`w-full text-xl ${buttonVariants({ size: "lg", variant: "default" })}`}>
+                Subscribe
+              </Link>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+      {(dailyGames < 1 || isPro) && (
+        <Dialog open={open && !!session}>
+          <DialogContent allowClose={false}>
+            <DialogHeader className="flex flex-col items-center space-y-0">
+              <DialogTitle className="text-2xl">Game setup</DialogTitle>
+              <DialogDescription>
+                Configure the starting position for your game.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-2 gap-y-4 items-center">
+              {/* <div className='flex flex-row items-center space-x-2'> */}
+              <Label className="whitespace-nowrap">Engine Skill Level</Label>
+              <div className="col-span-1 flex-grow">
+                <Select
+                  value={
+                    engineSkillLevel === "Impossible"
                       ? "Impossible"
-                      : (Experience as any)[val],
-                  )
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Set Engine Skill Level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Skill Level</SelectLabel>
-                    {Object.values(Experience)
-                      .filter((e) => !isNaN(Number(e)))
-                      .map((e) => (
-                        <SelectItem
-                          key={e}
-                          value={experienceToTitle(e as number)}
-                        >
-                          {experienceToTitle(e as number)}
-                        </SelectItem>
-                      ))}
-                    <SelectItem value="Impossible">Impossible</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-            {/* </div> */}
-            <Label className="whitespace-nowrap">
-              Choose Starting Position
-            </Label>
-            <DialogClose className="col-span-1 flex-grow">
-              <Button
-                disabled={!!gameId}
-                className="w-full"
-                variant="outline"
-                onClick={() => {
-                  uninit();
-                  setOpen(false);
-                  setSettingUp(true);
-                }}
-              >
-                Setup Board
-              </Button>
-            </DialogClose>
-          </div>
-          <DialogFooter>
-            <DialogClose className="w-full">
-              <Button
-                className="w-full"
-                onClick={() => {
-                  const lvl = expToLvl(engineSkillLevel);
-
-                  uninit();
-                  initEngine(true, lvl, 2000);
-                  if (!gameId) {
-                    newGame();
+                      : experienceToTitle(engineSkillLevel)
                   }
-                  setOpen(false);
-                }}
-              >
-                Confirm
-              </Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+                  onValueChange={(val) =>
+                    setEngineSkillLevel(
+                      val === "Impossible"
+                        ? "Impossible"
+                        : (Experience as any)[val],
+                    )
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Set Engine Skill Level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Skill Level</SelectLabel>
+                      {Object.values(Experience)
+                        .filter((e) => !isNaN(Number(e)))
+                        .map((e) => (
+                          <SelectItem
+                            key={e}
+                            value={experienceToTitle(e as number)}
+                          >
+                            {experienceToTitle(e as number)}
+                          </SelectItem>
+                        ))}
+                      <SelectItem value="Impossible">Impossible</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+              {/* </div> */}
+              <Label className="whitespace-nowrap">
+                Choose Starting Position
+              </Label>
+              <DialogClose className="col-span-1 flex-grow">
+                <Button
+                  disabled={!!gameId}
+                  className="w-full"
+                  variant="outline"
+                  onClick={() => {
+                    uninit();
+                    setOpen(false);
+                    setSettingUp(true);
+                  }}
+                >
+                  Setup Board
+                </Button>
+              </DialogClose>
+            </div>
+            <DialogFooter>
+              <DialogClose className="w-full">
+                <Button
+                  className="w-full"
+                  onClick={() => {
+                    const lvl = expToLvl(engineSkillLevel);
+
+                    uninit();
+                    initEngine(true, lvl, 2000);
+                    if (!gameId) {
+                      newGame();
+                    }
+                    setOpen(false);
+                  }}
+                >
+                  Confirm
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
       {children}
     </SetupContext.Provider>
   );

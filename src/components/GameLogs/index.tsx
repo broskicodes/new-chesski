@@ -162,7 +162,7 @@ export const GameLogs = () => {
                 This is a pro feature
             </DialogTitle>
             <DialogDescription>
-              Please subscribe to get access!
+              Get access for only $5!
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

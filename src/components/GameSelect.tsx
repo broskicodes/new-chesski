@@ -258,7 +258,7 @@ export const GameSelect = ({ className }: Props) => {
                 Daily analysis limit reached
             </DialogTitle>
             <DialogDescription>
-              Please subscribe for unlimited access!
+              Get unlimited access for only $5!
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
