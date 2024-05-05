@@ -101,9 +101,9 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
 
   const toggleModal = useCallback(async (show: boolean) => {
     await getDailyGames();
-    if (show) {
-      paymeref.current?.click();
-    }
+    // if (show) {
+    //   paymeref.current?.click();
+    // }
 
     setOpen(show);
   }, [getDailyGames]);
@@ -133,9 +133,9 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
   return (
     <SetupContext.Provider value={value}>
       {(dailyGames >= 1 && !isPro) && (
-        <Dialog>
-          <DialogTrigger ref={paymeref} className='hidden' />
-          <DialogContent>
+        <Dialog open={open && !!session}>
+          {/* <DialogTrigger ref={paymeref} className='hidden' /> */}
+          <DialogContent allowClose={false}>
             <DialogHeader>
               <DialogTitle>
                   Daily games limit reached
