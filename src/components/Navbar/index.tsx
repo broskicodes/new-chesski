@@ -111,6 +111,7 @@ export const Navbar = ({ showMobile }: Props) => {
                             method: "POST",
                             body: JSON.stringify({
                               feedback: feedback,
+                              email: session?.email,
                               uid: session?.id,
                             }),
                           });
