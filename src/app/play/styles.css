@@ -1,3 +1,7 @@
+body {
+  overflow: hidden;
+}
+
 .page-content {
   display: flex;
   flex-direction: row;

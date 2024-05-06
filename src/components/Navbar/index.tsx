@@ -3,7 +3,7 @@ import "./styles.css";
 import { useAuth } from "@/providers/AuthProvider/context";
 import { Button, buttonVariants } from "../ui/button";
 import { useRouter } from "next/navigation";
-import { Sidebar } from "../Sidebar";
+import { Panel, Sidebar } from "../Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faEnvelope, faUser } from "@fortawesome/free-solid-svg-icons";
 import { useUserData } from "@/providers/UserDataProvider/context";
@@ -67,7 +67,7 @@ export const Navbar = ({ showMobile }: Props) => {
             </li>
             <li>
               {isPro && (
-                <Sidebar>
+                <Sidebar panel={Panel.Profile}>
                   <Button size="sm" className="flex flex-row items-center space-x-2">
                     <FontAwesomeIcon icon={faUser} />
                     <div>{name}</div>
@@ -80,13 +80,13 @@ export const Navbar = ({ showMobile }: Props) => {
                 </Link>
               )}
             </li>
-            {/* <li>
+            <li>
               <Sidebar>
                 <Button variant="ghost" size="icon">
                   <FontAwesomeIcon icon={faBars} size="xl" />
                 </Button>
               </Sidebar>
-            </li> */}
+            </li>
           </ul>
         </div>
         <div className="hidden sm:flex flex-row justify-between w-full ml-4">
@@ -174,7 +174,7 @@ export const Navbar = ({ showMobile }: Props) => {
             </li>
             <li>
               {isPro && (
-                <Sidebar>
+                <Sidebar panel={Panel.Profile}>
                   <Button className="flex flex-row items-center space-x-2">
                     <FontAwesomeIcon icon={faUser} />
                     <div>{name}</div>

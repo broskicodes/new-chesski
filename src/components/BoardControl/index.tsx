@@ -17,7 +17,7 @@ import { useCoach } from "@/providers/CoachProvider/context";
 import { Button, buttonVariants } from "../ui/button";
 import { useStockfish } from "@/providers/StockfishProvider/context";
 import { useEvaluation } from "@/providers/EvaluationProvider/context";
-import { Sidebar } from "../Sidebar";
+import { Panel, Sidebar } from "../Sidebar";
 import { useSetup } from "@/providers/SetupProvider";
 import { StreakIcon } from "../StreakIcon";
 import { useGame } from "@/providers/GameProvider";
@@ -163,7 +163,7 @@ export const BoardControl = ({ className }: { className?: string }) => {
       {!settingUp && (
         <div className="flex flex-row space-x-2 items-center">
           <div className="sm:hidden">
-            <Sidebar>
+            <Sidebar panel={Panel.Profile}>
               <Button size="icon">
                 <FontAwesomeIcon icon={faUser} />
               </Button>

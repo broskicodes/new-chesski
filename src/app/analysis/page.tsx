@@ -1,6 +1,8 @@
 "use client";
+import "./styles.css";
 
 import { AnalysisBoard } from "@/components/AnalysisBoard";
+import { BottomNav } from "@/components/BottomNav";
 import { MoveList } from "@/components/MoveList";
 import { Navbar } from "@/components/Navbar";
 import { useAnalysis } from "@/providers/AnalysisProvider";
@@ -104,6 +106,7 @@ const AnalyzePage = () => {
   return (
     <div className="sm:justify-center flex flex-col h-full">
       <Navbar />
+      <BottomNav />
       <Suspense>
         <UselessComp />
       </Suspense>
