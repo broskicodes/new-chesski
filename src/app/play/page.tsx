@@ -17,6 +17,7 @@ import { Message } from "ai";
 import { useSetup } from "@/providers/SetupProvider";
 import { expToLvl } from "@/utils/clientHelpers";
 import { useUserData } from "@/providers/UserDataProvider/context";
+import { BottomNav } from "@/components/BottomNav";
 
 export default function Play() {
   const [gameStateChanged, setGameStateChanged] = useState(0);
@@ -96,6 +97,7 @@ export default function Play() {
       )}
 
       <Navbar />
+      <BottomNav />
       {/* <Footer /> */}
       <div className="page-content" ref={contentRef}>
         <div
