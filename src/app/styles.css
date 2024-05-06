@@ -35,6 +35,11 @@
   font-size: 16px;
   text-align: left;
 } */
+
+body {
+  overflow-y: scroll;
+}
+
 @keyframes float {
   0%,
   100% {
