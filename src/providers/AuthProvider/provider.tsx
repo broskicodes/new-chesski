@@ -23,10 +23,13 @@ import {
   faMagnifyingGlassChart,
   faRobot,
 } from "@fortawesome/free-solid-svg-icons";
+import { usePathname } from "next/navigation";
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [origin, setOrigin] = useState("");
   const [session, setSession] = useState<User | null>(null);
+
+  const pathname = usePathname();
 
   const supabase = useMemo(() => {
     return createBrowserClient(
@@ -114,7 +117,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
   return (
     <AuthContext.Provider value={value}>
-      <Dialog open={!session}>
+      <Dialog open={pathname !== "/subscribe" && !session}>
         <DialogContent allowClose={false}>
           <DialogTitle className="text-3xl">
             Train like a Grandmaster

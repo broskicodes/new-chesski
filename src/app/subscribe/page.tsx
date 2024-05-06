@@ -137,19 +137,21 @@ const SubPage = () => {
                 {session && isPro && (
                   <Button
                     disabled
+                    size="lg"
                     className="w-60 disabled:opacity-70 disabled:bg-[#1b03a3] disabled:ring-gred:ring-4"
                   >
-                    Subscibed
+                    <span className="font-bold text-xl">Subscibed</span>
                   </Button>
                 )}
                 {!session && (
                   <Button
+                    size="lg"
                     className="w-60"
                     onClick={() => {
                       signInWithOAuth("subscribe");
                     }}
                   >
-                    Sign Up
+                    <span className="font-bold text-xl">Sign Up</span>
                   </Button>
                 )}
                 <ul role="list" className="mt-6 space-y-2 text-sm">
