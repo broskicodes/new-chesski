@@ -53,7 +53,7 @@ export default function Home() {
   return (
     <div className="flex flex-col h-full w-full overflow-y-scroll">
       <Navbar showMobile={true} />
-      <div className="flex flex-col justify-start pt-24 pb-16 sm:justify-center sm:items-center">
+      <div className="flex flex-col justify-start pt-24 pb-16 sm:justify-center sm:items-center overflow-y-scroll">
         <div className="flex flex-col space-y-2 text-black mb-12">
           <CardTitle className="text-center sm:text:left text-4xl flex flex-col sm:flex-row space-x-0 sm:space-x-2">
             <div>Welcome Back,</div> <div>{name}</div>
