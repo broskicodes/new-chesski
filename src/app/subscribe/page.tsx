@@ -77,7 +77,7 @@ const SubPage = () => {
 
   return (
     <div className="pb-8 h-full flex flex-col justify-center items-center">
-      <Navbar showMobile={false} />
+      <Navbar showMobile={true} />
       {/* <Suspense>
         <FreeTrialModal />
       </Suspense> */}

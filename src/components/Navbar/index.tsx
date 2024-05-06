@@ -41,12 +41,55 @@ export const Navbar = ({ showMobile }: Props) => {
   const { toast } = useToast();
 
   return (
-    <div className={`navbar ${showMobile ? "" : "hidden"} sm:block z-40`}>
-      <header className="navbar-container flex flex-row w-full items-center py-2 text-white">
-        <Link href={"/"} className="text-2xl font-bold arvo cursor-pointer">
+    <div className={`navbar${showMobile ? " " : " hidden "}sm:block z-40`}>
+      <header className="navbar-container px-4 sm:pl-0 flex flex-row w-full items-center py-2 text-white">
+        <Link href={"/"} className="text-xl sm:text-2xl font-bold arvo cursor-pointer">
           CHESSKI
         </Link>
-        <div className="flex flex-row justify-between w-full ml-4">
+        <div className="sm:hidden flex flex-row justify-end w-full">
+          <ul className="flex flex-row space-x-1 items-center">
+            <li>
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Button size="sm" variant="secondary">Support</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <Link href="mailto:braeden@chesski.lol">
+                    <DropdownMenuItem className="cursor-pointer w-40">
+                      Email Support
+                      <DropdownMenuShortcut>
+                        <FontAwesomeIcon icon={faEnvelope} size="lg" />
+                      </DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                  </Link>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </li>
+            <li>
+              {isPro && (
+                <Sidebar>
+                  <Button size="sm" className="flex flex-row items-center space-x-2">
+                    <FontAwesomeIcon icon={faUser} />
+                    <div>{name}</div>
+                  </Button>
+                </Sidebar>
+              )}
+              {!isPro && (
+                <Link href="/subscribe" className={buttonVariants({ size: "sm" })}>
+                  Upgrade
+                </Link>
+              )}
+            </li>
+            {/* <li>
+              <Sidebar>
+                <Button variant="ghost" size="icon">
+                  <FontAwesomeIcon icon={faBars} size="xl" />
+                </Button>
+              </Sidebar>
+            </li> */}
+          </ul>
+        </div>
+        <div className="hidden sm:flex flex-row justify-between w-full ml-4">
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>

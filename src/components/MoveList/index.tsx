@@ -155,7 +155,7 @@ export const MoveList = () => {
   }, [game, classified, currMoveRef.current]);
 
   return (
-    <div>
+    <div className="h-full">
       <Dialog>
         <DialogTrigger className="hidden" ref={paymeref} />
         <DialogContent>
