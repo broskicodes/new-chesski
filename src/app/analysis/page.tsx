@@ -1,4 +1,5 @@
 "use client";
+import "./styles.css";
 
 import { AnalysisBoard } from "@/components/AnalysisBoard";
 import { MoveList } from "@/components/MoveList";

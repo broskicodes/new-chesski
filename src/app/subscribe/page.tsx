@@ -140,7 +140,7 @@ const SubPage = () => {
                     size="lg"
                     className="w-60 disabled:opacity-70 disabled:bg-[#1b03a3] disabled:ring-gred:ring-4"
                   >
-                    <span className="font-bold text-xl">Subscibed</span>
+                    <span className="font-bold text-xl">Subscribed</span>
                   </Button>
                 )}
                 {!session && (
