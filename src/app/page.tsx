@@ -51,7 +51,7 @@ export default function Home() {
   const { session, supabase } = useAuth();
 
   return (
-    <div className="flex flex-col h-full w-full overflow-y-scroll">
+    <div className="flex flex-col h-full w-full overflow-y-scroll sm:justify-center">
       <Navbar showMobile={true} />
       <div className="flex flex-col justify-start pt-24 pb-16 sm:justify-center sm:items-center overflow-y-scroll">
         <div className="flex flex-col space-y-2 text-black mb-12">
