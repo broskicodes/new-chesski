@@ -105,7 +105,7 @@ const SubPage = () => {
   }, []);
 
   return (
-    <div className="pb-8 h-full flex flex-col justify-center items-center">
+    <div className="pb-8 h-full flex flex-col sm:justify-center sm:items-center overflow-y-scroll">
       <Navbar showMobile={true} />
       {/* <Suspense>
         <FreeTrialModal />
@@ -121,7 +121,7 @@ const SubPage = () => {
         </div>
       </div> */}
       <Tabs 
-        className="flex flex-col items-center space-y-6"
+        className="flex flex-col items-center space-y-6 mt-20 sm:mt-0"
         defaultValue="yearly"
         onValueChange={(val) => {
           setCurrTab(val);
@@ -135,7 +135,7 @@ const SubPage = () => {
             {pricing.tiers.map((tier) => (
               <div key={tier.title} className="flex flex-col items-center">
                 <span className="font-bold text-3xl sm:text-4xl font-m mb-6 text-center">{tier.description}</span>
-                <ul role="list" className="mb-8 space-y-2 text-sm w-full px-8 sm:w-96 sm:px-0">
+                <ul role="list" className="mb-8 space-y-6 text-sm w-full px-8 sm:w-96 sm:px-0">
                   {tier.steps.map((step) => (
                     <li key={step.h} className="grid grid-cols-12 gap-x-4 items-center">
                       <div className="place-self-center rounded-full p-3 shadow bg-white">
@@ -156,8 +156,8 @@ const SubPage = () => {
                 <div className="mb-2 flex flex-col items-center font-m">
                   <div className="font-light">3-day free trial, then</div>
                   <div className="space-x-1">
-                    <span className="font-semibold">${tier.price} /month</span>
-                    {type === "yearly" && <span className="">(${Math.round(tier.price * 12) } /year)</span>}
+                    {type === "yearly" && <span className="font-semibold">${Math.round(tier.price * 12) } /year</span>}
+                    <span className={`${type === "yearly" ? "" : "font-semibold"}`}>{type === "yearly" && "("}${tier.price} /month{type === "yearly" && ")"}</span>
                   </div>
                 </div>
                 {session && !isPro && (
