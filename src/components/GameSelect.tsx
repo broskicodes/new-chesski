@@ -258,12 +258,12 @@ export const GameSelect = ({ className }: Props) => {
                 Daily analysis limit reached
             </DialogTitle>
             <DialogDescription>
-              Get unlimited access for only $5!
+              Want more? Claim your free trial now!
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Link href="/subscribe" target="_blank" className={`w-full text-xl ${buttonVariants({ size: "lg", variant: "default" })}`}>
-              Subscribe
+              Claim Free Trial
             </Link>
           </DialogFooter>
         </DialogContent>

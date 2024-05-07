@@ -161,15 +161,15 @@ export const MoveList = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-                This is a pro feature
+              This is a pro feature
             </DialogTitle>
             <DialogDescription>
-              Get access for only $5!
+              Want access? Try it for free now!
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Link href="/subscribe" target="_blank" className={`w-full text-xl ${buttonVariants({ size:"lg", variant: "default" })}`}>
-              Subscribe
+              Claim Free Trial
             </Link>
           </DialogFooter>
         </DialogContent>
