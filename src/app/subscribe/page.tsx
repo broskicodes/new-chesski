@@ -134,15 +134,15 @@ const SubPage = () => {
           <TabsContent key={type} value={type}>
             {pricing.tiers.map((tier) => (
               <div key={tier.title} className="flex flex-col items-center">
-                <span className="font-bold text-3xl sm:text-4xl font-m mb-6 text-center">{tier.description}</span>
+                <span className="font-bold text-3xl sm:text-4xl font-m mb-8 text-center">{tier.description}</span>
                 <ul role="list" className="mb-8 space-y-6 text-sm w-full px-8 sm:w-96 sm:px-0">
                   {tier.steps.map((step) => (
                     <li key={step.h} className="grid grid-cols-12 gap-x-4 items-center">
-                      <div className="place-self-center rounded-full p-3 shadow bg-white">
+                      <div className={`place-self-center rounded-full p-3 shadow ${!step.d ? "bg-white" : "bg-[#1b03a3]/50"}`}>
                         <FontAwesomeIcon
                           icon={step.i}
                           size="xl"
-                          className="flex-shrink-0 text-[#1b03a3]"
+                          className={`flex-shrink-0  ${step.d ? "text-white" : "text-[#1b03a3]"}`}
                           aria-hidden="true"
                         />
                       </div>
