@@ -20,7 +20,7 @@ import {
   CHESSKI_YEARLY_PRICE,
   SubType,
 } from "@/utils/types";
-import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
+import { faBell, faCheck, faCircleCheck, faStar, faUnlock } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/navigation";
 import posthog from "posthog-js";
@@ -47,20 +47,49 @@ const SubPage = () => {
         //   cta: "Monthly billing",
         //   mostPopular: false,
         // },
+        // {
+        //   title: "Pro",
+        //   price: currTab === "yearly" ? Math.round(CHESSKI_YEARLY_PRICE / 12 * 100) / 100 : CHESSKI_MONTHLY_PRICE,
+        //   description: "Start improving for only.",
+        //   promo: "Try free for 3 days",
+        //   features: [
+        //     "Unlimited game and position analysis",
+        //     "Custom AI insights",
+        //     "24hr support from the founder",
+        //     "Access to all new features",
+        //   ],
+        //   cta: "Start 3-day free trial",
+        //   mostPopular: true,
+        // },
         {
-          title: "Pro",
+          title: "Trial",
+          description: "Understand your free trial",
           price: currTab === "yearly" ? Math.round(CHESSKI_YEARLY_PRICE / 12 * 100) / 100 : CHESSKI_MONTHLY_PRICE,
-          // description: "Unlimited access to all features.",
-          promo: "Try free for 3 days",
-          features: [
-            "Unlimited game and position analysis",
-            "Custom AI insights",
-            "24hr support from the founder",
-            "Access to all new features",
+          steps: [
+            { 
+              h: "Sign up",
+              sh: "You succefully created your account!",
+              i: faCheck,
+              d: true
+            },
+            { 
+              h: "Today: Get Instant Access",
+              sh: "Custom chess insights and explanations generated just for you.",
+              i: faUnlock
+            },
+            {
+              h: "In 2 days: Trial Reminder",
+              sh: "Get an email reminder about when your trials ends. Cancel any time.",
+              i: faBell
+            },
+            {
+              h: "In 3 days: Trial Ends",
+              sh: `Your first payment will be collected on ${new Date(new Date().setDate(new Date().getDate() + 3)).toDateString()}.`,
+              i: faStar
+            }
           ],
-          cta: "Try for free",
-          mostPopular: true,
-        },
+          cta: "Start 3-day trial"
+        }
       ],
     }),
     [currTab],
@@ -105,10 +134,31 @@ const SubPage = () => {
           <TabsContent key={type} value={type}>
             {pricing.tiers.map((tier) => (
               <div key={tier.title} className="flex flex-col items-center">
-                <span className="font-bold text-3xl sm:text-4xl font-m mb-8 text-center">Start improving for only</span>
-                <div className="mb-6 flex flex-col items-center">
-                  <div className="font-m"><span className="text-6xl font-semibold text-[#1b03a3]">${tier.price}</span> /month</div>
-                  {type === "yearly" && <CardDescription className="text-lg font-m">billed anually</CardDescription>}
+                <span className="font-bold text-3xl sm:text-4xl font-m mb-6 text-center">{tier.description}</span>
+                <ul role="list" className="mb-8 space-y-2 text-sm w-full px-8 sm:w-96 sm:px-0">
+                  {tier.steps.map((step) => (
+                    <li key={step.h} className="grid grid-cols-12 gap-x-4 items-center">
+                      <div className="place-self-center rounded-full p-3 shadow bg-white">
+                        <FontAwesomeIcon
+                          icon={step.i}
+                          size="xl"
+                          className="flex-shrink-0 text-[#1b03a3]"
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <div className="flex flex-col ml-2 col-span-11">
+                        <span className={`text-xl font-bold text-[#1b03a3] ${step.d ? "opacity-70 line-through decoration-1" : ""}`}>{step.h}</span>
+                        <span className="text-gray-500">{step.sh}</span>
+                        </div>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mb-2 flex flex-col items-center font-m">
+                  <div className="font-light">3-day free trial, then</div>
+                  <div className="space-x-1">
+                    <span className="font-semibold">${tier.price} /month</span>
+                    {type === "yearly" && <span className="">(${Math.round(tier.price * 12) } /year)</span>}
+                  </div>
                 </div>
                 {session && !isPro && (
                   <Button
@@ -154,18 +204,7 @@ const SubPage = () => {
                     <span className="font-bold text-xl">Sign Up</span>
                   </Button>
                 )}
-                <ul role="list" className="mt-6 space-y-2 text-sm">
-                  {tier.features.map((feature) => (
-                    <li key={feature} className="flex">
-                      <FontAwesomeIcon
-                        icon={faCircleCheck}
-                        className="flex-shrink-0 w-4 h-4 text-indigo-500"
-                        aria-hidden="true"
-                      />
-                      <span className="ml-2 text-gray-500">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+                
               </div>
               // <Card
               //   key={tier.title}
