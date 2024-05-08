@@ -17,8 +17,8 @@ export enum Goal {
 }
 
 export interface UserData {
-  chesscom_name: string;
-  lichess_name: string;
+  chesscom_name?: string;
+  lichess_name?: string;
   learning_goal: Goal;
   skill_level: Experience;
   onboarded: boolean;

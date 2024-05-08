@@ -68,6 +68,7 @@ export const GameSelect = ({ className }: Props) => {
   const [selectedGame, setSelectedGame] = useState<GameData | null>(null);
 
   const [dailyAnalyses, setDailyAnalyses] = useState(0);
+  const [analysesLoaded, setAnalysesLoaded] = useState(false);
 
   const { session, supabase } = useAuth();
   const { setGamePgn, moves } = useAnalysis();
@@ -97,6 +98,8 @@ export const GameSelect = ({ className }: Props) => {
     } else {
       setDailyAnalyses(0);
     }
+
+    setAnalysesLoaded(true);
   }, [session, supabase]);
 
   useEffect(() => {
@@ -251,7 +254,7 @@ export const GameSelect = ({ className }: Props) => {
           {moves.length === 0 ? "Select Game" : "Select New Game"}
         </Button>
       </DialogTrigger>
-      {(dailyAnalyses >= 1 && !isPro) && (
+      {analysesLoaded && (dailyAnalyses >= 1 && !isPro) && (
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
@@ -268,7 +271,7 @@ export const GameSelect = ({ className }: Props) => {
           </DialogFooter>
         </DialogContent>
       )}
-      {(dailyAnalyses < 1 || isPro) && (
+      {analysesLoaded && (dailyAnalyses < 1 || isPro) && (
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Select Game to Ananalyze</DialogTitle>

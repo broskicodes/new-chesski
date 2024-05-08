@@ -77,8 +77,6 @@ export const Onboarding = ({ show }: Props) => {
     async () => {
       posthog.capture("onboarding_finished")
       const userData: UserData = {
-        chesscom_name: chesscom,
-        lichess_name: lichess,
         learning_goal: goal!,
         skill_level: experience!,
         onboarded: true

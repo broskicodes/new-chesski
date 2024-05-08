@@ -73,6 +73,7 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
   >((Experience as any)[skillLvl] ?? "Impossible");
 
   const [dailyGames, setDailyGames] = useState(0);
+  const [gamesLoaded, setGamesLoaded] = useState(false);
 
   const paymeref = useRef<HTMLButtonElement>(null);
 
@@ -97,6 +98,8 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
     } else {
       setDailyGames(0);
     }
+
+    setGamesLoaded(true);
   }, [session, supabase]);
 
   const toggleModal = useCallback(async (show: boolean) => {
@@ -133,7 +136,7 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
   return (
     <SetupContext.Provider value={value}>
       {(dailyGames >= 1 && !isPro) && (
-        <Dialog open={open && !!session}>
+        <Dialog open={gamesLoaded && open && !!session}>
           {/* <DialogTrigger ref={paymeref} className='hidden' /> */}
           <DialogContent allowClose={false}>
             <DialogHeader>
@@ -153,7 +156,7 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
         </Dialog>
       )}
       {(dailyGames < 1 || isPro) && (
-        <Dialog open={open && !!session}>
+        <Dialog open={gamesLoaded && open && !!session}>
           <DialogContent allowClose={false}>
             <DialogHeader className="flex flex-col items-center space-y-0">
               <DialogTitle className="text-2xl">Game setup</DialogTitle>

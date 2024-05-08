@@ -22,7 +22,7 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
   const [isPro, setIsPro] = useState(false);
   const [subId, setSubId] = useState<string | null>(null);
 
-  const [pageLoaded, setPageLoaded] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   const { session, sessionLoaded, supabase } = useAuth();
   const pathname = usePathname();
@@ -54,8 +54,8 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
       if (item) {
         const userData: UserData = JSON.parse(item);
 
-        setChesscom(userData.chesscom_name);
-        setLichess(userData.lichess_name);
+        setChesscom(userData.chesscom_name ?? "");
+        setLichess(userData.lichess_name ?? "");
         setExperience(userData.skill_level);
         setOnboarded(userData.onboarded)
       } else {
@@ -88,7 +88,7 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
     getData()
       .then(() => {
         if (sessionLoaded)
-          setPageLoaded(true);
+          setDataLoaded(true);
       });
   }, [getData, sessionLoaded]);
 
@@ -222,7 +222,7 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
   return (
     <UserDataContext.Provider value={value}>
       {children}
-      <Onboarding show={pageLoaded && pathname !== "/subscribe" && !onboarded} />
+      <Onboarding show={dataLoaded && pathname !== "/subscribe" && !onboarded} />
     </UserDataContext.Provider>
   );
 };
