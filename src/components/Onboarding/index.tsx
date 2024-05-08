@@ -18,7 +18,7 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { useRouter } from "next/navigation";
 import { Input } from "../ui/input";
-import { CHESSKI_YEARLY_PRICE, Experience, Goal, SubType, UserData } from "@/utils/types";
+import { CHESSKI_MONTHLY_PRICE, CHESSKI_YEARLY_PRICE, Experience, Goal, SubType, UserData } from "@/utils/types";
 import { useAuth } from "@/providers/AuthProvider/context";
 import Image from "next/image";
 import posthog from "posthog-js";
@@ -46,7 +46,7 @@ export const Onboarding = ({ show }: Props) => {
   const tier = useMemo(() => ({
     title: "Trial",
     description: "Understand your free trial",
-    price: Math.round(CHESSKI_YEARLY_PRICE / 12 * 100) / 100,
+    price: CHESSKI_MONTHLY_PRICE,
     steps: [
       { 
         h: "Sign up",
@@ -75,6 +75,7 @@ export const Onboarding = ({ show }: Props) => {
 
   const finishOnboarding = useCallback(
     async () => {
+      posthog.capture("onboarding_finished")
       const userData: UserData = {
         chesscom_name: chesscom,
         lichess_name: lichess,
@@ -345,29 +346,29 @@ export const Onboarding = ({ show }: Props) => {
                     </li>
                   ))}
                 </ul>
-                <div className="flex flex-col items-center font-m text-sm">
-                  <div className="font-light">3-day free trial, then</div>
-                  <div className="space-x-1">
-                    <span className="font-semibold">${Math.round(tier.price * 12) } /year</span>
-                    <span className="">(${tier.price} /month)</span>
-                  </div>
-                </div>
+                
               </div>
             </div>
             <SheetFooter>
               <div className="flex flex-col w-full">
+                <div className="flex flex-col items-center font-m text-sm mb-2">
+                  <div className="font-light">3-day free trial, then</div>
+                  <div className="space-x-1">
+                    <span className="font-semibold">${tier.price} /month</span>
+                  </div>
+                </div>
                 {session && (
                   <Button
                     className="w-full sm:w-96 sm:mx-auto"
                     disabled={loading}
                     onClick={async () => {
                       setLoading(true);
-                      posthog.capture("sub_clicked");
                       await finishOnboarding();
+                      posthog.capture("sub_clicked");
                       const re = await fetch("/api/stripe/checkout/session", {
                         method: "POST",
                         body: JSON.stringify({
-                          subType: SubType.Yearly,
+                          subType: SubType.Monthly,
                           // @ts-ignore
                           referral: window.tolt_referral,
                           trial: true
@@ -383,7 +384,7 @@ export const Onboarding = ({ show }: Props) => {
                     {loading && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#1B03A3]" />}
                   </Button>
                 )}
-                <Button onClick={async () => { await finishOnboarding(); setDone(true); posthog.capture("trial_skipped") } } size="thin" variant="link">Skip</Button>
+                <Button className="w-fit mx-auto" onClick={async () => { await finishOnboarding(); setDone(true); posthog.capture("trial_skipped") } } size="thin" variant="link">Skip</Button>
                 <div className="flex flex-row items-center">
                   <Button
                     size="icon"
