@@ -9,6 +9,7 @@ import {
 import { UserDataContext, UserDataProviderContext } from "./context";
 import { Experience, ONBOARDING_UPDATE_DATE, UserData } from "@/utils/types";
 import { Onboarding } from "@/components/Onboarding";
+import { usePathname } from "next/navigation";
 
 export const UserDataProvider = ({ children }: PropsWithChildren) => {
   const [chesscom, setChesscom] = useState<string | null>(null);
@@ -22,6 +23,7 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
   const [subId, setSubId] = useState<string | null>(null);
 
   const { session, supabase } = useAuth();
+  const pathname = usePathname();
 
   const getData = useCallback(async () => {
     if (session && supabase) {
@@ -209,7 +211,7 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
   return (
     <UserDataContext.Provider value={value}>
       {children}
-      <Onboarding currStep={session ? 1 : 0} show={!onboarded} />
+      <Onboarding currStep={session ? 1 : 0} show={pathname !== "/subscribe" && !onboarded} />
     </UserDataContext.Provider>
   );
 };

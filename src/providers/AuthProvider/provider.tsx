@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [origin, setOrigin] = useState("");
   const [session, setSession] = useState<User | null>(null);
 
-  const pathname = usePathname();
+  // const pathname = usePathname();
 
   const supabase = useMemo(() => {
     return createBrowserClient(
