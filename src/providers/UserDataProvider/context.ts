@@ -9,6 +9,7 @@ export interface UserDataProviderContext {
   pfp: string;
   isPro: boolean;
   subId: string | null;
+  onboarded: boolean;
   saveData: () => Promise<void>;
   getData: () => Promise<void>;
   updateChesscom: Dispatch<SetStateAction<string | null>>;
@@ -24,6 +25,7 @@ export const UserDataContext = createContext<UserDataProviderContext>({
   pfp: "",
   isPro: false,
   subId: null,
+  onboarded: false,
   getData: () => {
     throw new Error("UserDataProvider not initialized");
   },
