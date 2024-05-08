@@ -31,6 +31,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const SubPage = () => {
   // const [annual, setAnnual] = useState(true);
   const [currTab, setCurrTab] = useState("yearly")
+  const [loading, setLoading] = useState(false);
 
   const { isPro } = useUserData();
   const { session, signInWithOAuth } = useAuth();
@@ -164,7 +165,9 @@ const SubPage = () => {
                   <Button
                     size="lg"
                     className="w-60"
+                    disabled={loading}
                     onClick={async () => {
+                      setLoading(true)
                       posthog.capture("sub_clicked");
                       const re = await fetch("/api/stripe/checkout/session", {
                         method: "POST",
@@ -181,7 +184,8 @@ const SubPage = () => {
                       router.push(link);
                     }}
                   >
-                    <span className="font-bold text-xl">{tier.cta}</span>
+                    {!loading && <span className="font-bold text-xl">{tier.cta}</span>}
+                    {loading && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#1B03A3]" />}
                   </Button>
                 )}
                 {session && isPro && (

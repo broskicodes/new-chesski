@@ -1,16 +1,19 @@
 import { Move } from "chess.js";
 
 export enum Experience {
-  Beginner = 0,
-  Intermediate = 1,
-  Advanced = 2,
-  Master = 3,
+  None = 0,
+  Beginner = 1,
+  Intermediate = 2,
+  Advanced = 3,
+  Expert = 4,
 }
 
 export enum Goal {
   Casual = 0,
-  Curious = 1,
-  Commited = 2,
+  Competent = 1,
+  Curious = 2,
+  Commited = 3,
+  Serious = 4
 }
 
 export interface UserData {
@@ -18,6 +21,7 @@ export interface UserData {
   lichess_name: string;
   learning_goal: Goal;
   skill_level: Experience;
+  onboarded: boolean;
 }
 
 export enum SkillLevel {

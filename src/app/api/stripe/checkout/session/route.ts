@@ -40,7 +40,7 @@ export const POST = async (req: Request) => {
     // customer: user ? user.id : undefined,
     customer_email: user ? user.email : undefined,
     // client_reference_id: user ? user.id : "",
-    success_url: `${process.env.ENV_URL}/play`,
+    success_url: `${process.env.ENV_URL}/`,
     cancel_url: `${process.env.ENV_URL}/subscribe${trial ? "?ad=freeTrial" : ""}`,
     line_items: [
       {

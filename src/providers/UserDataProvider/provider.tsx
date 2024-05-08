@@ -8,11 +8,13 @@ import {
 } from "react";
 import { UserDataContext, UserDataProviderContext } from "./context";
 import { Experience, ONBOARDING_UPDATE_DATE, UserData } from "@/utils/types";
+import { Onboarding } from "@/components/Onboarding";
 
 export const UserDataProvider = ({ children }: PropsWithChildren) => {
   const [chesscom, setChesscom] = useState<string | null>(null);
   const [lichess, setLichess] = useState<string | null>(null);
   const [experience, setExperience] = useState<Experience>(Experience.Beginner);
+  const [onboarded, setOnboarded] = useState(false);
 
   const [name, setName] = useState("");
   const [pfp, setPfp] = useState("");
@@ -35,10 +37,12 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
         setChesscom(data[0].chesscom_name);
         setLichess(data[0].lichess_name);
         setExperience(data[0].skill_level);
+        setOnboarded(data[0].onboarded)
       } else {
         setChesscom("");
         setLichess("");
         setExperience(Experience.Beginner);
+        setOnboarded(false)
       }
     } else {
       const item = localStorage.getItem("userData");
@@ -49,6 +53,7 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
         setChesscom(userData.chesscom_name);
         setLichess(userData.lichess_name);
         setExperience(userData.skill_level);
+        setOnboarded(userData.onboarded)
       } else {
         setChesscom("");
         setLichess("");
@@ -191,18 +196,20 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
       pfp,
       isPro,
       subId,
+      onboarded,
       saveData,
       getData,
       updateChesscom: setChesscom,
       updateLichess: setLichess,
       updateExperience: setExperience,
     }),
-    [chesscom, lichess, experience, pfp, name, isPro, subId, saveData, getData],
+    [chesscom, lichess, experience, pfp, name, isPro, subId, onboarded, saveData, getData],
   );
 
   return (
     <UserDataContext.Provider value={value}>
       {children}
+      <Onboarding currStep={session ? 1 : 0} show={!onboarded} />
     </UserDataContext.Provider>
   );
 };

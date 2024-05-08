@@ -20,10 +20,15 @@ import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowTrendUp,
+  faBell,
+  faCheck,
   faMagnifyingGlassChart,
   faRobot,
+  faStar,
+  faUnlock,
 } from "@fortawesome/free-solid-svg-icons";
 import { usePathname } from "next/navigation";
+import { Onboarding } from "@/components/Onboarding";
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [origin, setOrigin] = useState("");
@@ -117,7 +122,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
   return (
     <AuthContext.Provider value={value}>
-      <Dialog open={pathname !== "/subscribe" && !session}>
+      {/* <Dialog open={pathname !== "/subscribe" && !session}>
         <DialogContent allowClose={false}>
           <DialogTitle className="text-3xl">
             Train like a Grandmaster
@@ -143,7 +148,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
       {children}
     </AuthContext.Provider>
   );
