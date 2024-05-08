@@ -22,7 +22,9 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
   const [isPro, setIsPro] = useState(false);
   const [subId, setSubId] = useState<string | null>(null);
 
-  const { session, supabase } = useAuth();
+  const [pageLoaded, setPageLoaded] = useState(false);
+
+  const { session, sessionLoaded, supabase } = useAuth();
   const pathname = usePathname();
 
   const getData = useCallback(async () => {
@@ -83,8 +85,12 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
   }, [chesscom, lichess, experience]);
 
   useEffect(() => {
-    getData();
-  }, [getData]);
+    getData()
+      .then(() => {
+        if (sessionLoaded)
+          setPageLoaded(true);
+      });
+  }, [getData, sessionLoaded]);
 
   useEffect(() => {
     if (!session || !supabase) {
@@ -139,60 +145,60 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
     };
   }, [session, supabase, subId]);
 
-  useEffect(() => {
-    (async () => {
-      if (session) {
-        const { data: userData } = await supabase!
-          .from("user_data")
-          .select()
-          .eq("uuid", session.id);
+  // useEffect(() => {
+  //   (async () => {
+  //     if (session) {
+  //       const { data: userData } = await supabase!
+  //         .from("user_data")
+  //         .select()
+  //         .eq("uuid", session.id);
 
-        if (
-          (userData &&
-            userData[0] &&
-            new Date(userData[0].updated_at) < ONBOARDING_UPDATE_DATE) ||
-          !userData ||
-          !userData[0]
-        ) {
-          const item = localStorage.getItem("userData");
+  //       if (
+  //         (userData &&
+  //           userData[0] &&
+  //           new Date(userData[0].updated_at) < ONBOARDING_UPDATE_DATE) ||
+  //         !userData ||
+  //         !userData[0]
+  //       ) {
+  //         const item = localStorage.getItem("userData");
 
-          if (item) {
-            const userData = JSON.parse(item);
+  //         if (item) {
+  //           const userData = JSON.parse(item);
 
-            (async () => {
-              const { data } = await supabase!
-                .from("user_data")
-                .select()
-                .eq("uuid", session.id);
+  //           (async () => {
+  //             const { data } = await supabase!
+  //               .from("user_data")
+  //               .select()
+  //               .eq("uuid", session.id);
 
-              const prevData = data && data[0] ? data[0] : {};
-              const { error, data: d } = await supabase!
-                .from("user_data")
-                .upsert({
-                  uuid: session.id,
-                  ...prevData,
-                  ...userData,
-                  updated_at: new Date(),
-                })
-                .select();
+  //             const prevData = data && data[0] ? data[0] : {};
+  //             const { error, data: d } = await supabase!
+  //               .from("user_data")
+  //               .upsert({
+  //                 uuid: session.id,
+  //                 ...prevData,
+  //                 ...userData,
+  //                 updated_at: new Date(),
+  //               })
+  //               .select();
 
-              if (!error) {
-                localStorage.removeItem("userData");
-              }
-            })();
-          }
-        }
+  //             if (!error) {
+  //               localStorage.removeItem("userData");
+  //             }
+  //           })();
+  //         }
+  //       }
 
-        if (
-          userData &&
-          userData[0] &&
-          new Date(userData[0].updated_at) > ONBOARDING_UPDATE_DATE
-        ) {
-          localStorage.removeItem("userData");
-        }
-      }
-    })();
-  }, [session, supabase]);
+  //       if (
+  //         userData &&
+  //         userData[0] &&
+  //         new Date(userData[0].updated_at) > ONBOARDING_UPDATE_DATE
+  //       ) {
+  //         localStorage.removeItem("userData");
+  //       }
+  //     }
+  //   })();
+  // }, [session, supabase]);
 
   const value: UserDataProviderContext = useMemo(
     () => ({
@@ -216,7 +222,7 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
   return (
     <UserDataContext.Provider value={value}>
       {children}
-      <Onboarding show={pathname !== "/subscribe" && !onboarded} />
+      <Onboarding show={pageLoaded && pathname !== "/subscribe" && !onboarded} />
     </UserDataContext.Provider>
   );
 };

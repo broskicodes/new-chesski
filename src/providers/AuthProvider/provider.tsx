@@ -33,6 +33,7 @@ import { Onboarding } from "@/components/Onboarding";
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [origin, setOrigin] = useState("");
   const [session, setSession] = useState<User | null>(null);
+  const [sessionLoaded, setSessionLoaded] = useState(false);
 
   // const pathname = usePathname();
 
@@ -79,6 +80,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         data: { user },
       } = await supabase.auth.getUser();
       setSession(user || null);
+      setSessionLoaded(true);
 
       const { data: listener } = supabase.auth.onAuthStateChange(
         (_event, session) => {
@@ -115,10 +117,11 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     () => ({
       session,
       supabase,
+      sessionLoaded,
       signInWithOAuth,
       signOut,
     }),
-    [session, supabase, signInWithOAuth, signOut],
+    [session, supabase, sessionLoaded, signInWithOAuth, signOut],
   );
 
   return (
