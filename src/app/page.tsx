@@ -51,9 +51,9 @@ export default function Home() {
   const { session, supabase } = useAuth();
 
   return (
-    <div className="flex flex-col h-full w-full overflow-y-scroll sm:justify-center">
+    <div className="flex flex-col h-full w-full overflow-y-auto sm:justify-center">
       <Navbar showMobile={true} />
-      <div className="flex flex-col justify-start pt-24 pb-16 sm:justify-center sm:items-center overflow-y-scroll">
+      <div className="flex flex-col justify-start pt-24 pb-16 sm:justify-center sm:items-center overflow-y-auto">
         <div className="flex flex-col space-y-2 text-black mb-12">
           <CardTitle className="text-center sm:text:left text-4xl flex flex-col sm:flex-row space-x-0 sm:space-x-2">
             <div>Welcome Back,</div> <div>{name}</div>
@@ -62,10 +62,10 @@ export default function Home() {
             How you would like to train today?
           </CardDescription>
         </div>
-        <div className="justify-items-center grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="justify-items-center grid grid-cols-1 sm:grid-cols-2 gap-4 w-full sm:w-fit">
           {featureCards.map((feat) => (
-            <Link key={feat.title} href={feat.href}>
-              <Card className="hover:scale-[1.05] w-96 h-40">
+            <Link key={feat.title} href={feat.href} className="w-full px-4">
+              <Card className="hover:scale-[1.05] w-full sm:w-96 h-40">
                 <CardHeader className="items-start">
                   <FontAwesomeIcon icon={feat.icon} color="#999999" />
                 </CardHeader>
