@@ -305,7 +305,7 @@ export const Onboarding = ({ currStep, show }: Props) => {
             </div>
             <SheetFooter>
               <div className="flex flex-col">
-                <Button className="w-full" onClick={() => setStep(step + 1)}>Continue</Button>
+                <Button className="w-full" onClick={async () => { setStep(step + 1); if (isPro) { await finishOnboarding(); setDone(true); } }}>Continue</Button>
                 <div className="flex flex-row items-center">
                   <Button size="icon" variant="ghost" onClick={() => setStep(step - 1)}><FontAwesomeIcon icon={faArrowLeft} /></Button>
                   <Progress  className="w-full" value={step / maxSteps * 100} />
