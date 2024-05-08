@@ -30,7 +30,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const SubPage = () => {
   // const [annual, setAnnual] = useState(true);
-  const [currTab, setCurrTab] = useState("yearly")
+  const [currTab, setCurrTab] = useState("monthly")
   const [loading, setLoading] = useState(false);
 
   const { isPro } = useUserData();
@@ -123,7 +123,7 @@ const SubPage = () => {
       </div> */}
       <Tabs 
         className="flex flex-col items-center space-y-6 mt-20 sm:mt-0"
-        defaultValue="yearly"
+        defaultValue="monthly"
         onValueChange={(val) => {
           setCurrTab(val);
         }} >
