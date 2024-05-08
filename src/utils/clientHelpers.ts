@@ -14,14 +14,16 @@ export const getChessRatingCategory = (rating: number): SkillLevel => {
 
 export const experienceToTitle = (experienceValue: Experience): string => {
   switch (experienceValue) {
+    case Experience.None:
+      return "None";
     case Experience.Beginner:
       return "Beginner";
     case Experience.Intermediate:
       return "Intermediate";
     case Experience.Advanced:
       return "Advanced";
-    case Experience.Master:
-      return "Master";
+    case Experience.Expert:
+      return "Expert";
     default:
       return "Unknown";
   }
@@ -58,6 +60,8 @@ export const setCurrMessages = (msgs: Message[], reset: boolean) => {
 export const expToLvl = (exp: Experience | "Impossible") => {
   let lvl: SkillLevel;
   switch (exp) {
+    case Experience.None:
+      lvl = SkillLevel.Newb
     case Experience.Beginner:
       lvl = SkillLevel.Beginner;
       break;
@@ -67,7 +71,7 @@ export const expToLvl = (exp: Experience | "Impossible") => {
     case Experience.Advanced:
       lvl = SkillLevel.Advanced;
       break;
-    case Experience.Master:
+    case Experience.Expert:
       lvl = SkillLevel.Master;
       break;
     case "Impossible":
