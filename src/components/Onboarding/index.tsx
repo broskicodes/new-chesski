@@ -40,7 +40,7 @@ export const Onboarding = ({ currStep, show }: Props) => {
 
   const { signInWithOAuth, session, supabase } = useAuth();
   const { isPro } = useUserData();
-  const maxSteps = useMemo(() => 4, []);
+  const maxSteps = useMemo(() => isPro ? 3 : 4, []);
 
   const router = useRouter();
 
@@ -314,7 +314,7 @@ export const Onboarding = ({ currStep, show }: Props) => {
             </SheetFooter>
           </div>
         )}
-        {step === 4 && (
+        {!isPro && step === 4 && (
           <div className="flex flex-col h-[480px]">
             <SheetHeader>
               <div className="flex flex-col space-y-1">
@@ -355,7 +355,7 @@ export const Onboarding = ({ currStep, show }: Props) => {
             </div>
             <SheetFooter>
               <div className="flex flex-col sm:space-y-6">
-                {session && !isPro && (
+                {session && (
                   <Button
                     className="w-full"
                     disabled={loading}
