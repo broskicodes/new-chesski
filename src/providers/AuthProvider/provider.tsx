@@ -58,6 +58,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
+    localStorage.removeItem("userData");
     setSession(null);
     setCurrGameState({
       id: "",

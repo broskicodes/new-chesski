@@ -60,6 +60,11 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
         setChesscom("");
         setLichess("");
         setExperience(Experience.Beginner);
+        setOnboarded(false);
+        setName("");
+        setPfp("");
+        setIsPro(false);
+        setSubId(null);
       }
     }
   }, [session, supabase]);
@@ -211,7 +216,7 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
   return (
     <UserDataContext.Provider value={value}>
       {children}
-      <Onboarding currStep={session ? 1 : 0} show={pathname !== "/subscribe" && !onboarded} />
+      <Onboarding show={pathname !== "/subscribe" && !onboarded} />
     </UserDataContext.Provider>
   );
 };

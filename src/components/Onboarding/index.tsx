@@ -25,11 +25,10 @@ import posthog from "posthog-js";
 import { useUserData } from "@/providers/UserDataProvider/context";
 
 interface Props {
-  currStep?: number,
   show?: boolean
 }
 
-export const Onboarding = ({ currStep, show }: Props) => {
+export const Onboarding = ({ show }: Props) => {
   const [step, setStep] = useState(0);
   const [experience, setExperience] = useState<Experience | null>(null);
   const [goal, setGoal] = useState<Goal | null>(null);
@@ -71,7 +70,7 @@ export const Onboarding = ({ currStep, show }: Props) => {
         i: faStar
       }
     ],
-    cta: "Start 3-day trial"
+    cta: "Start my 3-day trial"
   }), []);
 
   const finishOnboarding = useCallback(
@@ -103,26 +102,28 @@ export const Onboarding = ({ currStep, show }: Props) => {
   );
 
     useEffect(() => {
-      if (currStep)
-        setStep(currStep);
-    }, [currStep])
+      if (session)
+        setStep(1);
+      else
+        setStep(0)
+    }, [session])
 
   return (
     <Sheet open={show && !done} >
       {/* <SheetTrigger>
         hey
       </SheetTrigger> */}
-      <SheetContent side="bottom" allowClose={false}>
+      <SheetContent side="bottom" allowClose={false} className="">
         {step === 0 && (
-          <div className="flex flex-col h-[480px]">
+          <div className="flex flex-col h-[480px] sm:max-w-2xl sm:mx-auto ">
             <SheetHeader className="flex flex-row items-center justify-center">
               <Image width={48} height={48} src={"/chesski-logo.svg"} alt="" />
               <span className="arvo text-2xl font-bold">CHESSKI</span>
             </SheetHeader>
-            <div className="w-full h-full flex flex-col relative mt-24 justify-between">
+            <div className="w-full h-full flex flex-col relative mt-32 justify-between">
               <div className="flex flex-col space-y-4 items-center text-center">
-                <SheetTitle className="text-3xl font-semibold"><span className="font-extrabold text-[#1b03a3]">Win more</span> chess games.</SheetTitle>
-                <SheetDescription className="text-lg">
+                <SheetTitle className="text-3xl sm:text-4xl font-m font-semibold"><span className="font-extrabold text-[#1b03a3]">Win more</span> chess games.</SheetTitle>
+                <SheetDescription className="text-lg font-m">
                   Chesski helps you <span className="font-semibold">train faster</span> so you can <span className="font-semibold">win more.</span>
                 </SheetDescription>
               </div>
@@ -151,7 +152,7 @@ export const Onboarding = ({ currStep, show }: Props) => {
           </div>
         )}
         {step === 1 && (
-          <div className="flex flex-col h-[480px]">
+          <div className="flex flex-col h-[480px] sm:max-w-2xl sm:mx-auto">
             <SheetHeader>
               <div className="flex flex-col space-y-1">
                 <SheetTitle>{"What's your chess rating?"}</SheetTitle>
@@ -199,8 +200,8 @@ export const Onboarding = ({ currStep, show }: Props) => {
               </ul>
             </div>
             <SheetFooter>
-              <div className="flex flex-col">
-                <Button className="w-full" onClick={() => setStep(step + 1)} disabled={experience === null}>Continue</Button>
+              <div className="flex flex-col w-full">
+                <Button className="w-full sm:w-96 sm:mx-auto" onClick={() => setStep(step + 1)} disabled={experience === null}>Continue</Button>
                 <div className="flex flex-row items-center mt-4">
                   {/* <Button size="icon" variant="ghost" onClick={() => setStep(step - 1)}><FontAwesomeIcon icon={faArrowLeft} /></Button> */}
                   <Progress  className="w-full" value={step / maxSteps * 100} />
@@ -210,7 +211,7 @@ export const Onboarding = ({ currStep, show }: Props) => {
           </div>
         )}
         {step === 2 && (
-          <div className="flex flex-col h-[480px]">
+          <div className="flex flex-col h-[480px] sm:max-w-2xl sm:mx-auto">
             <SheetHeader>
               <div className="flex flex-col space-y-1">
                 <SheetTitle>{"What are your goals?"}</SheetTitle>
@@ -239,8 +240,8 @@ export const Onboarding = ({ currStep, show }: Props) => {
               </ul>
             </div>
             <SheetFooter>
-              <div className="flex flex-col">
-                <Button className="w-full" disabled={goal === null} onClick={() => setStep(step + 1)}>
+              <div className="flex flex-col w-full">
+                <Button className="w-full sm:w-96 sm:mx-auto" disabled={goal === null} onClick={() => setStep(step + 1)}>
                   {"Continue"}
                 </Button>
                 <div className="flex flex-row items-center">
@@ -261,14 +262,14 @@ export const Onboarding = ({ currStep, show }: Props) => {
           </div>
         )}
         {step === 3 && (
-          <div className="flex flex-col h-[480px]">
+          <div className="flex flex-col h-[480px] sm:max-w-2xl sm:mx-auto">
             {/* <SheetHeader className="flex flex-row items-center justify-center">
               <Image width={48} height={48} src={"/chesski-logo.svg"} alt="" />
               <span className="arvo text-2xl font-bold">CHESSKI</span>
             </SheetHeader> */}
             <div className="w-full h-full flex flex-col relative mt-20 justify-between">
-              <div className="flex flex-col space-y-8 items-center text-center">
-                <SheetTitle className="text-2xl font-semibold">{"With Chesski, you'll reach your goals "}<span className="text-3xl font-extrabold text-[#1b03a3]">5x faster</span></SheetTitle>
+              <div className="flex flex-col space-y-12 items-center text-center">
+                <SheetTitle className="text-2xl sm:text-3xl font-semibold">{"With Chesski, you'll reach your goals "}<span className="text-3xl sm:text-4xl font-extrabold text-[#1b03a3] whitespace-nowrap">5x faster</span></SheetTitle>
                 <ul className="flex flex-col items-start text-left space-y-2">
                   <li className="grid grid-cols-12 gap-x-4">
                     <FontAwesomeIcon
@@ -304,8 +305,8 @@ export const Onboarding = ({ currStep, show }: Props) => {
               </div>
             </div>
             <SheetFooter>
-              <div className="flex flex-col">
-                <Button className="w-full" onClick={async () => { setStep(step + 1); if (isPro) { await finishOnboarding(); setDone(true); } }}>Continue</Button>
+              <div className="flex flex-col w-full">
+                <Button className="w-full sm:w-96 sm:mx-auto" onClick={async () => { setStep(step + 1); if (isPro) { await finishOnboarding(); setDone(true); } }}>Continue</Button>
                 <div className="flex flex-row items-center">
                   <Button size="icon" variant="ghost" onClick={() => setStep(step - 1)}><FontAwesomeIcon icon={faArrowLeft} /></Button>
                   <Progress  className="w-full" value={step / maxSteps * 100} />
@@ -315,7 +316,7 @@ export const Onboarding = ({ currStep, show }: Props) => {
           </div>
         )}
         {!isPro && step === 4 && (
-          <div className="flex flex-col h-[480px]">
+          <div className="flex flex-col h-[480px] sm:max-w-2xl sm:mx-auto">
             <SheetHeader>
               <div className="flex flex-col space-y-1">
                 <SheetTitle>Learn how your free trial works</SheetTitle>
@@ -354,10 +355,10 @@ export const Onboarding = ({ currStep, show }: Props) => {
               </div>
             </div>
             <SheetFooter>
-              <div className="flex flex-col sm:space-y-6">
+              <div className="flex flex-col w-full">
                 {session && (
                   <Button
-                    className="w-full"
+                    className="w-full sm:w-96 sm:mx-auto"
                     disabled={loading}
                     onClick={async () => {
                       setLoading(true);
@@ -382,7 +383,7 @@ export const Onboarding = ({ currStep, show }: Props) => {
                     {loading && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#1B03A3]" />}
                   </Button>
                 )}
-                <Button onClick={async () => { await finishOnboarding(); setDone(true); } } size="thin" variant="link">Skip</Button>
+                <Button onClick={async () => { await finishOnboarding(); setDone(true); posthog.capture("trial_skipped") } } size="thin" variant="link">Skip</Button>
                 <div className="flex flex-row items-center">
                   <Button
                     size="icon"
