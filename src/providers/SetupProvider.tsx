@@ -77,6 +77,8 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
   const pathname = usePathname();
   const { isPro } = useUserData();  
 
+  const [mobile, setMobile] = useState(false);
+
   const [open, setOpen] = useState(false);
   const [settingUp, setSettingUp] = useState(false);
   const [removing, setRemoving] = useState(false);
@@ -146,6 +148,10 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
       toggleModal(false);
     }
   }, [gameId, pathname, toggleModal]);
+
+  useEffect(() => {
+    setMobile(window.innerWidth <= 640)
+  }, []);
 
   return (
     <SetupContext.Provider value={value}>
@@ -263,7 +269,7 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
         </Dialog>
       )}
       <DndProvider backend={(manager: DragDropManager, globalContext?: any, configuration?: any) => {
-        if (window.innerWidth <= 640) {
+        if (mobile) {
           return TouchBackend(manager, globalContext, configuration)
         } else {
           return HTML5Backend(manager, globalContext, configuration)
