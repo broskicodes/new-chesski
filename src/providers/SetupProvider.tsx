@@ -155,7 +155,7 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
         setMobile(true)
         return;
       }
-
+      
       setMobile(false)
     };
 
@@ -281,9 +281,9 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
       )}
       <DndProvider backend={(manager: DragDropManager, globalContext?: any, configuration?: any) => {
         if (mobile) {
-          return HTML5Backend(manager, globalContext, configuration)
-        } else {
           return TouchBackend(manager, globalContext, configuration)
+        } else {
+          return HTML5Backend(manager, globalContext, configuration)
         }
       }}>
         {children}
