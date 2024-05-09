@@ -41,19 +41,29 @@ import { useAuth } from "./AuthProvider/context";
 import { useUserData } from "./UserDataProvider/context";
 import Link from "next/link";
 import { Cross2Icon } from "@radix-ui/react-icons";
+import { DndProvider } from "react-dnd"
+import { HTML5Backend } from "react-dnd-html5-backend"
+import { TouchBackend } from "react-dnd-touch-backend"
+import { DragDropManager } from "dnd-core";
 
 export interface SetupProviderContext {
   settingUp: boolean;
+  removing: boolean;
   toggleModal: (show: boolean) => void;
+  setRemoving: Dispatch<SetStateAction<boolean>>;  
   setSettingUp: Dispatch<SetStateAction<boolean>>;
 }
 
 export const SetupContext = createContext<SetupProviderContext>({
   settingUp: false,
+  removing: false,
   toggleModal: (_show) => {
     throw new Error("SetupProvider not initialized");
   },
   setSettingUp: () => {
+    throw new Error("SetupProvider not initialized");
+  },
+  setRemoving: () => {
     throw new Error("SetupProvider not initialized");
   },
 });
@@ -65,10 +75,13 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
   const { newGame, gameId } = useGame();
   const { session, supabase } = useAuth();
   const pathname = usePathname();
-  const { isPro } = useUserData();
+  const { isPro } = useUserData();  
+
+  const [mobile, setMobile] = useState<boolean | null>(null);
 
   const [open, setOpen] = useState(false);
   const [settingUp, setSettingUp] = useState(false);
+  const [removing, setRemoving] = useState(false);
   const [engineSkillLevel, setEngineSkillLevel] = useState<
     Experience | "Impossible"
   >((Experience as any)[skillLvl] ?? "Impossible");
@@ -115,11 +128,13 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
   const value: SetupProviderContext = useMemo(
     () => ({
       settingUp,
+      removing,
       currSelectedLvl: engineSkillLevel,
       toggleModal,
       setSettingUp,
+      setRemoving
     }),
-    [settingUp, engineSkillLevel, toggleModal],
+    [settingUp, removing, engineSkillLevel, toggleModal],
   );
 
   useEffect(() => {
@@ -133,6 +148,14 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
       toggleModal(false);
     }
   }, [gameId, pathname, toggleModal]);
+
+  useEffect(() => {
+   setMobile("ontouchstart" in window);
+  }, []);
+
+  useEffect(() => {
+    console.log(mobile, "l")
+   }, [mobile])
 
   return (
     <SetupContext.Provider value={value}>
@@ -210,7 +233,7 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
               </div>
               {/* </div> */}
               <Label className="whitespace-nowrap">
-                Choose Starting Position
+                Set Position
               </Label>
               <DialogClose className="col-span-1 flex-grow">
                 <Button
@@ -249,7 +272,17 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
           </DialogContent>
         </Dialog>
       )}
-      {children}
+      {mobile !== null && (
+        <DndProvider backend={(manager: DragDropManager, globalContext?: any, configuration?: any) => {
+          if (mobile) {
+            return TouchBackend(manager, globalContext, configuration)
+          } else {
+            return HTML5Backend(manager, globalContext, configuration)
+          }
+        }}>
+          {children}
+        </DndProvider>
+    )}
     </SetupContext.Provider>
   );
 };

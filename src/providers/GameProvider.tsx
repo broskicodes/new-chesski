@@ -90,6 +90,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
   const [userColor, setUserColor] = useState<string>("white");
   const [complete, setComplete] = useState<boolean>(false);
   const [moves, setMoves] = useState<string[]>([]);
+  const [pgn, setPgn] = useState("")
   const [moveIdx, setMoveIdx] = useState(0);
 
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
@@ -190,6 +191,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
           finished_at: new Date(),
           result: orientation === "white" ? "0-1" : "1-0",
           moves: game.history(),
+          pgn: game.pgn()
         })
         .eq("id", id)
         .select();
@@ -199,6 +201,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
 
     setComplete(true);
     setMoves(game.history());
+    setPgn(game.pgn())
     setMoveIdx(game.history().length - 1);
 
     setCurrGameState({
@@ -212,6 +215,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     setDrawType(null);
     setComplete(false);
     setMoves([]);
+    setPgn("")
     setMoveIdx(0);
 
     setCurrGameState({
@@ -279,11 +283,12 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   useEffect(() => {
-    if (gameOver && game.isGameOver()) {
+    if (id && gameOver && game.isGameOver()) {
       gameModalTriggerRef.current?.click();
 
       setComplete(true);
       setMoves(game.history());
+      setPgn(game.pgn())
       setMoveIdx(game.history().length - 1);
 
       if (game.isCheckmate()) {
@@ -304,7 +309,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
         }
       }
     }
-  }, [game, gameOver, turn, orientation, evals]);
+  }, [id, game, gameOver, turn, orientation, evals]);
 
   useEffect(() => {
     if (!gameOver || !gameResult || !id || moves.length < 1) return;
@@ -332,6 +337,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
             finished_at: new Date(),
             result: result,
             moves: moves,
+            pgn: pgn
           })
           .eq("id", id)
           .select();
@@ -339,7 +345,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
         // console.log(data, error);
       }
     })();
-  }, [gameOver, gameResult, orientation, id, session, supabase, moves]);
+  }, [gameOver, gameResult, orientation, id, session, supabase, moves, pgn]);
 
   return (
     <GameContext.Provider value={value}>

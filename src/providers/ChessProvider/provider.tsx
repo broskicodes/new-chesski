@@ -1,4 +1,4 @@
-import { Chess, Move } from "chess.js";
+import { Chess, Move, Piece } from "chess.js";
 import {
   PropsWithChildren,
   useCallback,
@@ -20,7 +20,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
   const [game, setGame] = useState<Chess>(new Chess());
   const [gameOver, setGameOver] = useState(false);
   const [orientation, setOrientation] = useState<Player>(Player.White);
-  const [turn, setTurn] = useState<Player>(Player.White);
+  const [turn, setTurnState] = useState<Player>(Player.White);
   const [highlightedSquares, setHighlightedSquares] = useState<
     SquareHighlight[]
   >([]);
@@ -52,7 +52,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
         const res = tempGame.move(move);
         if (res) {
           setGame(tempGame);
-          setTurn(turn === Player.White ? Player.Black : Player.White);
+          setTurnState(turn === Player.White ? Player.Black : Player.White);
 
           setCurrGameState({ moves: tempGame.history() });
 
@@ -86,7 +86,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
     try {
       const tempGame = new Chess(fen);
       setGame(tempGame);
-      setTurn(tempGame.turn() === "w" ? Player.White : Player.Black);
+      setTurnState(tempGame.turn() === "w" ? Player.White : Player.Black);
 
       return true;
     } catch (e) {
@@ -95,8 +95,8 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   const playContinuation = useCallback(
-    (moves: string[], reset: boolean = false) => {
-      const tempGame = new Chess();
+    (moves: string[], reset: boolean = false, fen?: string) => {
+      const tempGame = new Chess(fen);
       if (!reset) {
         tempGame.loadPgn(game.pgn());
       }
@@ -117,7 +117,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
         ]);
 
       setGame(tempGame);
-      setTurn(tempGame.turn() === "w" ? Player.White : Player.Black);
+      setTurnState(tempGame.turn() === "w" ? Player.White : Player.Black);
 
       return true;
     },
@@ -133,7 +133,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
         const lastMove = tempGame.history({ verbose: true }).at(-1);
 
         setGame(tempGame);
-        setTurn(turn === Player.White ? Player.Black : Player.White);
+        setTurnState(turn === Player.White ? Player.Black : Player.White);
 
         setHighlightedMoves([]);
         setHighlightedSquares([]);
@@ -174,7 +174,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
         setCurrGameState({ moves: tempGame.history() });
 
         if (!res2) {
-          setTurn(turn === Player.White ? Player.Black : Player.White);
+          setTurnState(turn === Player.White ? Player.Black : Player.White);
           return [res];
         }
 
@@ -189,7 +189,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
   const reset = useCallback(() => {
     const tempGame = new Chess();
     setGame(tempGame);
-    setTurn(Player.White);
+    setTurnState(Player.White);
 
     setHighlightedMoves([]);
     setHighlightedSquares([]);
@@ -281,6 +281,62 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
     });
   }, []);
 
+  const removePiece = useCallback((sqr: Square) => {
+    const tempGame = new Chess();
+    tempGame.load(game.fen(), { skipValidation: true })
+    const res = tempGame.remove(sqr);
+
+    setGame(tempGame);
+    return res;
+  }, [game]);
+
+  const addPiece = useCallback((piece: Piece, sqr: Square) => {
+    const tempGame = new Chess();
+    tempGame.load(game.fen(), { skipValidation: true })
+    const res = tempGame.put(piece, sqr);
+
+    setGame(tempGame);
+    return res;
+  }, [game]);
+
+  const clear = useCallback(() => {
+    const tempGame = new Chess();
+    tempGame.clear();
+
+    setGame(tempGame);
+  }, []);
+
+  const dragPiece = useCallback((sSqr: Square, tSqr: Square) => {
+    const tempGame = new Chess();
+    tempGame.load(game.fen(), { skipValidation: true })
+    const res = tempGame.remove(sSqr);
+    if (res) {
+      const r = tempGame.put(res, tSqr);
+      setGame(tempGame);
+      return r;
+    }
+
+    return false;
+  }, [game]);
+
+  const setCastling = useCallback((wkc: boolean, wqc: boolean, bkc: boolean, bqc: boolean) => {
+    const tempGame = new Chess();
+    tempGame.loadPgn(game.pgn());
+  
+    tempGame.setCastlingRights("w", { "k": wkc, "q": wqc });
+    tempGame.setCastlingRights("b", { "k": bkc, "q": bqc });
+
+    setGame(new Chess(tempGame.fen()));
+  }, [game]);
+
+  const setTurn = useCallback((turn: "w" | "b") => {  
+    const newFen = game.fen().split(" ");
+    newFen[1] = turn;
+
+    setTurnState(turn === "w" ? Player.White : Player.Black);
+    setGame(new Chess(newFen.join(" ")))
+  }, [game]);
+
   useEffect(() => {
     setGameOver(game.isGameOver());
   }, [game]);
@@ -303,6 +359,12 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
       lastMoveHighlight,
       aiLastMoveHighlight,
       moveHighlight,
+      removePiece,
+      addPiece,
+      clear,
+      dragPiece,
+      setCastling,
+      setTurn,
       makeMove,
       playContinuation,
       setPosition,
@@ -341,6 +403,12 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
       addHighlightedSquares,
       resetHighlightedMoves,
       setLastMoveHighlightColor,
+      removePiece,
+      addPiece,
+      clear,
+      dragPiece,
+      setCastling,
+      setTurn
     ],
   );
 

@@ -18,6 +18,7 @@ import { useSetup } from "@/providers/SetupProvider";
 import { expToLvl } from "@/utils/clientHelpers";
 import { useUserData } from "@/providers/UserDataProvider/context";
 import { BottomNav } from "@/components/BottomNav";
+import { SetupOptions } from "@/components/SetupOptions";
 
 export default function Play() {
   const [gameStateChanged, setGameStateChanged] = useState(0);
@@ -58,7 +59,7 @@ export default function Play() {
     resizeHandler();
     window.addEventListener("resize", resizeHandler);
     return () => window.removeEventListener("resize", resizeHandler);
-  }, [contentRef.current, chessRef.current, divRef.current]);
+  }, [contentRef.current, chessRef.current, divRef.current, settingUp]);
 
   useEffect(() => {
     const gameState: GameState | null = JSON.parse(
@@ -109,11 +110,12 @@ export default function Play() {
             <div className={settingUp ? "z-40" : ""}>
               <Chessboard />
             </div>
-            <BoardControl className={settingUp ? "z-40" : ""} />
+            {!settingUp && <BoardControl className={settingUp ? "z-40" : ""} />}
           </div>
         </div>
-        <div className="sm:w-fit sm:h-fit" ref={divRef}>
-          <GameLogs />
+        <div className={`sm:w-fit sm:h-fit ${settingUp ? "z-30" : ""}`} ref={divRef}>
+          {!settingUp && <GameLogs />}
+          {settingUp && <SetupOptions />}
         </div>
       </div>
     </div>

@@ -27,6 +27,7 @@ export interface AnalysisProviderContext {
   analyzed: boolean;
   classified: boolean;
   gamePgn: string | null;
+  startFen: string;
   color: string | null;
   result: string | null;
   moves: string[];
@@ -54,6 +55,7 @@ export interface AnalysisProviderContext {
 export const AnalysisContext = createContext<AnalysisProviderContext>({
   analyzed: false,
   classified: false,
+  startFen: "",
   gamePgn: null,
   color: null,
   result: null,
@@ -90,6 +92,7 @@ export const useAnalysis = () => useContext(AnalysisContext);
 
 export const AnalysisProvider = ({ children }: PropsWithChildren) => {
   const [id, setId] = useState<string | null>(null);
+  const [startFen, setStartFen] = useState("");
   const [gamePgn, setGamePgnState] = useState<string | null>(null);
   const [color, setColor] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
@@ -126,6 +129,7 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
     swapOrientation,
     reset,
     playContinuation,
+    setPosition,
   } = useChess();
 
   const setGamePgn = useCallback(
@@ -136,7 +140,9 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
       } catch (e) {
         return false;
       }
-
+      
+      setStartFen(tempGame.history({ verbose: true }).at(0)?.before!);
+    
       setId(id);
       setColor(color);
       setResult(result);
@@ -151,13 +157,14 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
 
     if (
       moveIdx + 1 < moves.length &&
-      playContinuation(moves.slice(0, moveIdx + 2), true)
+      playContinuation(moves.slice(0, moveIdx + 2), true, startFen)
     ) {
       setLastMoveHighlightColor(getClassColor(classifications[moveIdx + 1]));
       setMoveIdx(moveIdx + 1);
     }
   }, [
     playContinuation,
+    startFen,
     moveIdx,
     moves,
     analyzed,
@@ -177,19 +184,20 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
   const firstMove = useCallback(() => {
     if (!analyzed) return;
 
-    reset();
+    setPosition(startFen);
     setLastMoveHighlightColor("");
     setMoveIdx(-1);
-  }, [reset, analyzed, setLastMoveHighlightColor]);
+  }, [setPosition, startFen, analyzed, setLastMoveHighlightColor]);
 
   const lastMove = useCallback(() => {
     if (!analyzed) return;
 
-    playContinuation(moves.slice(0, moves.length), true);
+    playContinuation(moves.slice(0, moves.length), true, startFen);
     setLastMoveHighlightColor(getClassColor(classifications[moves.length - 1]));
     setMoveIdx(moves.length - 1);
   }, [
     playContinuation,
+    startFen,
     moves,
     analyzed,
     classifications,
@@ -300,7 +308,7 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
       return;
     }
 
-    reset();
+    setPosition(startFen);
     // setGamePgnState(null);
     setSaved(false);
     setAnalyzed(false);
@@ -316,7 +324,7 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
       title: "Analyzing your game",
       description: "This may take a minute.",
     });
-  }, [gamePgn, reset, clearEvaluations, toast, clearInsights]);
+  }, [gamePgn, startFen, reset, clearEvaluations, toast, clearInsights, setPosition]);
 
   useEffect(() => {
     if (color && color !== orientation) {
@@ -331,6 +339,9 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
   useEffect(() => {
     if (analyzed && !classified) {
       // console.log(evals)
+      const firstPlayer = startFen.split(" ").at(1);
+      const mod = firstPlayer === "w" ? 0 : 1;
+    
       const classis = evals
         .slice(1)
         .map((ev, i) => {
@@ -338,7 +349,7 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
             evals[i],
             ev,
             moves[i],
-            i % 2 === 0 ? Player.White : Player.Black,
+            i % 2 === mod ? Player.White : Player.Black,
           );
 
           return qual;
@@ -349,7 +360,7 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
       setClassifications(classis);
       setClassified(true);
     }
-  }, [analyzed, evals, evaluateMoveQuality, moves, classified]);
+  }, [analyzed, evals, evaluateMoveQuality, moves, classified, startFen]);
 
   useEffect(() => {
     if (analyzed && classified && !generated) {
@@ -425,7 +436,8 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
         } else {
           setAnalyzed(true);
           setMoveIdx(-1);
-          reset();
+
+          setPosition(startFen);
         }
       }
     };
@@ -435,12 +447,13 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
     return () => {
       window.removeEventListener("setEval", evalHandler);
     };
-  }, [makeMove, reset, moves, moveIdx]);
+  }, [makeMove, reset, moves, moveIdx, startFen, setPosition]);
 
   const value: AnalysisProviderContext = useMemo(
     () => ({
       classified,
       analyzed,
+      startFen,
       gamePgn,
       color,
       result,
@@ -459,6 +472,7 @@ Please explain why ${lm.at(-1)} is a ${classif}`;
     [
       classified,
       analyzed,
+      startFen,
       gamePgn,
       color,
       result,
