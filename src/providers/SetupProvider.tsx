@@ -270,7 +270,7 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
       )}
       <DndProvider backend={(manager: DragDropManager, globalContext?: any, configuration?: any) => {
         if (mobile) {
-          return TouchBackend(manager, globalContext, configuration)
+          return HTML5Backend(manager, globalContext, configuration)
         } else {
           return HTML5Backend(manager, globalContext, configuration)
         }
