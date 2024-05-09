@@ -231,13 +231,13 @@ export const Chessboard = () => {
         </DialogContent>
       </Dialog> */}
       <ReactChessboad
-        customDndBackend={(manager: DragDropManager, globalContext?: any, configuration?: any) => {
-          if (mobile) {
-            return TouchBackend(manager, globalContext, configuration)
-          } else {
-            return HTML5Backend(manager, globalContext, configuration)
-          }
-        }}
+        // customDndBackend={(manager: DragDropManager, globalContext?: any, configuration?: any) => {
+        //   if (mobile) {
+        //     return TouchBackend(manager, globalContext, configuration)
+        //   } else {
+        //     return HTML5Backend(manager, globalContext, configuration)
+        //   }
+        // }}
         boardWidth={boardWidth}
         position={game.fen()}
         onPieceDrop={(sSqr: Square, tSqr: Square, pc: Pc) => {

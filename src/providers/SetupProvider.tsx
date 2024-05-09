@@ -44,7 +44,7 @@ import { Cross2Icon } from "@radix-ui/react-icons";
 import { DndProvider } from "react-dnd"
 import { HTML5Backend } from "react-dnd-html5-backend"
 import { TouchBackend } from "react-dnd-touch-backend"
-import { DragDropManager } from "dnd-core";
+import { DragDropManager, BackendFactory } from "dnd-core";
 
 export interface SetupProviderContext {
   settingUp: boolean;
@@ -78,6 +78,7 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
   const { isPro } = useUserData();  
 
   const [mobile, setMobile] = useState(true);
+  const [backend, setBackend] = useState<BackendFactory | null>(null);
 
   const [open, setOpen] = useState(false);
   const [settingUp, setSettingUp] = useState(false);
@@ -150,12 +151,17 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
   }, [gameId, pathname, toggleModal]);
 
   useEffect(() => {
-   setMobile("ontouchstart" in window);
+  //  setMobile("ontouchstart" in window);
+   if ("ontouchstart" in window) {
+      setBackend(TouchBackend)
+    } else {
+      setBackend(HTML5Backend)
+    }
   }, []);
 
-  useEffect(() => {
-    console.log(mobile, "l")
-   }, [mobile])
+  // useEffect(() => {
+    
+  //  }, [mobile])
 
   return (
     <SetupContext.Provider value={value}>
@@ -272,15 +278,13 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
           </DialogContent>
         </Dialog>
       )}
-      <DndProvider backend={(manager: DragDropManager, globalContext?: any, configuration?: any) => {
-        if (mobile) {
-          return TouchBackend(manager, globalContext, configuration)
-        } else {
-          return HTML5Backend(manager, globalContext, configuration)
-        }
-      }}>
-        {children}
-      </DndProvider>
+      {backend && (
+        <DndProvider backend={(manager: DragDropManager, globalContext?: any, configuration?: any) => {
+          return backend(manager, globalContext, configuration)
+        }}>
+          {children}
+        </DndProvider>
+      )}
     </SetupContext.Provider>
   );
 };
