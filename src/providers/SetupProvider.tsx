@@ -44,7 +44,7 @@ import { Cross2Icon } from "@radix-ui/react-icons";
 import { DndProvider } from "react-dnd"
 import { HTML5Backend } from "react-dnd-html5-backend"
 import { TouchBackend } from "react-dnd-touch-backend"
-import { DragDropManager, BackendFactory } from "dnd-core";
+import { DragDropManager } from "dnd-core";
 
 export interface SetupProviderContext {
   settingUp: boolean;
@@ -77,8 +77,7 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
   const pathname = usePathname();
   const { isPro } = useUserData();  
 
-  const [mobile, setMobile] = useState(true);
-  const [backend, setBackend] = useState<BackendFactory | null>(null);
+  const [mobile, setMobile] = useState<boolean | null>(true);
 
   const [open, setOpen] = useState(false);
   const [settingUp, setSettingUp] = useState(false);
@@ -151,17 +150,12 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
   }, [gameId, pathname, toggleModal]);
 
   useEffect(() => {
-  //  setMobile("ontouchstart" in window);
-   if ("ontouchstart" in window) {
-      setBackend(TouchBackend)
-    } else {
-      setBackend(HTML5Backend)
-    }
+   setMobile("ontouchstart" in window);
   }, []);
 
-  // useEffect(() => {
-    
-  //  }, [mobile])
+  useEffect(() => {
+    console.log(mobile, "l")
+   }, [mobile])
 
   return (
     <SetupContext.Provider value={value}>
@@ -278,13 +272,17 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
           </DialogContent>
         </Dialog>
       )}
-      {backend && (
+      {mobile !== null && (
         <DndProvider backend={(manager: DragDropManager, globalContext?: any, configuration?: any) => {
-          return backend(manager, globalContext, configuration)
+          if (mobile) {
+            return TouchBackend(manager, globalContext, configuration)
+          } else {
+            return HTML5Backend(manager, globalContext, configuration)
+          }
         }}>
           {children}
         </DndProvider>
-      )}
+    )}
     </SetupContext.Provider>
   );
 };
