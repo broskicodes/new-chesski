@@ -150,7 +150,18 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
   }, [gameId, pathname, toggleModal]);
 
   useEffect(() => {
-    setMobile(window.innerWidth <= 640)
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setMobile(true)
+        return;
+      }
+      
+      setMobile(false)
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return (
