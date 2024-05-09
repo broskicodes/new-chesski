@@ -193,6 +193,9 @@ export const Chessboard = () => {
     setMobile("ontouchstart" in window);
    }, []);
 
+   useEffect(() => {
+    console.log(mobile)
+   }, [mobile])
   return (
     <div>
       {/* <Dialog>

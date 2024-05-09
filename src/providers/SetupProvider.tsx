@@ -153,6 +153,10 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
    setMobile("ontouchstart" in window);
   }, []);
 
+  useEffect(() => {
+    console.log(mobile, "l")
+   }, [mobile])
+
   return (
     <SetupContext.Provider value={value}>
       {(dailyGames >= 1 && !isPro) && (
