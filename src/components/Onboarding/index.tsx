@@ -39,7 +39,7 @@ export const Onboarding = ({ show }: Props) => {
 
   const { signInWithOAuth, session, supabase } = useAuth();
   const { isPro } = useUserData();
-  const maxSteps = useMemo(() => isPro ? 3 : 4, []);
+  const maxSteps = useMemo(() => isPro ? 3 : 4, [isPro]);
 
   const router = useRouter();
 
@@ -97,7 +97,7 @@ export const Onboarding = ({ show }: Props) => {
 
       // signUp && !session ? signInWithOAuth() : router.push("/play");
     },
-    [experience, goal, chesscom, lichess, router, session, supabase,, signInWithOAuth],
+    [experience, goal,, session, supabase,, signInWithOAuth],
   );
 
     useEffect(() => {

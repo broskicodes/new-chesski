@@ -70,9 +70,9 @@ export const SetupOptions = () => {
           <div className="flex flex-col items-center">
             <div className="mb-2">
               {["w", "b"].map((c) => (
-                <div className="flex flex-row">
+                <div key={c} className="flex flex-row">
                   {["p", "n", "b", "r", "q", "k"].map((p) => (
-                    <DragablePiece p={{ color: c as Color, type: p as PieceSymbol}} />
+                    <DragablePiece key={p} p={{ color: c as Color, type: p as PieceSymbol}} />
                   ))}
                 </div>
               ))}

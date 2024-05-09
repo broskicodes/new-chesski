@@ -304,7 +304,7 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
     tempGame.clear();
 
     setGame(tempGame);
-  }, [game]);
+  }, []);
 
   const dragPiece = useCallback((sSqr: Square, tSqr: Square) => {
     const tempGame = new Chess();
