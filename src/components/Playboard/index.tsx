@@ -187,7 +187,7 @@ export const Chessboard = () => {
   //     modalTriggerRef.current?.click();
   //   }
   // }, [movesMade, mult, session, supabase])
-  const [mobile, setMobile] = useState(false);
+  const [mobile, setMobile] = useState(true);
 
   useEffect(() => {
     setMobile("ontouchstart" in window);

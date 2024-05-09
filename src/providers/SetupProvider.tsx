@@ -77,7 +77,7 @@ export const SetupProvider = ({ children }: PropsWithChildren) => {
   const pathname = usePathname();
   const { isPro } = useUserData();  
 
-  const [mobile, setMobile] = useState(false);
+  const [mobile, setMobile] = useState(true);
 
   const [open, setOpen] = useState(false);
   const [settingUp, setSettingUp] = useState(false);
