@@ -21,6 +21,10 @@ import { Message } from "ai";
 import { useAuth } from "@/providers/AuthProvider/context";
 import { useSetup } from "@/providers/SetupProvider";
 
+import { HTML5Backend } from "react-dnd-html5-backend"
+import { TouchBackend } from "react-dnd-touch-backend"
+import { DragDropManager } from "dnd-core";
+
 export const Chessboard = () => {
   const [boardWidth, setBoardWidth] = useState(1);
   const [moveTo, setMoveTo] = useState<Square | null>(null);
@@ -183,6 +187,11 @@ export const Chessboard = () => {
   //     modalTriggerRef.current?.click();
   //   }
   // }, [movesMade, mult, session, supabase])
+  const [mobile, setMobile] = useState(false);
+
+  useEffect(() => {
+    setMobile("ontouchstart" in window);
+   }, []);
 
   return (
     <div>
@@ -219,6 +228,13 @@ export const Chessboard = () => {
         </DialogContent>
       </Dialog> */}
       <ReactChessboad
+        customDndBackend={(manager: DragDropManager, globalContext?: any, configuration?: any) => {
+          if (mobile) {
+            return TouchBackend(manager, globalContext, configuration)
+          } else {
+            return HTML5Backend(manager, globalContext, configuration)
+          }
+        }}
         boardWidth={boardWidth}
         position={game.fen()}
         onPieceDrop={(sSqr: Square, tSqr: Square, pc: Pc) => {
