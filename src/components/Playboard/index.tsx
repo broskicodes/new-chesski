@@ -11,7 +11,8 @@ import {
   PositionEval,
   useEvaluation,
 } from "@/providers/EvaluationProvider/context";
-import { Chess } from "chess.js";
+import { Chess, Color, Piece, PieceSymbol } from "chess.js";
+import { Piece as Pc } from "react-chessboard/dist/chessboard/types"
 // import { toast } from 'sonner';
 import { useToast } from "@/components/ui/use-toast";
 import { useCoach } from "@/providers/CoachProvider/context";
@@ -21,7 +22,7 @@ import { useAuth } from "@/providers/AuthProvider/context";
 import { useSetup } from "@/providers/SetupProvider";
 
 export const Chessboard = () => {
-  const [boardWidth, setBoardWidth] = useState(512);
+  const [boardWidth, setBoardWidth] = useState(1);
   const [moveTo, setMoveTo] = useState<Square | null>(null);
   const [showPromotionDialog, setShowPromotionDialog] = useState(false);
   const [pieceDropSquares, setPieceDropSquares] = useState<
@@ -34,7 +35,7 @@ export const Chessboard = () => {
   const { toast } = useToast();
   const { session, supabase, signInWithOAuth } = useAuth();
   const { addGameMessage, gameMessages } = useCoach();
-  const { settingUp } = useSetup();
+  const { settingUp, removing } = useSetup();
   const {
     game,
     makeMove,
@@ -50,6 +51,10 @@ export const Chessboard = () => {
     lastMoveHighlight,
     resetHighlightedMoves,
     addArrows,
+    dragPiece,
+    addPiece,
+    removePiece,
+    clear
   } = useChess();
 
   // const modalTriggerRef = useRef<HTMLButtonElement>(null);
@@ -74,7 +79,7 @@ export const Chessboard = () => {
 
       if (game.fen() !== curr?.evaledFen && turn === orientation) {
         const tempGame = new Chess();
-        tempGame.loadPgn(game.history().slice(0, -2).join(" "));
+        tempGame.loadPgn(`[FEN "${game.history({ verbose: true }).at(0)?.before}"]\n\n${game.history().slice(0, -2).join(" ")}`);
         try {
           tempGame.move(prev?.bestMove!);
 
@@ -147,12 +152,14 @@ export const Chessboard = () => {
         setBoardWidth(480);
         return;
       }
-      setBoardWidth(512);
+      setBoardWidth(window.innerHeight - 196);
     };
+
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
 
   // useEffect(() => {
   //   if (movesMade === (session ? 15 : 5) * mult) {
@@ -214,22 +221,36 @@ export const Chessboard = () => {
       <ReactChessboad
         boardWidth={boardWidth}
         position={game.fen()}
-        onPieceDrop={(sSqr: Square, tSqr: Square) => {
-          const res = onDrop(sSqr, tSqr);
+        onPieceDrop={(sSqr: Square, tSqr: Square, pc: Pc) => {
+          if (settingUp) {
+            // @ts-ignore
+            if (sSqr === "null") {
+              const piece: Piece = {
+                color: pc[0] as Color,
+                type: pc[1].toLowerCase() as PieceSymbol
+              } 
 
-          if (res && !settingUp) {
-            setMovesMade(movesMade + 1);
-            posthog.capture("user_played_move");
-            updateStreak();
+              return addPiece(piece, tSqr);
+            } else {
+              return dragPiece(sSqr, tSqr);
+            }
+          } else {
+            const res = onDrop(sSqr, tSqr);
+
+            if (res && !settingUp) {
+              setMovesMade(movesMade + 1);
+              posthog.capture("user_played_move");
+              updateStreak();
+            }
+
+            return res;
           }
-
-          return res;
         }}
         boardOrientation={orientation}
         customArrows={arrows}
         promotionToSquare={moveTo}
-        showPromotionDialog={showPromotionDialog}
-        onPromotionCheck={(sourceSquare, targetSquare, piece) => {
+        showPromotionDialog={showPromotionDialog && !settingUp}
+        onPromotionCheck={settingUp ? undefined : (sourceSquare, targetSquare, piece) => {
           setPieceDropSquares([sourceSquare, targetSquare]);
 
           return (
@@ -243,7 +264,7 @@ export const Chessboard = () => {
               1
           );
         }}
-        onPromotionPieceSelect={(piece: PromotionPieceOption | undefined) => {
+        onPromotionPieceSelect={settingUp ? undefined : (piece: PromotionPieceOption | undefined) => {
           if (highlightedMoves.length > 0) {
             if (piece) {
               makeMove({
@@ -271,9 +292,13 @@ export const Chessboard = () => {
           return true;
         }}
         onSquareRightClick={(sqr) => {
-          addHighlightedSquares([{ square: sqr, color: "#F7A28D" }], false);
+          if (settingUp) {
+            removePiece(sqr);
+          } else {
+            addHighlightedSquares([{ square: sqr, color: "#F7A28D" }], false);
+          }
         }}
-        onSquareClick={(sqr) => {
+        onSquareClick={settingUp ? (sqr) => { if (removing) { removePiece(sqr); } } : (sqr) => {
           let resetHighlights = true;
           if (highlightedMoves.length > 0) {
             setMoveTo(sqr);

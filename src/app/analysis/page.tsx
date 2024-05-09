@@ -32,7 +32,7 @@ const UselessComp = () => {
     // (async () => {
     supabase
       .from("games")
-      .select("starting_pos,result,user_color,moves")
+      .select("starting_pos,result,user_color,moves,pgn")
       .eq("id", gameId)
       .then(({ data, error }) => {
         if (error) {
@@ -50,7 +50,7 @@ const UselessComp = () => {
           return;
         }
 
-        setGamePgn(gameId, g.moves.join(" "), g.user_color, g.result);
+        setGamePgn(gameId, g.pgn, g.user_color, g.result);
         setFound(true);
 
         setFindingGame(false);

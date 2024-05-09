@@ -81,16 +81,17 @@ export const EvalBar = () => {
     const handleResize = () => {
       if (window.innerWidth < 640) {
         setBarLength(window.innerWidth > 480 ? 480 : window.innerWidth);
-        setMobile(true);
+        setMobile(true)
         return;
       } else if (window.innerWidth < 1024) {
         setBarLength(480);
-        setMobile(false);
+        setMobile(false)
         return;
       }
-      setMobile(false);
-      setBarLength(512);
+      setBarLength(window.innerHeight - 196);
+      setMobile(false)
     };
+
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);

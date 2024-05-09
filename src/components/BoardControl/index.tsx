@@ -9,6 +9,7 @@ import {
   faFlag,
   faLeftLong,
   faRightLong,
+  faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 import { Tooltip } from "@/components/Tooltip";
 import { useChess } from "@/providers/ChessProvider/context";
@@ -31,9 +32,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Chess, validateFen } from "chess.js";
+import { useToast } from "../ui/use-toast";
 
 export const BoardControl = ({ className }: { className?: string }) => {
-  const { undo, swapOrientation, reset, doubleUndo } = useChess();
+  const { game, undo, swapOrientation, reset, doubleUndo, clear } = useChess();
   const { clearGameMessages } = useCoach();
   const { clearEvaluations, popEvals } = useEvaluation();
   const { settingUp, setSettingUp, toggleModal } = useSetup();
@@ -47,6 +50,8 @@ export const BoardControl = ({ className }: { className?: string }) => {
     moveIdx,
     moves,
   } = useGame();
+
+  // const { toast } = useToast()
 
   const handleFlip = useCallback(() => {
     swapOrientation();
@@ -76,9 +81,9 @@ export const BoardControl = ({ className }: { className?: string }) => {
               <FontAwesomeIcon icon={faRefresh} />
             </Button>
           </Tooltip>
-          <Tooltip content="Undo Move">
-            <Button size="icon" onClick={handleUndo}>
-              <FontAwesomeIcon icon={faReply} />
+          <Tooltip content="Clear Board">
+            <Button size="icon" onClick={clear}>
+              <FontAwesomeIcon icon={faTrashCan} />
             </Button>
           </Tooltip>
         </div>
@@ -183,17 +188,9 @@ export const BoardControl = ({ className }: { className?: string }) => {
       )}
       {settingUp && (
         <div className="flex flex-row space-x-2">
-          <Tooltip content="Confirm">
-            <Button
-              size="icon"
-              onClick={() => {
-                setSettingUp(false);
-                toggleModal(true);
-              }}
-            >
-              <FontAwesomeIcon icon={faCheck} />
-            </Button>
-          </Tooltip>
+          {/* <Tooltip content="Confirm">
+            
+          </Tooltip> */}
         </div>
       )}
     </div>

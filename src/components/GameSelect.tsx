@@ -107,7 +107,7 @@ export const GameSelect = ({ className }: Props) => {
 
     supabase
       .from("games")
-      .select("starting_pos,result,user_color,moves,id")
+      .select("starting_pos,result,user_color,moves,id,pgn")
       .eq("user_id", session.id)
       .neq("result", null)
       .order("finished_at", { ascending: false })
@@ -128,7 +128,7 @@ export const GameSelect = ({ className }: Props) => {
                   d.user_color === "black"
                     ? { rating: 0, username: "User" }
                     : { rating: 0, username: "Chesski" },
-                pgn: d.moves.join(" "),
+                pgn: d.pgn,
                 result: d.result,
               };
             }) ?? [];

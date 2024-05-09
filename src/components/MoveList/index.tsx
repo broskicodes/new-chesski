@@ -45,6 +45,7 @@ export const MoveList = () => {
     moveIdx,
     classifications,
     classified,
+    startFen,
     setMoveIdx,
     nextMove,
     prevMove,
@@ -245,7 +246,7 @@ export const MoveList = () => {
                       <TableCell
                         className={`cursor-pointer rounded-sm hover:bg-indigo-100/25 ${classified && moveIdx === 2 * i ? "bg-indigo-100/50" : ""}`}
                         onClick={() => {
-                          playContinuation(moves.slice(0, 2 * i + 1), true);
+                          playContinuation(moves.slice(0, 2 * i + 1), true, startFen);
                           setLastMoveHighlightColor(
                             getClassColor(classifications[2 * i]),
                           );
@@ -267,7 +268,7 @@ export const MoveList = () => {
                       <TableCell
                         className={`cursor-pointer rounded-sm hover:bg-indigo-100/25 ${classified && moveIdx === 2 * i + 1 ? "bg-indigo-100/50" : ""}`}
                         onClick={() => {
-                          playContinuation(moves.slice(0, 2 * i + 2), true);
+                          playContinuation(moves.slice(0, 2 * i + 2), true, startFen);
                           setLastMoveHighlightColor(
                             getClassColor(classifications[2 * i + 1]),
                           );

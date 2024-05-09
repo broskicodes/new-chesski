@@ -1,4 +1,4 @@
-import { Chess, Move, Square } from "chess.js";
+import { Chess, Move, Piece, Square } from "chess.js";
 import { createContext, useContext } from "react";
 import { Arrow } from "react-chessboard/dist/chessboard/types";
 
@@ -42,7 +42,13 @@ export interface ChessProviderContext {
   addHighlightedSquares: (sqrs: SquareHighlight[], reset: boolean) => void;
   resetHighlightedMoves: (moves: Move[]) => void;
   setLastMoveHighlightColor: (color: string) => void;
-  playContinuation: (moves: string[], reset: boolean) => boolean;
+  playContinuation: (moves: string[], reset: boolean, fen?: string) => boolean;
+  addPiece: (piece: Piece, sqr: Square) => boolean;
+  removePiece: (sqr: Square) => Piece | null;
+  clear: () => void;
+  dragPiece: (sSqr: Square, tSqr: Square) => boolean;
+  setCastling: (wkc: boolean, wqc: boolean, bkc: boolean, bqc: boolean) => void;
+  setTurn: (turn: "w" | "b") => void;
 }
 
 export const ChessContext = createContext<ChessProviderContext>({
@@ -89,9 +95,27 @@ export const ChessContext = createContext<ChessProviderContext>({
   setLastMoveHighlightColor: (_color) => {
     throw new Error("ChessboardProvider not initialized");
   },
-  playContinuation: (_movess, _reset) => {
+  playContinuation: (_moves, _reset) => {
     throw new Error("ChessboardProvider not initialized");
   },
+  addPiece: (_piece, _sqr) => {
+    throw new Error("ChessboardProvider not initialized");
+  },
+  removePiece: (_sqr) => {
+    throw new Error("ChessboardProvider not initialized");
+  },
+  clear: () => {
+    throw new Error("ChessboardProvider not initialized");
+  },
+  dragPiece: (_ss, _ts) => {
+    throw new Error("ChessboardProvider not initialized");
+  },
+  setCastling: (_wkc, _wqc, _bkc, _bqc)  => {
+    throw new Error("ChessboardProvider not initialized");
+  },
+  setTurn: (_t) => {
+    throw new Error("ChessboardProvider not initialized");
+  }
 });
 
 export const useChess = () => useContext(ChessContext);
