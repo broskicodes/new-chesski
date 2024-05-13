@@ -67,8 +67,10 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
             <div className="" ref={msgRef} />
           </ScrollArea>
           <form onSubmit={submitMessage} className="mt-2 space-y-1">
-            <Input placeholder="Enter text here" inputMode="url" value={input} onChange={handleInputChange} onFocus={() => {
-              submitRef.current?.scrollIntoView();
+            <Input placeholder="Enter text here" value={input} onChange={handleInputChange} onFocus={() => {
+              setTimeout(() => () => {
+                submitRef.current?.scrollIntoView();
+              }, 500)
             }} />
           
             <div className="flex flex-row space-x-1" ref={submitRef}>
