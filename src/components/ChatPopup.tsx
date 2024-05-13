@@ -73,7 +73,7 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
               }, 2000)
             }} />
           
-            <div className="flex flex-row space-x-1" ref={submitRef}>
+            <div className="flex flex-row space-x-1">
               <Button type="submit" className="w-full">
                 submit
               </Button>
@@ -83,6 +83,7 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
                 clear
               </Button>
             </div>
+            <div ref={submitRef} />
           </form>
         </PopoverContent>
       </PopoverPortal>
