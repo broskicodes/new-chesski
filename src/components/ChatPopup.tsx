@@ -64,10 +64,10 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
                 </div>
               ))}
             </div>
-            <div className="" ref={msgRef} />
+            <div ref={msgRef} />
           </ScrollArea>
           <form onSubmit={submitMessage} className="mt-2 space-y-1">
-            <Input placeholder="Enter text here" inputMode="search" value={input} onChange={handleInputChange} onFocus={() => {
+            <Input placeholder="Enter text here" inputMode="email" value={input} onChange={handleInputChange} onFocus={() => {
               setTimeout(() => () => {
                 submitRef.current?.scrollIntoView();
               }, 2000)
@@ -83,7 +83,7 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
                 clear
               </Button>
             </div>
-            <div className="absolute bottom-0" ref={submitRef} />
+            <div ref={submitRef} />
           </form>
         </PopoverContent>
       </PopoverPortal>
