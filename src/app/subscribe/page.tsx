@@ -27,6 +27,7 @@ import posthog from "posthog-js";
 import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { FreeTrialModal } from "@/components/FreeTrialModal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ChatPopupTrigger } from "@/components/ChatPopupTrigger";
 
 const SubPage = () => {
   // const [annual, setAnnual] = useState(true);
@@ -106,8 +107,10 @@ const SubPage = () => {
   }, []);
 
   return (
-    <div className="pb-8 h-full flex flex-col sm:justify-center sm:items-center overflow-y-scroll">
+    <div className="pb-8 h-full flex flex-col sm:justify-center sm:items-center overflow-y-auto">
       <Navbar showMobile={true} />
+      <ChatPopupTrigger />
+
       {/* <Suspense>
         <FreeTrialModal />
       </Suspense> */}

@@ -3,6 +3,7 @@ import "./styles.css";
 
 import { AnalysisBoard } from "@/components/AnalysisBoard";
 import { BottomNav } from "@/components/BottomNav";
+import { ChatPopupTrigger } from "@/components/ChatPopupTrigger";
 import { MoveList } from "@/components/MoveList";
 import { Navbar } from "@/components/Navbar";
 import { useAnalysis } from "@/providers/AnalysisProvider";
@@ -107,6 +108,8 @@ const AnalyzePage = () => {
     <div className="sm:justify-center flex flex-col h-full">
       <Navbar />
       <BottomNav />
+      <ChatPopupTrigger hideMobile={true} />
+
       <Suspense>
         <UselessComp />
       </Suspense>
