@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabaseCilent } from "@/utils/serverHelpers";
-import LoopsClient from "loops";
+import { LoopsClient } from "loops";
 import PostHogClient from "@/utils/posthog";
 
 const loops = new LoopsClient(process.env.LOOPS_API_KEY!);

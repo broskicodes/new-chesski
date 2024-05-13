@@ -1,5 +1,5 @@
 import { getSupabaseCilent } from "@/utils/serverHelpers";
-import LoopsClient from "loops";
+import { LoopsClient } from "loops";
 
 const loops = new LoopsClient(process.env.LOOPS_API_KEY!);
 
@@ -47,7 +47,10 @@ export const POST = async (req: Request) => {
     });
   }
 
-  const loopsRes = await loops.sendEvent({ email: user.email }, "subPageVisit");
+  const loopsRes = await loops.sendEvent({ 
+    email: user.email,
+    eventName: "subPageVisit" 
+  },);
 
   if (!loopsRes.success) {
     return new Response("Error triggering email", { status: 500 });
