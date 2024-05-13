@@ -1,6 +1,7 @@
 import PostHogClient from "@/utils/posthog";
+import { CHESSKI_MONTHLY_PRICE, CHESSKI_YEARLY_PRICE } from "@/utils/types";
 import { createServerClient } from "@supabase/ssr";
-import LoopsClient from "loops";
+import { LoopsClient } from "loops";
 import Stripe from "stripe";
 
 const loops = new LoopsClient(process.env.LOOPS_API_KEY!);
@@ -72,6 +73,7 @@ export const POST = async (req: Request) => {
       const price_id = lineItems?.data[0].price?.id;
       const user_id = sessionWithLineItems.metadata?.user_id;
       const trial = sessionWithLineItems.metadata?.trial;
+      const user_email = sessionWithLineItems.customer_details?.email;
 
       if (!user_id) {
         return new Response("Invalid user somehow", { status: 500 });
@@ -108,6 +110,21 @@ export const POST = async (req: Request) => {
           event: trial ? "trial_started" : "sub_purchased",
         });
         await posthog.shutdownAsync();
+
+        if (trial) {
+          const loopsRes = await loops.sendEvent({ 
+            eventName: "trialStarted",
+            email: user_email!,
+            contactProperties: {
+              plan: "trial"
+            },
+            eventProperties: {
+              price: price_id === process.env.CHESSKI_MONTHLY_ID ? CHESSKI_MONTHLY_PRICE : CHESSKI_YEARLY_PRICE,
+              period: price_id === process.env.CHESSKI_MONTHLY_ID ? "month" : "year"
+            }
+          });
+          console.log("loops success:" + loopsRes.success);
+        }
 
         console.log(data, error);
       }
