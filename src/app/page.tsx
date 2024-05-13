@@ -19,6 +19,7 @@ import {
   faRocket,
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
+import { ChatPopupTrigger } from "@/components/ChatPopupTrigger";
 
 const featureCards: {
   title: string;
@@ -53,6 +54,7 @@ export default function Home() {
   return (
     <div className="flex flex-col h-full w-full overflow-y-auto sm:justify-center">
       <Navbar showMobile={true} />
+      <ChatPopupTrigger />
       <div className="flex flex-col justify-start pt-24 pb-16 sm:justify-center sm:items-center overflow-y-auto">
         <div className="flex flex-col space-y-2 text-black mb-12">
           <CardTitle className="text-center sm:text:left text-4xl flex flex-col sm:flex-row space-x-0 sm:space-x-2">
@@ -67,7 +69,7 @@ export default function Home() {
             <Link key={feat.title} href={feat.href} className="w-full px-4">
               <Card className="hover:scale-[1.05] w-full sm:w-96 h-40">
                 <CardHeader className="items-start">
-                  <FontAwesomeIcon icon={feat.icon} color="#999999" />
+                  <FontAwesomeIcon size="lg" icon={feat.icon} color="#999999" />
                 </CardHeader>
                 <CardContent>
                   <CardTitle className="mb-1">{feat.title}</CardTitle>

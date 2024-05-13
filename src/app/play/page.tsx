@@ -19,6 +19,7 @@ import { expToLvl } from "@/utils/clientHelpers";
 import { useUserData } from "@/providers/UserDataProvider/context";
 import { BottomNav } from "@/components/BottomNav";
 import { SetupOptions } from "@/components/SetupOptions";
+import { ChatPopupTrigger } from "@/components/ChatPopupTrigger";
 
 export default function Play() {
   const [gameStateChanged, setGameStateChanged] = useState(0);
@@ -99,6 +100,7 @@ export default function Play() {
 
       <Navbar />
       <BottomNav />
+      <ChatPopupTrigger hideMobile={true} />
       {/* <Footer /> */}
       <div className="page-content" ref={contentRef}>
         <div
