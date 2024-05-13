@@ -21,7 +21,7 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
   }, [messages]);
 
   return (
-    <Popover modal={true} onOpenChange={(open) => {
+    <Popover modal={false} onOpenChange={(open) => {
       if (!open)
         return;
 
@@ -67,20 +67,20 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
             <div ref={msgRef} />
           </ScrollArea>
           <form onSubmit={submitMessage} className="mt-2 space-y-1">
-            <Input placeholder="Enter text here" inputMode="email" value={input} onChange={handleInputChange} onFocus={() => {
+            <Input placeholder="Enter text here" inputMode="search" value={input} onChange={handleInputChange} onFocus={() => {
               setTimeout(() => () => {
                 submitRef.current?.scrollIntoView();
-              }, 2000)
+              }, 500)
             }} />
           
             <div className="flex flex-row space-x-1">
               <Button type="submit" className="w-full">
-                submit
+                Submit
               </Button>
               <Button onClick={async () => {
                 clearChat();
               }}>
-                clear
+                Clear
               </Button>
             </div>
             <div ref={submitRef} />
