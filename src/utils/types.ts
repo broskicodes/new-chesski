@@ -88,3 +88,4 @@ export const STRIPE_LINK = "https://donate.stripe.com/7sIaHVg9WbnLcla4gg";
 
 export const CHESSKI_MONTHLY_PRICE = 10;
 export const CHESSKI_YEARLY_PRICE = 80;
+export const OPENAI_ASSISTANT_ID = "asst_HzyNJlA7DlbLGKeW3o5LeeKo";

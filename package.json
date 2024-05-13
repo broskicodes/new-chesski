@@ -11,6 +11,7 @@
     "stockfish": "cd public && rm -rf nmrugg_stockfish_js && cp -r ../node_modules/stockfish/src nmrugg_stockfish_js && cd .."
   },
   "dependencies": {
+    "@ai-sdk/openai": "^0.0.10",
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
@@ -34,14 +35,14 @@
     "@supabase/ssr": "^0.0.10",
     "@supabase/supabase-js": "^2.39.3",
     "@vercel/analytics": "^1.1.2",
-    "ai": "^2.2.32",
+    "ai": "^3.1.5",
     "chess.js": "^1.0.0-beta.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "loops": "^2.0.0",
     "next": "14.1.0",
     "next-themes": "^0.2.1",
-    "openai": "^4.26.0",
+    "openai": "^4.45.0",
     "posthog-js": "^1.105.6",
     "posthog-node": "^3.6.3",
     "react": "^18",
@@ -57,7 +58,8 @@
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
     "tippy.js": "^6.3.7",
-    "vaul": "^0.9.0"
+    "vaul": "^0.9.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20",
