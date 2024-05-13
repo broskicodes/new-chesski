@@ -66,7 +66,7 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
             <div className="" ref={msgRef} />
           </ScrollArea>
           <form onSubmit={submitMessage} className="mt-2 space-y-1">
-            <Input placeholder="Enter text here" value={input} onChange={handleInputChange} />
+            <Input placeholder="Enter text here" value={input} onChange={handleInputChange} inputMode="none" />
           
             <div className="flex flex-row space-x-1">
               <Button type="submit" className="w-full">
