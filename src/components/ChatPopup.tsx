@@ -70,7 +70,7 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
             <Input placeholder="Enter text here" value={input} onChange={handleInputChange} onFocus={() => {
               setTimeout(() => () => {
                 submitRef.current?.scrollIntoView();
-              }, 500)
+              }, 2000)
             }} />
           
             <div className="flex flex-row space-x-1" ref={submitRef}>
