@@ -12,6 +12,7 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
   const { input, messages, status, handleInputChange, submitMessage, clearChat } = useAssistant();
 
   const msgRef = useRef<HTMLDivElement>(null);
+  const submitRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (msgRef.current) {
@@ -66,9 +67,11 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
             <div className="" ref={msgRef} />
           </ScrollArea>
           <form onSubmit={submitMessage} className="mt-2 space-y-1">
-            <Input placeholder="Enter text here" value={input} onChange={handleInputChange} inputMode="none" />
+            <Input placeholder="Enter text here" value={input} onChange={handleInputChange} onFocus={() => {
+              submitRef.current?.scrollIntoView();
+            }} />
           
-            <div className="flex flex-row space-x-1">
+            <div className="flex flex-row space-x-1" ref={submitRef}>
               <Button type="submit" className="w-full">
                 submit
               </Button>
