@@ -64,7 +64,7 @@ Your advice should be directly relavent to the CURRENT POSITION.
 Take into account any tactics available, or hanging pieces.`;
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4-turbo-preview",
+    model: "gpt-4o",
     stream: true,
     messages: [
       {
