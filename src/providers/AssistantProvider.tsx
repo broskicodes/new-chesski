@@ -9,6 +9,7 @@ export interface AssistantProviderContext {
   input: string;
   status: AssistantStatus;
   messages:  Message[];
+  createThread: () => Promise<void>;
   submitMessage: (event?: FormEvent<HTMLFormElement> | undefined, requestOptions?: {
     data?: Record<string, string> | undefined;
 } | undefined) => Promise<void>;
@@ -22,6 +23,9 @@ export const AssistantContext = createContext<AssistantProviderContext>({
   status: "awaiting_message",
   input: "",
   messages: [],
+  createThread: () => {
+    throw new Error("AssistantProvider not initialized");
+  },
   submitMessage: () => {
     throw new Error("AssistantProvider not initialized");
   },
@@ -90,9 +94,9 @@ export const AssistantProvider = ({ children }: PropsWithChildren) => {
 
   }, [messages, status, saveMessage]);
 
-  useEffect(() => {
-    createThread();
-  }, [createThread]);
+  // useEffect(() => {
+  //   createThread();
+  // }, [createThread]);
 
   useEffect(() => {
     if (threadId) {
@@ -112,10 +116,11 @@ export const AssistantProvider = ({ children }: PropsWithChildren) => {
     input,
     messages,
     status,
+    createThread,
     clearChat,
     handleInputChange,
     submitMessage,
-  }), [threadId, assistantId, input, messages, status, submitMessage, handleInputChange, clearChat]);
+  }), [threadId, assistantId, input, messages, status, createThread, submitMessage, handleInputChange, clearChat]);
 
   return (
     <AssistantContext.Provider value={value}>

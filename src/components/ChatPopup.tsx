@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import Link from "next/link";
 
 export const ChatPopup = ({ children }: PropsWithChildren) => {
-  const { input, messages, status, handleInputChange, submitMessage, clearChat } = useAssistant();
+  const { input, messages, status, handleInputChange, submitMessage, clearChat, threadId, createThread } = useAssistant();
 
   const msgRef = useRef<HTMLDivElement>(null);
   const submitRef = useRef<HTMLDivElement>(null);
@@ -21,13 +21,17 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
   }, [messages]);
 
   return (
-    <Popover modal={false} onOpenChange={(open) => {
+    <Popover modal={false} onOpenChange={async (open) => {
       if (!open)
         return;
 
       setTimeout(() => {
         msgRef.current?.scrollIntoView();
       }, 100)
+
+      if (!threadId) {
+        await createThread();
+      }
     }}>
       <PopoverTrigger>
         {children}
