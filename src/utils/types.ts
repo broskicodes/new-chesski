@@ -81,6 +81,17 @@ export enum SubType {
   Yearly,
 }
 
+export enum RunType {
+  Onboarding = 0,
+  General = 1,
+}
+
+export const RunStarterMsgMap: Record<RunType, string> = {
+  [RunType.Onboarding]: "Hi! I'm Chesski. I'm here to help you get the most out of this app. First, I've got a few questions for you. Ready?",
+  [RunType.General]: "Hey! This is Chesski. Have a question about the platform, or chess in general? Let me know!"
+}
+
+
 export const SanRegex =
   /(O-O(-O)?|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](=[QRBN])?[\+#]?|([a-h]x)?[a-h][1-8](=[QRBN])?[\+#]?)/g;
 export const ONBOARDING_UPDATE_DATE = new Date("2024-03-04 22:00:34.202959+00");
@@ -88,4 +99,4 @@ export const STRIPE_LINK = "https://donate.stripe.com/7sIaHVg9WbnLcla4gg";
 
 export const CHESSKI_MONTHLY_PRICE = 10;
 export const CHESSKI_YEARLY_PRICE = 80;
-export const OPENAI_ASSISTANT_ID = "asst_HzyNJlA7DlbLGKeW3o5LeeKo";
+export const OPENAI_ASSISTANT_ID = process.env.NEXT_PUBLIC_ASSISTANT_ID!;

@@ -18,7 +18,7 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
   const [expProc, setExpProc] = useState(false);
   // const [queries, setQueries] = useState<Query[]>([]);
 
-  const { experience } = useUserData();
+  const { experienceText } = useUserData();
   const { evals } = useEvaluation();
   const { orientation, game, turn } = useChess();
 
@@ -40,7 +40,7 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
   } = useChat({
     api: "/chat/coach/position",
     body: {
-      skill: experienceToTitle(experience),
+      skill: experienceText,
       orientation: orientation,
       turn: turn,
       fen: game.fen(),
