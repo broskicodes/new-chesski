@@ -38,7 +38,7 @@ Here is some information about the user:
 - Goals: ${goals}
 - Weaknesses: ${weaknesses}
 
-Try to personalize your responses as much as possible.
+Try to personalize your responses as much as possible. Encourage them to use features of the Chesski app when relevant.
 </run>`
   }
 
