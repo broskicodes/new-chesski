@@ -22,6 +22,13 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
   const [isPro, setIsPro] = useState(false);
   const [subId, setSubId] = useState<string | null>(null);
 
+  const [experienceText, setExperienceText] = useState("");
+  const [goals, setGoals] = useState("");
+  const [weaknesses, setWeaknesses] = useState("");
+  const [playstyle, setPlaystyle] = useState("");
+  const [hasProfile, setHasProfile] = useState(false);
+
+
   const [dataLoaded, setDataLoaded] = useState(false);
 
   const { session, sessionLoaded, supabase } = useAuth();
@@ -48,6 +55,20 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
         setExperience(Experience.Beginner);
         setOnboarded(false)
       }
+
+      const { data: profile } = await supabase
+        .from("user_profiles")
+        .select()
+        .eq("user_id", session.id);
+      
+      if (profile && profile[0]) {
+        setWeaknesses(profile[0].weaknesses);
+        setPlaystyle(profile[0].playstyle);
+        setExperienceText(profile[0].experience);
+        setGoals(profile[0].goals);
+        setHasProfile(true);
+      }
+
     } else {
       const item = localStorage.getItem("userData");
 
@@ -210,13 +231,17 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
       isPro,
       subId,
       onboarded,
+      experienceText,
+      playstyle,
+      weaknesses,
+      goals,
+      hasProfile,
       saveData,
       getData,
       updateChesscom: setChesscom,
       updateLichess: setLichess,
-      updateExperience: setExperience,
     }),
-    [chesscom, lichess, experience, pfp, name, isPro, subId, onboarded, saveData, getData],
+    [chesscom, lichess, experience, pfp, name, isPro, subId, onboarded, experienceText, weaknesses, playstyle, goals, hasProfile, saveData, getData],
   );
 
   return (

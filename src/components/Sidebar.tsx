@@ -64,13 +64,10 @@ export const Sidebar = ({ children, panel }: Props) => {
   const {
     lichess,
     chesscom,
-    experience,
     name,
     isPro,
-    pfp,
     updateChesscom,
     updateLichess,
-    updateExperience,
     saveData,
     getData,
   } = useUserData();

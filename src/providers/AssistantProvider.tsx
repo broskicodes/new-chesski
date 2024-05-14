@@ -1,7 +1,8 @@
-import { OPENAI_ASSISTANT_ID, RunType } from "@/utils/types";
+import { OPENAI_ASSISTANT_ID, RunStarterMsgMap, RunType } from "@/utils/types";
 import { ChangeEvent, FormEvent, PropsWithChildren, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { AssistantStatus, Message, useAssistant as useVercelAssistant } from 'ai/react';
 import { useAuth } from "./AuthProvider/context";
+import { useUserData } from "./UserDataProvider/context";
 
 export interface AssistantProviderContext {
   assistantId: string;
@@ -45,14 +46,21 @@ export const AssistantProvider = ({ children }: PropsWithChildren) => {
   const [assistantId] = useState(OPENAI_ASSISTANT_ID);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [runType, setRunType] = useState<RunType>(RunType.Onboarding);
-
+  const [threadEmpty, setThreadEmpty] = useState(true);
+  
   const { session, supabase } = useAuth();
+  const { experienceText, playstyle, goals, weaknesses, hasProfile, getData } = useUserData();
   const { status, messages, input, threadId: tid, setInput, submitMessage, handleInputChange, setMessages } = useVercelAssistant({
     api: "/chat/assistant",
     body: {
       assistantId,
       tid: threadId,
-      runType
+      runType,
+      threadEmpty,
+      weaknesses,
+      playstyle,
+      goals,
+      experience: experienceText
     },
   });
 
@@ -84,6 +92,7 @@ export const AssistantProvider = ({ children }: PropsWithChildren) => {
   
   const clearChat = useCallback(async () => {
     setMessages([]);
+    setThreadEmpty(true);
     await createThread();
 
   }, [setMessages, createThread, setInput]);
@@ -98,21 +107,46 @@ export const AssistantProvider = ({ children }: PropsWithChildren) => {
 
   }, [messages, status, saveMessage]);
 
-  // useEffect(() => {
-  //   createThread();
-  // }, [createThread]);
+  useEffect(() => {
+    if (messages.length > 1) {
+      setThreadEmpty(false);
+    }
+
+    (async () => {
+      for (const message of messages.slice().reverse()) {
+        if (message.role === "data") {
+          if (typeof message.data === 'object' && message.data !== null) {
+            // @ts-ignore
+            if (message.data["type"] === "onboarding_complete") {
+              await getData();
+            }
+
+            break;
+          }
+        }
+      }
+    })();
+  }, [messages, getData]);
 
   useEffect(() => {
-    if (threadId) {
+    if (hasProfile) {
+      setRunType(RunType.General);
+    } else {
+      setRunType(RunType.Onboarding)
+    }
+  }, [hasProfile])
+
+  useEffect(() => {
+    if (threadId !== tid) {
       setMessages([
         {
           id: Math.random().toString().substring(32),
           role: "assistant",
-          content: "Hi! I'm Chesski, here to help you improve on your chess journey. What would you like to talk about today?"
+          content: RunStarterMsgMap[runType]
         }
       ]);
     }
-  }, [threadId, setMessages])
+  }, [threadId, tid, runType, setMessages])
 
   const value: AssistantProviderContext = useMemo(() => ({
     threadId: threadId ?? null,

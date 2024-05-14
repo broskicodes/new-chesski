@@ -54,19 +54,25 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
           </div>
           <ScrollArea className="w-full h-full">
             <div className="flex flex-col text-sm space-y-2">
-              {messages.map((m, i) => (
-                <div key={i} className={`flex flex-row w-full`} style={{ justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
-                  {m.role === "assistant" && (
-                    <Avatar size="sm">
-                      <AvatarImage src="/chesski-logo.svg" />
-                      <AvatarFallback>C</AvatarFallback>
-                    </Avatar>
-                  )}
-                  <div className={`p-4 rounded-lg w-9/12 ${m.role === "user" ? "bg-indigo-100" : "bg-gray-100"}`}>
-                    {m.content}
+              {messages.map((m, i) => {
+                if (m.role !== "assistant" && m.role !== "user") {
+                  return null;
+                }
+
+                return (
+                  <div key={i} className={`flex flex-row w-full`} style={{ justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
+                    {m.role === "assistant" && (
+                      <Avatar size="sm">
+                        <AvatarImage src="/chesski-logo.svg" />
+                        <AvatarFallback>C</AvatarFallback>
+                      </Avatar>
+                    )}
+                    <div className={`p-4 rounded-lg w-9/12 ${m.role === "user" ? "bg-indigo-100" : "bg-gray-100"}`}>
+                      {m.content}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
             <div ref={msgRef} />
           </ScrollArea>

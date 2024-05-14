@@ -10,11 +10,16 @@ export interface UserDataProviderContext {
   isPro: boolean;
   subId: string | null;
   onboarded: boolean;
+  goals: string;
+  weaknesses: string;
+  playstyle: string;
+  experienceText: string;
+  hasProfile: boolean;
   saveData: () => Promise<void>;
   getData: () => Promise<void>;
   updateChesscom: Dispatch<SetStateAction<string | null>>;
   updateLichess: Dispatch<SetStateAction<string | null>>;
-  updateExperience: Dispatch<SetStateAction<Experience>>;
+  // updateExperience: Dispatch<SetStateAction<Experience>>;
 }
 
 export const UserDataContext = createContext<UserDataProviderContext>({
@@ -26,6 +31,11 @@ export const UserDataContext = createContext<UserDataProviderContext>({
   isPro: false,
   subId: null,
   onboarded: false,
+  goals: "",
+  experienceText: "",
+  weaknesses: "",
+  playstyle: "",
+  hasProfile: false,
   getData: () => {
     throw new Error("UserDataProvider not initialized");
   },
@@ -38,9 +48,9 @@ export const UserDataContext = createContext<UserDataProviderContext>({
   updateLichess: () => {
     throw new Error("UserDataProvider not initialized");
   },
-  updateExperience: () => {
-    throw new Error("UserDataProvider not initialized");
-  },
+  // updateExperience: () => {
+  //   throw new Error("UserDataProvider not initialized");
+  // },
 });
 
 export const useUserData = () => useContext(UserDataContext);
