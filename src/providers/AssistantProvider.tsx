@@ -1,4 +1,4 @@
-import { OPENAI_ASSISTANT_ID } from "@/utils/types";
+import { OPENAI_ASSISTANT_ID, RunType } from "@/utils/types";
 import { ChangeEvent, FormEvent, PropsWithChildren, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { AssistantStatus, Message, useAssistant as useVercelAssistant } from 'ai/react';
 import { useAuth } from "./AuthProvider/context";
@@ -9,6 +9,7 @@ export interface AssistantProviderContext {
   input: string;
   status: AssistantStatus;
   messages:  Message[];
+  runType: RunType;
   createThread: () => Promise<void>;
   submitMessage: (event?: FormEvent<HTMLFormElement> | undefined, requestOptions?: {
     data?: Record<string, string> | undefined;
@@ -23,6 +24,7 @@ export const AssistantContext = createContext<AssistantProviderContext>({
   status: "awaiting_message",
   input: "",
   messages: [],
+  runType: RunType.Onboarding,
   createThread: () => {
     throw new Error("AssistantProvider not initialized");
   },
@@ -42,13 +44,15 @@ export const useAssistant = () => useContext(AssistantContext);
 export const AssistantProvider = ({ children }: PropsWithChildren) => {
   const [assistantId] = useState(OPENAI_ASSISTANT_ID);
   const [threadId, setThreadId] = useState<string | null>(null);
+  const [runType, setRunType] = useState<RunType>(RunType.Onboarding);
 
   const { session, supabase } = useAuth();
   const { status, messages, input, threadId: tid, setInput, submitMessage, handleInputChange, setMessages } = useVercelAssistant({
     api: "/chat/assistant",
     body: {
       assistantId,
-      tid: threadId
+      tid: threadId,
+      runType
     },
   });
 
@@ -116,11 +120,12 @@ export const AssistantProvider = ({ children }: PropsWithChildren) => {
     input,
     messages,
     status,
+    runType,
     createThread,
     clearChat,
     handleInputChange,
     submitMessage,
-  }), [threadId, assistantId, input, messages, status, createThread, submitMessage, handleInputChange, clearChat]);
+  }), [threadId, assistantId, input, messages, status, runType, createThread, submitMessage, handleInputChange, clearChat]);
 
   return (
     <AssistantContext.Provider value={value}>

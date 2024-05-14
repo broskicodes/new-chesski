@@ -81,6 +81,11 @@ export enum SubType {
   Yearly,
 }
 
+export enum RunType {
+  Onboarding = 0,
+  General = 1,
+}
+
 export const SanRegex =
   /(O-O(-O)?|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](=[QRBN])?[\+#]?|([a-h]x)?[a-h][1-8](=[QRBN])?[\+#]?)/g;
 export const ONBOARDING_UPDATE_DATE = new Date("2024-03-04 22:00:34.202959+00");
@@ -88,4 +93,4 @@ export const STRIPE_LINK = "https://donate.stripe.com/7sIaHVg9WbnLcla4gg";
 
 export const CHESSKI_MONTHLY_PRICE = 10;
 export const CHESSKI_YEARLY_PRICE = 80;
-export const OPENAI_ASSISTANT_ID = "asst_HzyNJlA7DlbLGKeW3o5LeeKo";
+export const OPENAI_ASSISTANT_ID = process.env.NEXT_PUBLIC_ASSISTANT_ID!;
