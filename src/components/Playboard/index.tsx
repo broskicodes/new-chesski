@@ -21,10 +21,6 @@ import { Message } from "ai";
 import { useAuth } from "@/providers/AuthProvider/context";
 import { useSetup } from "@/providers/SetupProvider";
 
-import { HTML5Backend } from "react-dnd-html5-backend"
-import { TouchBackend } from "react-dnd-touch-backend"
-import { DragDropManager } from "dnd-core";
-
 export const Chessboard = () => {
   const [boardWidth, setBoardWidth] = useState(1);
   const [moveTo, setMoveTo] = useState<Square | null>(null);

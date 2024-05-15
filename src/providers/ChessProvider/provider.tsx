@@ -112,8 +112,8 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
       const lastMove = tempGame.history({ verbose: true }).at(-1);
       lastMove &&
         setMoveHighlight([
-          { square: lastMove.from, color: "" },
-          { square: lastMove.to, color: "" },
+          { square: lastMove.from, color: "#F9DC5C" },
+          { square: lastMove.to, color: "#F9DC5C" },
         ]);
 
       setGame(tempGame);

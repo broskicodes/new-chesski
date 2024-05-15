@@ -17,9 +17,15 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
   );
   const [moveIdx, setMoveIdx] = useState<number>(-1);
   const [puzzleComplete, setPuzzleComplete] = useState(false);
+  const [wrongMove, setWrongMove] = useState(false);
 
-  const { game, orientation, undo, setPosition, swapOrientation, makeMove } =
+  const { game, orientation, playContinuation, setPosition, swapOrientation, makeMove } =
     useChess();
+
+  const retryPuzzle = useCallback(() => {
+    playContinuation(puzzle?.moves.slice(0, moveIdx)!, true, puzzle?.starting_fen);
+    setWrongMove(false)
+  }, [playContinuation])
 
   const clearPuzzle = useCallback(() => {
     setPuzzle(null);
@@ -61,8 +67,8 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
       tempGame.move(puzzle.moves[moveIdx]);
 
       if (game.fen() !== tempGame.fen()) {
-        alert("wrong");
-        undo();
+        setWrongMove(true);
+        // undo();
       } else {
         setPuzzlePos(game.fen());
         if (moveIdx + 1 < puzzle.moves.length) {
@@ -72,7 +78,7 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
         }
       }
     }
-  }, [game, undo, puzzle, puzzlePos, moveIdx]);
+  }, [game, puzzle, puzzlePos, moveIdx]);
 
   useEffect(() => {
     updatePosition();
@@ -94,7 +100,9 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
     if (!puzzle) return;
 
     if (moveIdx >= 0 && moveIdx % 2 === 0) {
-      makeMove(puzzle.moves[moveIdx]);
+      setTimeout(() => {
+        makeMove(puzzle.moves[moveIdx]);
+      }, 1500);
     }
   }, [moveIdx, puzzle, makeMove]);
 
@@ -113,6 +121,8 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
       currPos: puzzlePos,
       puzzleComplete: puzzleComplete,
       moveIdx,
+      wrongMove,
+      retryPuzzle,
       setPuzzle: setNewPuzzle,
       updatePosition: updatePosition,
       clearPuzzle: clearPuzzle,
@@ -122,6 +132,8 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
       puzzleComplete,
       puzzlePos,
       moveIdx,
+      wrongMove,
+      retryPuzzle,
       setNewPuzzle,
       updatePosition,
       clearPuzzle,
