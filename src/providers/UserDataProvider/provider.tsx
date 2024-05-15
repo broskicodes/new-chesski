@@ -10,6 +10,9 @@ import { UserDataContext, UserDataProviderContext } from "./context";
 import { Experience, ONBOARDING_UPDATE_DATE, UserData } from "@/utils/types";
 import { Onboarding } from "@/components/Onboarding";
 import { usePathname } from "next/navigation";
+import { Cross2Icon } from "@radix-ui/react-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faComment, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 
 export const UserDataProvider = ({ children }: PropsWithChildren) => {
   const [chesscom, setChesscom] = useState<string | null>(null);
@@ -28,8 +31,9 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
   const [playstyle, setPlaystyle] = useState("");
   const [hasProfile, setHasProfile] = useState(false);
 
-
   const [dataLoaded, setDataLoaded] = useState(false);
+
+  const [open, setOpen] = useState(true);
 
   const { session, sessionLoaded, supabase } = useAuth();
   const pathname = usePathname();
@@ -247,6 +251,19 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
   return (
     <UserDataContext.Provider value={value}>
       {children}
+      {dataLoaded && !hasProfile && (
+        <div className={`absolute top-14 bg-white w-full py-2 px-4 rounded-md shadow flex-row  space-x-4 ${open ? "flex" : "hidden"}`}>
+          <FontAwesomeIcon className="mt-4 sm:mt-2" size="lg" icon={faComment} />
+          <div>
+            <div className="font-semibold">New Chat Feature!</div>
+            <div className="text-sm">Chat with Chesski at any time by clicking the icon in the bottom right.</div>
+          </div>
+          <div className={`absolute top-2 right-2 w-fit cursor-pointer`} onClick={() => setOpen(false)}>
+            <Cross2Icon className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </div>
+        </div>
+      )}
       <Onboarding show={dataLoaded && pathname !== "/subscribe" && !onboarded} />
     </UserDataContext.Provider>
   );

@@ -41,7 +41,7 @@ export const Navbar = ({ showMobile }: Props) => {
   const { toast } = useToast();
 
   return (
-    <div className={`navbar${showMobile ? " " : " hidden "}sm:block z-40`}>
+    <div className={`navbar${showMobile ? " " : " hidden "}sm:block z-40 h-14`}>
       <header className="navbar-container px-4 sm:pl-0 flex flex-row w-full items-center py-2 text-white">
         <Link href={"/"} className="text-xl sm:text-2xl font-bold arvo cursor-pointer">
           CHESSKI
