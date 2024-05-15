@@ -252,7 +252,7 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
     <UserDataContext.Provider value={value}>
       {children}
       {dataLoaded && !hasProfile && (
-        <div className={`absolute top-14 bg-white w-full py-2 px-4 rounded-md shadow flex-row  space-x-4 ${open ? "flex" : "hidden"}`}>
+        <div className={`absolute top-0 sm:top-14 bg-white w-full py-2 px-4 rounded-md shadow flex-row z-50 space-x-4 ${open ? "flex" : "hidden"}`}>
           <FontAwesomeIcon className="mt-4 sm:mt-2" size="lg" icon={faComment} />
           <div>
             <div className="font-semibold">New Chat Feature!</div>
