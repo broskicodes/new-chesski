@@ -3,6 +3,7 @@ import { ChangeEvent, FormEvent, PropsWithChildren, createContext, useCallback, 
 import { AssistantStatus, Message, useAssistant as useVercelAssistant } from 'ai/react';
 import { useAuth } from "./AuthProvider/context";
 import { useUserData } from "./UserDataProvider/context";
+import posthog from "posthog-js";
 
 export interface AssistantProviderContext {
   assistantId: string;
@@ -86,6 +87,7 @@ export const AssistantProvider = ({ children }: PropsWithChildren) => {
     });
     
     if (res.ok) {
+      posthog.capture("thread_created");
       setThreadId(await res.text());
     }
   }, [])

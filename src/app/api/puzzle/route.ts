@@ -2,23 +2,29 @@ import { getSupabaseCilent } from "@/utils/serverHelpers";
 import OpenAI from "openai";
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_ASSISTANT_API_KEY,
 });
 
 export const POST = async (req: Request) => {
+  const { weaknesses, experience } = await req.json();
+
+  console.log(`Experience: ${experience}\nWeaknesses: ${weaknesses}.`)
   const supabase = getSupabaseCilent();
+
+  const { data: { user } } = await supabase.auth.getUser();
 
   const embed = await openai.embeddings.create({
     model: "text-embedding-3-small",
     input:
-      "I am looking for a puzzle for an beginner level player lookig to learn more lines in the london system",
+    `Experience: ${experience}\nWeaknesses: ${weaknesses}.`,
     dimensions: 512,
     encoding_format: "float",
   });
 
-  const { data: documents } = await supabase.rpc("find_puzzles", {
+  const { data: documents } = await supabase.rpc("find_puzzles_3", {
+    user_id: user?.id,
     query_embedding: embed.data[0].embedding,
-    match_count: 3,
+    match_count: 50,
   });
 
   console.log(documents);

@@ -7,6 +7,9 @@ export interface PuzzleProviderContext {
   puzzleComplete: boolean;
   moveIdx: number;
   wrongMove: boolean;
+  hintNum: number;
+  hint: (num: number) => void;
+  restartPuzzle: () => void;
   retryPuzzle: () => void;
   updatePosition: () => void;
   setPuzzle: (puzzleId: string) => void;
@@ -19,6 +22,13 @@ export const PuzzleContext = createContext<PuzzleProviderContext>({
   puzzleComplete: false,
   moveIdx: -1,
   wrongMove: false,
+  hintNum: 0,
+  hint: () => {
+    throw new Error("PuzzleProvider not initialized");
+  },
+  restartPuzzle: () => {
+    throw new Error("PuzzleProvider not initialized");
+  },
   retryPuzzle: () => {
     throw new Error("PuzzleProvider not initialized");
   },

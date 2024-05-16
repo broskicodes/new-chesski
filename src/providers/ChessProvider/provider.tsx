@@ -87,7 +87,9 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
       const tempGame = new Chess(fen);
       setGame(tempGame);
       setTurnState(tempGame.turn() === "w" ? Player.White : Player.Black);
-
+      setAILastMoveHighlight(null);
+      setLastMoveHighlight(null);
+      setMoveHighlight(null);
       return true;
     } catch (e) {
       return false;

@@ -6,10 +6,10 @@ import { Chessboard as ReactChessboard } from "react-chessboard";
 import { PromotionPieceOption } from "react-chessboard/dist/chessboard/types";
 
 interface Props {
-
+  freeze?: boolean
 }
 
-export const PuzzleBoard = ({  }: Props) => {
+export const PuzzleBoard = ({ freeze }: Props) => {
   const [boardWidth, setBoardWidth] = useState(1);
 
   const [moveTo, setMoveTo] = useState<Square | null>(null);
@@ -19,7 +19,7 @@ export const PuzzleBoard = ({  }: Props) => {
     >(null);
 
   const { puzzle, setPuzzle } = usePuzzle();
-  const { game, orientation, highlightedMoves, highlightedSquares, moveHighlight, turn, onDrop, makeMove, resetHighlightedMoves, addArrows, addHighlightedSquares  } = useChess();
+  const { game, orientation, highlightedMoves, highlightedSquares, moveHighlight, arrows, onDrop, makeMove, resetHighlightedMoves, addArrows, addHighlightedSquares  } = useChess();
 
   useEffect(() => {
     const handleResize = () => {
@@ -38,17 +38,19 @@ export const PuzzleBoard = ({  }: Props) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  useEffect(() => {
-    setPuzzle("06Hky");
-  }, [setPuzzle])
+  // useEffect(() => {
+  //   setPuzzle("001h8");
+  // }, [setPuzzle])
 
   return (
     <div className="relative">
       
       <ReactChessboard
         boardWidth={boardWidth}
-        position={game.fen()}
-        boardOrientation={orientation}
+        position={freeze ? new Chess().fen() : game.fen()}
+        boardOrientation={freeze ? "white" : orientation}
+        isDraggablePiece={() => !freeze}
+        customArrows={arrows}
         onPieceDrop={(sSqr: Square, tSqr: Square) => {
           const res = onDrop(sSqr, tSqr);
 
@@ -138,6 +140,10 @@ export const PuzzleBoard = ({  }: Props) => {
           addArrows([], true);
         }}
         customSquareStyles={(() => {
+          if (freeze) {
+            return {};
+          }
+
           const sqrStyles: { [key: string]: {} } = {};
           highlightedSquares.forEach(({ square, color }) => {
             sqrStyles[square] = {

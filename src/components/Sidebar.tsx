@@ -41,7 +41,7 @@ import {
 import { StreakIcon } from "./StreakIcon";
 import { Label } from "./ui/label";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faHome, faMagnifyingGlassChart, faRobot, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faHome, faMagnifyingGlassChart, faPuzzlePiece, faRobot, faUser } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   children: ReactNode;
@@ -99,9 +99,15 @@ export const Sidebar = ({ children, panel }: Props) => {
                 </Link>
               </li>
               <li className={`py-2 px-2 rounded-md hover:bg-gray-200/50 ${pathname === "/analysis" ? "bg-gray-200/25" : ""}`}>
-                <Link className="grid grid-cols-12 space-x-3 items-center" href="analysis">
+                <Link className="grid grid-cols-12 space-x-3 items-center" href="/analysis">
                   <FontAwesomeIcon className="place-self-center" icon={faMagnifyingGlassChart} />
-                  <span className="col-span-11 justify-self-start">Analyze</span>
+                  <span className="col-span-11 justify-self-start">Review</span>
+                </Link>
+              </li>
+              <li className={`py-2 px-2 rounded-md hover:bg-gray-200/50 ${pathname === "/puzzles" ? "bg-gray-200/25" : ""}`}>
+                <Link className="grid grid-cols-12 space-x-3 items-center" href="/puzzles">
+                  <FontAwesomeIcon className="place-self-center" icon={faPuzzlePiece} />
+                  <span className="col-span-11 justify-self-start">Puzzles</span>
                 </Link>
               </li>
               <li className={`py-2 px-2 rounded-md hover:bg-gray-200/50`}>

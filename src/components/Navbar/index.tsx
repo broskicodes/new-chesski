@@ -102,7 +102,14 @@ export const Navbar = ({ showMobile }: Props) => {
               <NavigationMenuItem>
                 <Link href="/analysis">
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Analyze
+                    Review
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link href="/puzzles">
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Puzzles
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>

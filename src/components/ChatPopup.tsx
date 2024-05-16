@@ -7,6 +7,7 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Badge } from "./ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import Link from "next/link";
+import posthog from "posthog-js";
 
 export const ChatPopup = ({ children }: PropsWithChildren) => {
   const { input, messages, status, handleInputChange, submitMessage, clearChat, threadId, createThread } = useAssistant();
@@ -76,7 +77,7 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
             </div>
             <div ref={msgRef} />
           </ScrollArea>
-          <form onSubmit={submitMessage} className="mt-2 space-y-1">
+          <form onSubmit={(e) => { e.preventDefault(); posthog.capture("chat_sent"); submitMessage(); }} className="mt-2 space-y-1">
             <Input placeholder="Enter text here" inputMode="search" value={input} onChange={handleInputChange} onFocus={() => {
               setTimeout(() => () => {
                 submitRef.current?.scrollIntoView();
