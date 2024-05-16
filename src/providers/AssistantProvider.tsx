@@ -97,7 +97,7 @@ export const AssistantProvider = ({ children }: PropsWithChildren) => {
     setThreadEmpty(true);
     await createThread();
 
-  }, [setMessages, createThread, setInput]);
+  }, [setMessages, createThread]);
 
   useEffect(() => {
     if (status === "awaiting_message") {

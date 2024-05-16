@@ -85,7 +85,7 @@ export default function Puzzles() {
     }));
 
     setPuzzle(ps[0].id);
-  }, [setPuzzle])
+  }, [setPuzzle, experienceText, experience, weaknesses])
 
   // const embed = useCallback(async () => {
   //   const res = await fetch("/api/puzzle/embed", {

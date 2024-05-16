@@ -49,7 +49,7 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
   const retryPuzzle = useCallback(() => {
     playContinuation(puzzle?.moves.slice(0, moveIdx)!, true, puzzle?.starting_fen);
     setWrongMove(false)
-  }, [playContinuation]);
+  }, [playContinuation, moveIdx, puzzle]);
 
   const restartPuzzle = useCallback(() => {
     if (!puzzle) return;
@@ -158,7 +158,7 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
           });
       }
     })()
-  }, [puzzleComplete, supabase, session])
+  }, [puzzleComplete, supabase, session, puzzle])
 
   // useEffect(() => {
   //   if (moveIdx !== 0) return;
