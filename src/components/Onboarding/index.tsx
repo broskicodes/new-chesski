@@ -97,7 +97,7 @@ export const Onboarding = ({ show }: Props) => {
 
       // signUp && !session ? signInWithOAuth() : router.push("/play");
     },
-    [experience, goal,, session, supabase,, signInWithOAuth],
+    [experience, goal,, session, supabase],
   );
 
     useEffect(() => {

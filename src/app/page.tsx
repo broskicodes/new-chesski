@@ -15,6 +15,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   IconDefinition,
   faMagnifyingGlassChart,
+  faPuzzlePiece,
   faRobot,
   faRocket,
 } from "@fortawesome/free-solid-svg-icons";
@@ -34,10 +35,16 @@ const featureCards: {
     icon: faRobot,
   },
   {
-    title: "Analyze",
-    description: "Find mistakes from your past games",
+    title: "Review",
+    description: "Analyze mistakes from your past games",
     href: "/analysis",
     icon: faMagnifyingGlassChart,
+  },
+  {
+    title: "Puzzles",
+    description: "Train your weaknesses with custom puzzles",
+    href: "/puzzles",
+    icon: faPuzzlePiece,
   },
   {
     title: "Upgrade",

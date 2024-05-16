@@ -87,7 +87,9 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
       const tempGame = new Chess(fen);
       setGame(tempGame);
       setTurnState(tempGame.turn() === "w" ? Player.White : Player.Black);
-
+      setAILastMoveHighlight(null);
+      setLastMoveHighlight(null);
+      setMoveHighlight(null);
       return true;
     } catch (e) {
       return false;
@@ -112,8 +114,8 @@ export const ChessProvider = ({ children }: PropsWithChildren) => {
       const lastMove = tempGame.history({ verbose: true }).at(-1);
       lastMove &&
         setMoveHighlight([
-          { square: lastMove.from, color: "" },
-          { square: lastMove.to, color: "" },
+          { square: lastMove.from, color: "#F9DC5C" },
+          { square: lastMove.to, color: "#F9DC5C" },
         ]);
 
       setGame(tempGame);
