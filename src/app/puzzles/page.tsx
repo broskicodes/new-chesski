@@ -112,7 +112,7 @@ export default function Puzzles() {
   }, [session,  dailyPuzzles, isPro])
 
   return (
-    <div>
+    <div className="flex flex-col h-full mt-16">
       <Dialog>
         <DialogTrigger className="hidden" ref={trigRef} />
         <DialogContent>
