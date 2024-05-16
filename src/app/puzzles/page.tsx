@@ -1,4 +1,6 @@
 "use client";
+import "./styles.css";
+
 import { BottomNav } from "@/components/BottomNav";
 import { ChatPopupTrigger } from "@/components/ChatPopupTrigger";
 import { Navbar } from "@/components/Navbar";
