@@ -185,7 +185,8 @@ Your interactions with the user should be friendly. Help them navigate the app a
 </general>
 <run>
 You will be give information about the user's chess experience, playstyle and weaknesses. Your current task is to summarize that in single sentence, then share how you think the app can help them improve.
-Refer to the user as "you", do not use their name. Be conversational in your response. Your summary is a guess. Phrase it as so in your response.
+Refer to the user as "you", do not use their name. Be conversational in your response.
+You have a 50 token limit for your response!
 </run>`
       },
       {

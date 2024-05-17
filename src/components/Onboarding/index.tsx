@@ -211,13 +211,13 @@ export const Onboarding = ({ show }: Props) => {
               {(chesssite === ChessSite.Chesscom || chesssite === ChessSite.Lichess) && (
                 <div className="h-2/6 flex flex-col w-full items-center justify-center space-y-4">
                   <div className="w-full">
-                    <Input className={`${usernameInvalid ? "ring ring-2 ring-red-600" : ""}`} value={username} onChange={({ target }) => { setUsername(target.value); setUsenamInvalid(false); } } placeholder={`${chesssite} username`} />
+                    <Input disabled={loading || summary.length > 0} className={`${usernameInvalid ? "ring ring-2 ring-red-600" : ""}`} value={username} onChange={({ target }) => { setUsername(target.value); setUsenamInvalid(false); } } placeholder={`${chesssite} username`} />
                     {usernameInvalid && <span className="text-red-600">Invalid Username</span>}
                   </div>
                   <Button className="w-full sm:w-96" disabled={username.length < 1 || loading || summary.length > 0} onClick={async () => {
                     setLoading(true);
                     setUsenamInvalid(false);
-                    const res = await fetch("/api/analyze-user", { method: "POST", body: JSON.stringify(chesssite === ChessSite.Lichess ? { lichess_name: username} :  { chesscom_name: username}) });
+                    const res = await fetch("/api/analyze-user", { method: "POST", body: JSON.stringify(chesssite === ChessSite.Lichess ? { lichess_name: username.trim() } :  { chesscom_name: username.trim() }) });
                     setLoading(false)
 
                     if (!res.ok) {
@@ -231,9 +231,9 @@ export const Onboarding = ({ show }: Props) => {
               )}
               <div className="h-1/6 flex items-center">
                 {loading && (
-                    <div>
+                    <div className="flex flex-row space-x-2 items-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#1B03A3]" />
-                      Analysing your recent games
+                      <span>Analysing your recent games</span>
                     </div>
                   )}
                   {summary.length > 0 && <span className="font-bold text-lg sm:text-xl">Your profile has been updated!</span>}
@@ -284,7 +284,7 @@ export const Onboarding = ({ show }: Props) => {
             </SheetHeader> */}
             <div className="w-full h-full flex flex-col relative mt-20 justify-between">
               <div className="flex flex-col space-y-12 items-center text-center">
-                <SheetTitle className="text-3xl sm:text-4xl font-extrabold">{"Chesski makes things simple"}</SheetTitle>
+                <SheetTitle className="text-3xl sm:text-4xl font-bold">{"Chesski makes things simple"}</SheetTitle>
                 <ul className="flex flex-col items-start text-left space-y-2 w-fit">
                   <li className="grid grid-cols-8 gap-x-4">
                     <FontAwesomeIcon
