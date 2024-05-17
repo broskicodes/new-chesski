@@ -18,11 +18,12 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { useRouter } from "next/navigation";
 import { Input } from "../ui/input";
-import { CHESSKI_MONTHLY_PRICE, CHESSKI_YEARLY_PRICE, Experience, Goal, SubType, UserData } from "@/utils/types";
+import { CHESSKI_MONTHLY_PRICE, CHESSKI_YEARLY_PRICE, ChessSite, Goal, SubType, UserData } from "@/utils/types";
 import { useAuth } from "@/providers/AuthProvider/context";
 import Image from "next/image";
 import posthog from "posthog-js";
 import { useUserData } from "@/providers/UserDataProvider/context";
+import { useToast } from "../ui/use-toast";
 
 interface Props {
   show?: boolean
@@ -30,15 +31,17 @@ interface Props {
 
 export const Onboarding = ({ show }: Props) => {
   const [step, setStep] = useState(0);
-  const [experience, setExperience] = useState<Experience | null>(null);
+  const [chesssite, setChessSite] = useState<ChessSite | null>(null);
   const [goal, setGoal] = useState<Goal | null>(null);
-  const [chesscom, setChesscom] = useState("");
-  const [lichess, setLichess] = useState("");
+  const [username, setUsername] = useState("");
+  const [usernameInvalid, setUsenamInvalid] = useState(false);
+  const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
   const { signInWithOAuth, session, supabase } = useAuth();
   const { isPro } = useUserData();
+  const { toast } = useToast();
   const maxSteps = useMemo(() => isPro ? 3 : 4, [isPro]);
 
   const router = useRouter();
@@ -50,7 +53,7 @@ export const Onboarding = ({ show }: Props) => {
     steps: [
       { 
         h: "Sign up",
-        sh: "You succefully created your account!",
+        sh: "Your profile has been created!",
         i: faCheck,
         d: true
       },
@@ -78,7 +81,7 @@ export const Onboarding = ({ show }: Props) => {
       posthog.capture("onboarding_finished")
       const userData: UserData = {
         learning_goal: goal!,
-        skill_level: experience!,
+        chessSite: chesssite!,
         onboarded: true
       };
 
@@ -87,7 +90,7 @@ export const Onboarding = ({ show }: Props) => {
       if (session && supabase) {
         const { data, error } = await supabase.from("user_data")
           .upsert({
-            ...userData,
+            onboarded: true,
             uuid: session.id,
           })
           .select();
@@ -97,7 +100,7 @@ export const Onboarding = ({ show }: Props) => {
 
       // signUp && !session ? signInWithOAuth() : router.push("/play");
     },
-    [experience, goal,, session, supabase],
+    [chesssite, goal,, session, supabase],
   );
 
     useEffect(() => {
@@ -154,53 +157,38 @@ export const Onboarding = ({ show }: Props) => {
           <div className="flex flex-col h-[480px] sm:max-w-2xl sm:mx-auto">
             <SheetHeader>
               <div className="flex flex-col space-y-1">
-                <SheetTitle>{"What's your chess rating?"}</SheetTitle>
-                <SheetDescription>Your elo. Either online or official.</SheetDescription>
+                <SheetTitle>{"Where do you usually play chess?"}</SheetTitle>
+                <SheetDescription>Where have you played your most recent games?</SheetDescription>
               </div>
             </SheetHeader>
             <div className="flex flex-col h-full space-y-6 justify-center py-4 w-full max-w-2xl ">
               <ul className="flex flex-col space-y-2 w-full">
-                <li onClick={() => setExperience(Experience.None)} className={`cursor-pointer flex flex-row space-x-2 items-center py-1 px-2 rounded-md w-full bg-gray-200/50 hover:bg-gray-200/75 ${experience === Experience.None ? "border border-[#1b03a3] border-1" : "" }`}>
-                  <div className="p-1 bg-white rounded-full">
-                    <Image height={32} width={32} alt="" src={"/pieces/pdt.svg"} />
-                  </div>
-                  <span className="font-bold">Unrated</span>
+                <li onClick={() => setChessSite(ChessSite.Chesscom)} className={`cursor-pointer flex flex-row space-x-2 items-center py-1 px-2 rounded-md w-full bg-gray-200/50 hover:bg-gray-200/75 ${chesssite === ChessSite.Chesscom ? "border border-[#1b03a3] border-1" : "" }`}>
+                  <span className="py-2 font-bold">Chess.com</span>
                 </li>
-                <li onClick={() => setExperience(Experience.Beginner)} className={`cursor-pointer flex flex-row space-x-2 items-center py-1 px-2 rounded-md w-full bg-gray-200/50 hover:bg-gray-200/75 ${experience === Experience.Beginner ? "border border-[#1b03a3] border-1" : "" }`}>
-                  <div className="p-1 bg-white rounded-full">
-                    <Image height={32} width={32} alt="" src={"/pieces/ndt.svg"} />
-                  </div>
-                  <span className="font-bold">{"< 1000"}</span>
+                <li onClick={() => setChessSite(ChessSite.Lichess)} className={`cursor-pointer flex flex-row space-x-2 items-center py-1 px-2 rounded-md w-full bg-gray-200/50 hover:bg-gray-200/75 ${chesssite === ChessSite.Lichess ? "border border-[#1b03a3] border-1" : "" }`}>
+                  <span className="py-2 font-bold">Lichess</span>
                 </li>
-                {/* <li onClick={() => setExperience(Experience.None)} className={`cursor-pointer flex flex-row space-x-2 items-center py-1 px-2 rounded-md w-full bg-gray-200/50 hover:bg-gray-200/75 ${experience === Experience.None ? "border border-[#1b03a3] border-1" : "" }`}>
-                  <div className="p-1 bg-white rounded-full">
-                    <Image height={32} width={32} alt="" src={"/pieces/kdt.svg"} />
-                  </div>
-                  <span className="font-bold">800 - 1000</span>
+                {/* <li onClick={() => setChessSite(ChessSite.None)} className={`cursor-pointer flex flex-row space-x-2 items-center py-1 px-2 rounded-md w-full bg-gray-200/50 hover:bg-gray-200/75 ${chesssite === ChessSite.None ? "border border-[#1b03a3] border-1" : "" }`}>
+                  <span className="py-2 font-bold">800 - 1000</span>
                 </li> */}
-                <li onClick={() => setExperience(Experience.Intermediate)} className={`cursor-pointer flex flex-row space-x-2 items-center py-1 px-2 rounded-md w-full bg-gray-200/50 hover:bg-gray-200/75 ${experience === Experience.Intermediate ? "border border-[#1b03a3] border-1" : "" }`}>
-                  <div className="p-1 bg-white rounded-full">
-                    <Image height={32} width={32} alt="" src={"/pieces/bdt.svg"} />
-                  </div>
-                  <span className="font-bold">1000 - 1500</span>
+                <li 
+                // onClick={() => setChessSite(ChessSite.InPerson)} 
+                className={`flex flex-row items-center py-1 px-2 rounded-md w-full bg-gray-200/50 relative ${chesssite === ChessSite.InPerson ? "border border-[#1b03a3] border-1" : "" }`}>
+                  <span className="py-2 font-bold text-black/50">In person (Coming Soon)</span>
+                  <div className="absolute inset-0 bg-black/10 rounded-md"></div>
                 </li>
-                <li onClick={() => setExperience(Experience.Advanced)} className={`cursor-pointer flex flex-row space-x-2 items-center py-1 px-2 rounded-md w-full bg-gray-200/50 hover:bg-gray-200/75 ${experience === Experience.Advanced ? "border border-[#1b03a3] border-1" : "" }`}>
-                  <div className="p-1 bg-white rounded-full">
-                    <Image height={32} width={32} alt="" src={"/pieces/rdt.svg"} />
-                  </div>
-                  <span className="font-bold">1500 - 2000</span>
-                </li>
-                <li onClick={() => setExperience(Experience.Expert)} className={`cursor-pointer flex flex-row space-x-2 items-center py-1 px-2 rounded-md w-full bg-gray-200/50 hover:bg-gray-200/75 ${experience === Experience.Expert ? "border border-[#1b03a3] border-1" : "" }`}>
-                  <div className="p-1 bg-white rounded-full">
-                    <Image height={32} width={32} alt="" src={"/pieces/qdt.svg"} />
-                  </div>
-                  <span className="font-bold">2000+</span>
+                <li 
+                // onClick={() => setChessSite(ChessSite.Other)} 
+                className={`flex flex-row items-center py-1 px-2 rounded-md w-full bg-gray-200/50 relative ${chesssite === ChessSite.Other ? "border border-[#1b03a3] border-1" : "" }`}>
+                  <span className="py-2 font-bold text-black/50">Other (Coming Soon)</span>
+                  <div className="absolute inset-0 bg-black/10 rounded-md"></div>
                 </li>
               </ul>
             </div>
             <SheetFooter>
               <div className="flex flex-col w-full">
-                <Button className="w-full sm:w-96 sm:mx-auto" onClick={() => setStep(step + 1)} disabled={experience === null}>Continue</Button>
+                <Button className="w-full sm:w-96 sm:mx-auto" onClick={() => setStep(step + 1)} disabled={chesssite === null}>Continue</Button>
                 <div className="flex flex-row items-center mt-4">
                   {/* <Button size="icon" variant="ghost" onClick={() => setStep(step - 1)}><FontAwesomeIcon icon={faArrowLeft} /></Button> */}
                   <Progress  className="w-full" value={step / maxSteps * 100} />
@@ -213,36 +201,64 @@ export const Onboarding = ({ show }: Props) => {
           <div className="flex flex-col h-[480px] sm:max-w-2xl sm:mx-auto">
             <SheetHeader>
               <div className="flex flex-col space-y-1">
-                <SheetTitle>{"What are your goals?"}</SheetTitle>
+                <SheetTitle>{chesssite === ChessSite.Chesscom || chesssite === ChessSite.Lichess ? `Enter your username for ${chesssite}` : "Please upload a PGN with your recent games"}</SheetTitle>
                 <SheetDescription>
-                  How good do you want to get?
+                  We will use your game history to personalize your experience
                 </SheetDescription>
               </div>
             </SheetHeader>
-            <div className="flex flex-col space-y-8 justify-center py-6 sm:px-0 w-full h-full">
-              <ul className="flex flex-col space-y-2 w-full">
-                <li onClick={() => setGoal(Goal.Casual)} className={`cursor-pointer py-2 px-2 rounded-md w-full bg-gray-200/50 hover:bg-gray-200/75 ${goal === Goal.Casual ? "border border-[#1b03a3] border-1" : "" }`}>
-                  <span className="font-bold">Beat my friends</span>
-                </li>
-                <li onClick={() => setGoal(Goal.Competent)} className={`cursor-pointer py-2 px-2 rounded-md w-full bg-gray-200/50 hover:bg-gray-200/75 ${goal === Goal.Competent ? "border border-[#1b03a3] border-1" : "" }`}>
-                  <span className="font-bold">1000 elo</span>
-                </li>
-                <li onClick={() => setGoal(Goal.Curious)} className={`cursor-pointer py-2 px-2 rounded-md w-full bg-gray-200/50 hover:bg-gray-200/75 ${goal === Goal.Curious ? "border border-[#1b03a3] border-1" : "" }`}>
-                  <span className="font-bold">1500 elo</span>
-                </li>
-                <li onClick={() => setGoal(Goal.Commited)} className={`cursor-pointer py-2 px-2 rounded-md w-full bg-gray-200/50 hover:bg-gray-200/75 ${goal === Goal.Commited ? "border border-[#1b03a3] border-1" : "" }`}>
-                  <span className="font-bold">2000 elo</span>
-                </li>
-                <li onClick={() => setGoal(Goal.Serious)} className={`cursor-pointer py-2 px-2 rounded-md w-full bg-gray-200/50 hover:bg-gray-200/75 ${goal === Goal.Serious ? "border border-[#1b03a3] border-1" : "" }`}>
-                  <span className="font-bold">Become a titled player</span>
-                </li>
-              </ul>
+            <div className="flex flex-col h-full justify-center py-4 w-full max-w-2xl ">
+              {(chesssite === ChessSite.Chesscom || chesssite === ChessSite.Lichess) && (
+                <div className="h-2/6 flex flex-col w-full items-center justify-center space-y-4">
+                  <div className="w-full">
+                    <Input disabled={loading || summary.length > 0} className={`${usernameInvalid ? "ring ring-2 ring-red-600" : ""}`} value={username} onChange={({ target }) => { setUsername(target.value); setUsenamInvalid(false); } } placeholder={`${chesssite} username`} />
+                    {usernameInvalid && <span className="text-red-600">Invalid Username</span>}
+                  </div>
+                  <Button className="w-full sm:w-96" disabled={username.length < 1 || loading || summary.length > 0} onClick={async () => {
+                    setLoading(true);
+                    setUsenamInvalid(false);
+                    const res = await fetch("/api/analyze-user", { method: "POST", body: JSON.stringify(chesssite === ChessSite.Lichess ? { lichess_name: username.trim() } :  { chesscom_name: username.trim() }) });
+                    setLoading(false)
+
+                    if (!res.ok) {
+                      setUsenamInvalid(true);
+                    } else {
+                      setSummary(await res.text());
+                    }
+                    // console.log(await res.text())
+                  }}>Confirm</Button>
+                </div>
+              )}
+              <div className="h-1/6 flex items-center">
+                {loading && (
+                    <div className="flex flex-row space-x-2 items-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#1B03A3]" />
+                      <span>Analysing your recent games</span>
+                    </div>
+                  )}
+                  {summary.length > 0 && <span className="font-bold text-lg sm:text-xl">Your profile has been updated!</span>}
+              </div>
+              <div className="h-3/6 flex flex-col space-y-2">
+                <div className="font-bold text-lg sm:text-xl">Generated Insights:</div>
+                {summary.length > 0 && (
+                  <div>
+                    <div className="text-sm sm:text-normal">{summary}</div>
+                  </div>
+                )}
+              </div>
             </div>
             <SheetFooter>
               <div className="flex flex-col w-full">
-                <Button className="w-full sm:w-96 sm:mx-auto" disabled={goal === null} onClick={() => setStep(step + 1)}>
-                  {"Continue"}
-                </Button>
+                {summary.length > 0 && (
+                  <Button className="w-full sm:w-96 sm:mx-auto" disabled={summary.length < 1} onClick={() => setStep(step + 1)}>
+                    {"Continue"}
+                  </Button>
+                )}
+                {username.length === 0 && summary.length === 0 && (
+                  <Button className="w-full sm:w-96 sm:mx-auto" disabled={summary.length < 1} onClick={() => setStep(step + 1)}>
+                    {"Skip"}
+                  </Button>
+                )}
                 <div className="flex flex-row items-center">
                   <Button
                     size="icon"
@@ -268,34 +284,34 @@ export const Onboarding = ({ show }: Props) => {
             </SheetHeader> */}
             <div className="w-full h-full flex flex-col relative mt-20 justify-between">
               <div className="flex flex-col space-y-12 items-center text-center">
-                <SheetTitle className="text-2xl sm:text-3xl font-semibold">{"With Chesski, you'll reach your goals "}<span className="text-3xl sm:text-4xl font-extrabold text-[#1b03a3] whitespace-nowrap">5x faster</span></SheetTitle>
-                <ul className="flex flex-col items-start text-left space-y-2">
-                  <li className="grid grid-cols-12 gap-x-4">
+                <SheetTitle className="text-3xl sm:text-4xl font-bold">{"Chesski makes things simple"}</SheetTitle>
+                <ul className="flex flex-col items-start text-left space-y-2 w-fit">
+                  <li className="grid grid-cols-8 gap-x-4">
                     <FontAwesomeIcon
                       icon={faCircleCheck}
                       size="xl"
                       className={`place-self-center flex-shrink-0  text-[#1b03a3]/70`}
                       aria-hidden="true"
                     />
-                    <span className="col-span-11">Easily find and train your weaknesses</span>
+                    <span className="col-span-7">Let AI find your weaknesses</span>
                   </li>
-                  <li className="grid grid-cols-12 gap-x-4">
+                  <li className="grid grid-cols-8 gap-x-4">
                     <FontAwesomeIcon
                       icon={faCircleCheck}
                       size="xl"
                       className={`place-self-center flex-shrink-0  text-[#1b03a3]/70`}
                       aria-hidden="true"
                     />
-                    <span className="col-span-11">Improve the things that matter most at your skill level</span>
+                    <span className="col-span-7">Practice with custom training</span>
                   </li>
-                  <li className="grid grid-cols-12 gap-x-4">
+                  <li className="grid grid-cols-8 gap-x-4">
                     <FontAwesomeIcon
                       icon={faCircleCheck}
                       size="xl"
                       className={`place-self-center flex-shrink-0  text-[#1b03a3]/70`}
                       aria-hidden="true"
                     />
-                    <span className="col-span-11">Learn new concepts as you need them</span>
+                    <span className="col-span-7">Win more games</span>
                   </li>
                 </ul>
                 {/* <SheetDescription className="text-lg">
@@ -318,9 +334,9 @@ export const Onboarding = ({ show }: Props) => {
           <div className="flex flex-col h-[480px] sm:max-w-2xl sm:mx-auto">
             <SheetHeader>
               <div className="flex flex-col space-y-1">
-                <SheetTitle>Learn how your free trial works</SheetTitle>
+                <SheetTitle>Start your free trial</SheetTitle>
                 <SheetDescription>
-                 Start a 3-day free trial to experience what Chesski has to offer.
+                 Experience all Chessi has to offer. Risk free! Cancel anytime.
                 </SheetDescription>
               </div>
             </SheetHeader>

@@ -1,5 +1,12 @@
 import { Move } from "chess.js";
 
+export enum ChessSite {
+  Chesscom = "Chess.com",
+  Lichess = "Lichess",
+  InPerson = "irl",
+  Other = "Other"
+}
+
 export enum Experience {
   None = 0,
   Beginner = 1,
@@ -20,7 +27,7 @@ export interface UserData {
   chesscom_name?: string;
   lichess_name?: string;
   learning_goal: Goal;
-  skill_level: Experience;
+  chessSite: ChessSite;
   onboarded: boolean;
 }
 
@@ -84,11 +91,13 @@ export enum SubType {
 export enum RunType {
   Onboarding = 0,
   General = 1,
+  Openings = 2,
 }
 
 export const RunStarterMsgMap: Record<RunType, string> = {
   [RunType.Onboarding]: "Hi! I'm Chesski. I'm here to help you get the most out of this app! First, I've got a few questions for you. Ready?",
-  [RunType.General]: "Hey! This is Chesski. Have a question about the platform, or chess in general? Let me know!"
+  [RunType.General]: "Hey! This is Chesski. Have a question about the platform, or chess in general? Let me know!",
+  [RunType.Openings]: "give me the data"
 }
 
 

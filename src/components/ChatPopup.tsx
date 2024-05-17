@@ -85,13 +85,13 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
             }} />
           
             <div className="flex flex-row space-x-1">
-              <Button type="submit" className="w-full">
-                Submit
-              </Button>
               <Button onClick={async () => {
                 clearChat();
               }}>
                 Clear
+              </Button>
+              <Button disabled={status === "in_progress"} type="submit" className="w-full">
+                Submit
               </Button>
             </div>
             <div ref={submitRef} />

@@ -77,7 +77,7 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
       const item = localStorage.getItem("userData");
 
       if (item) {
-        const userData: UserData = JSON.parse(item);
+        const userData = JSON.parse(item);
 
         setChesscom(userData.chesscom_name ?? "");
         setLichess(userData.lichess_name ?? "");
