@@ -1,5 +1,5 @@
 import { OPENAI_ASSISTANT_ID, RunStarterMsgMap, RunType } from "@/utils/types";
-import { ChangeEvent, FormEvent, PropsWithChildren, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, Dispatch, FormEvent, PropsWithChildren, SetStateAction, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { AssistantStatus, Message, useAssistant as useVercelAssistant } from 'ai/react';
 import { useAuth } from "./AuthProvider/context";
 import { useUserData } from "./UserDataProvider/context";
@@ -12,6 +12,7 @@ export interface AssistantProviderContext {
   status: AssistantStatus;
   messages:  Message[];
   runType: RunType;
+  setInput: Dispatch<SetStateAction<string>>;
   createThread: () => Promise<void>;
   submitMessage: (event?: FormEvent<HTMLFormElement> | undefined, requestOptions?: {
     data?: Record<string, string> | undefined;
@@ -28,6 +29,9 @@ export const AssistantContext = createContext<AssistantProviderContext>({
   messages: [],
   runType: RunType.Onboarding,
   createThread: () => {
+    throw new Error("AssistantProvider not initialized");
+  },
+  setInput: () => {
     throw new Error("AssistantProvider not initialized");
   },
   submitMessage: () => {
@@ -157,11 +161,12 @@ export const AssistantProvider = ({ children }: PropsWithChildren) => {
     messages,
     status,
     runType,
+    setInput,
     createThread,
     clearChat,
     handleInputChange,
     submitMessage,
-  }), [threadId, assistantId, input, messages, status, runType, createThread, submitMessage, handleInputChange, clearChat]);
+  }), [threadId, assistantId, input, messages, status, runType, setInput, createThread, submitMessage, handleInputChange, clearChat]);
 
   return (
     <AssistantContext.Provider value={value}>

@@ -26,6 +26,9 @@ import { Label } from "./ui/label";
 import { ScrollArea } from "./ui/scroll-area";
 import { useAuth } from "@/providers/AuthProvider/context";
 import Link from "next/link";
+import { Chess } from "chess.js";
+
+import openings from "@/utils/openings.json";
 
 interface Props {
   className?: string;
@@ -76,6 +79,48 @@ export const GameSelect = ({ className }: Props) => {
     useUserData();
 
   const dialogCloseRef = useRef<HTMLButtonElement>(null);
+
+  const doit = useCallback(() => {
+    const os = chesscomGames.map((game) => {
+      const chess = new Chess()
+      chess.loadPgn(game.pgn);
+
+      const hist = chess.history({ verbose: true });
+
+      let skipCount = 0;
+      let opening: {
+        name: string;
+        fen: string;
+      } = {
+        "name": "Starting Position",
+        "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+      };
+
+      for (const move of hist) {
+        const o = openings.find((opening) =>
+          move.after.includes(opening.fen),
+        );
+
+        if (o) {
+          opening = o;
+        } else {
+          skipCount += 1;
+        }
+
+        if (skipCount === 3) {
+          break;
+        }
+      }
+
+      return {
+        opening: opening.name.split(":")[0],
+        result: game.result,
+        color: game.white.username === chesscom ? "white" : "black"
+      }
+    });
+    
+    console.log(os)
+  }, [chesscomGames, chesscom]);
 
   const getDailyAnalyses = useCallback(async () => {
     if (!session || !supabase) {
