@@ -11,14 +11,14 @@ const openai = new OpenAI({
 
 
 export const POST = async (req: Request) => {
-  const { tid, message, assistantId, runType, threadEmpty, experience, playstyle, weaknesses, goals }: {
+  const { tid, message, assistantId, runType, threadEmpty, experience, playstyle, weaknesses }: {
     tid: string | null;
     assistantId: string;
     message: string;
     runType: RunType;
     threadEmpty: boolean;
     experience: string;
-    goals: string;
+    // goals: string;
     playstyle: string;
     weaknesses: string;
   } = await req.json();
@@ -31,11 +31,11 @@ Be friendly about it. Ask questions one at a time, and encourage them to provide
 </run>`,
   [RunType.General]: `<run>
 Your current task is to assist the user with anything to do with chess or the Chesski app.
+You have access to a file detailing specific information about the app and how it works. Use it to answer relevant queries.
 
 Here is some information about the user:
 - Experience: ${experience}
 - Playstyle: ${playstyle}
-- Goals: ${goals}
 - Weaknesses: ${weaknesses}
 
 Try to personalize your responses as much as possible. Encourage them to use features of the Chesski app when relevant.
@@ -72,6 +72,7 @@ Once you have this understandinng, update their user profile.
         assistant_id: assistantId,
         additional_instructions: runIxs[runType],
         model: runType === RunType.Openings ? "gpt-4o" : "gpt-3.5-turbo",
+        max_completion_tokens: 64
         // tool_choice: {"type": "function", "function": {"name": "update_user_profile"}}
       });
 

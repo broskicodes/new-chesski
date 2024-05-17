@@ -19,7 +19,7 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
     if (msgRef.current) {
       msgRef.current.scrollIntoView();
     }
-  }, [messages]);
+  }, [messages, status]);
 
   return (
     <Popover modal={false} onOpenChange={async (open) => {
@@ -53,7 +53,7 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
             {/* <span>This feature is being tested.</span> */}
             <span>Please <Link className="underline" href="mailto:braeden@chesski.lol" target="_blank">report bugs</Link>.</span>
           </div>
-          <ScrollArea className="w-full h-full">
+          <ScrollArea className="w-full h-full flex flex-col">
             <div className="flex flex-col text-sm space-y-2">
               {messages.map((m, i) => {
                 if (m.role !== "assistant" && m.role !== "user") {
@@ -75,7 +75,9 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
                 )
               })}
             </div>
-            <div ref={msgRef} />
+            <div ref={msgRef} className="mt-1 w-full flex justify-center">
+              {status === "in_progress" && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#1B03A3]" />}
+            </div>
           </ScrollArea>
           <form onSubmit={(e) => { e.preventDefault(); posthog.capture("chat_sent"); submitMessage(); }} className="mt-2 space-y-1">
             <Input placeholder="Enter text here" inputMode="search" value={input} onChange={handleInputChange} onFocus={() => {
@@ -85,7 +87,7 @@ export const ChatPopup = ({ children }: PropsWithChildren) => {
             }} />
           
             <div className="flex flex-row space-x-1">
-              <Button onClick={async () => {
+              <Button type="button" disabled={status === "in_progress"} onClick={() => {
                 clearChat();
               }}>
                 Clear

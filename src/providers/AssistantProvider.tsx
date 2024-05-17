@@ -64,7 +64,7 @@ export const AssistantProvider = ({ children }: PropsWithChildren) => {
       threadEmpty,
       weaknesses,
       playstyle,
-      goals,
+      // goals,
       experience: experienceText
     },
   });
