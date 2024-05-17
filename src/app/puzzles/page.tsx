@@ -112,7 +112,7 @@ export default function Puzzles() {
   }, [session,  dailyPuzzles, isPro])
 
   return (
-    <div className="flex flex-col h-full mt-16">
+    <div className="flex flex-col h-full justify-center">
       <Dialog>
         <DialogTrigger className="hidden" ref={trigRef} />
         <DialogContent>
@@ -135,7 +135,7 @@ export default function Puzzles() {
       <BottomNav />
       <ChatPopupTrigger hideMobile={true} />
 
-      <div className="flex flex-col space-y-6 sm:flex-row sm:space-y-0 sm:space-x-16 h-full sm:h-min">
+      <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-16 h-full justify-center sm:h-min">
         <div
           className="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0 sm:space-y-0"
           ref={chessRef}
