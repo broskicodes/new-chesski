@@ -91,6 +91,7 @@ export const Onboarding = ({ show }: Props) => {
         const { data, error } = await supabase.from("user_data")
           .upsert({
             onboarded: true,
+            chessSite: chesssite,
             uuid: session.id,
           })
           .select();
