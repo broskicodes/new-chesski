@@ -16,7 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Input } from "../ui/input";
 import { CHESSKI_MONTHLY_PRICE, CHESSKI_YEARLY_PRICE, ChessSite, Goal, SubType, UserData } from "@/utils/types";
 import { useAuth } from "@/providers/AuthProvider/context";
@@ -41,8 +41,8 @@ export const Onboarding = ({ show }: Props) => {
 
   const { signInWithOAuth, session, supabase } = useAuth();
   const { isPro } = useUserData();
-  const { toast } = useToast();
-  const maxSteps = useMemo(() => isPro ? 3 : 4, [isPro]);
+  const path = usePathname();
+  const maxSteps = useMemo(() =>  path === "/puzzles" || isPro ? 3 : 4, [isPro, path]);
 
   const router = useRouter();
 

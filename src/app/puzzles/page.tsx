@@ -25,8 +25,8 @@ export default function Puzzles() {
   const [puzzles, setPuzzles] = useState<PuzzleDescs[]>([]);
   const [pIdx, setPIdx] = useState(0);
 
-  const [dailyPuzzles, setDailyPuzzles] = useState(0);
-  const [compPuzzlesLoaded, setCompPuzzlesLoaded] = useState(false);
+  // const [dailyPuzzles, setDailyPuzzles] = useState(0);
+  // const [compPuzzlesLoaded, setCompPuzzlesLoaded] = useState(false);
 
   const { session, supabase } = useAuth();
   const { orientation } = useChess();
@@ -37,32 +37,32 @@ export default function Puzzles() {
   const divRef = useRef<HTMLDivElement>(null);
   const trigRef = useRef<HTMLButtonElement>(null);
 
-  const getDailyPuzzles = useCallback(async () => {
-    if (!session || !supabase) {
-      return;
-    }
+  // const getDailyPuzzles = useCallback(async () => {
+  //   if (!session || !supabase) {
+  //     return;
+  //   }
 
-    setCompPuzzlesLoaded(false);
+  //   setCompPuzzlesLoaded(false);
 
-    const { data, error } = await supabase
-      .from("completed_puzzles")
-      .select("created_at")
-      .eq("user_id", session.id);
+  //   const { data, error } = await supabase
+  //     .from("completed_puzzles")
+  //     .select("created_at")
+  //     .eq("user_id", session.id);
 
-    if (data) {
-      const das = data.filter((a) => {
-        const ad = new Date(a.created_at);
-        const td = new Date();
+  //   if (data) {
+  //     const das = data.filter((a) => {
+  //       const ad = new Date(a.created_at);
+  //       const td = new Date();
 
-        return ad.getDate() === td.getDate() && ad.getMonth() === td.getMonth();
-      })
-      setDailyPuzzles(das.length);
-    } else {
-      setDailyPuzzles(0);
-    }
+  //       return ad.getDate() === td.getDate() && ad.getMonth() === td.getMonth();
+  //     })
+  //     setDailyPuzzles(das.length);
+  //   } else {
+  //     setDailyPuzzles(0);
+  //   }
 
-    setCompPuzzlesLoaded(true);
-  }, [session, supabase]);
+  //   setCompPuzzlesLoaded(true);
+  // }, [session, supabase]);
 
 
   const getCustomPuzzles = useCallback(async () => {
@@ -105,11 +105,11 @@ export default function Puzzles() {
     
   })
 
-  useEffect(() => {
-    if (session && !isPro && dailyPuzzles >= 5) {
-      trigRef.current?.click();
-    }
-  }, [session,  dailyPuzzles, isPro])
+  // useEffect(() => {
+  //   if (session && !isPro && dailyPuzzles >= 5) {
+  //     trigRef.current?.click();
+  //   }
+  // }, [session,  dailyPuzzles, isPro])
 
   return (
     <div className="flex flex-col h-full justify-center">
@@ -143,7 +143,7 @@ export default function Puzzles() {
           {/* <EvalBar /> */}
           <div className="flex flex-col space-y-2">
             <div>
-              <PuzzleBoard freeze={compPuzzlesLoaded && !!session && !isPro && dailyPuzzles >= 5} />
+              <PuzzleBoard />
             </div>
           </div>
         </div>
@@ -159,13 +159,13 @@ export default function Puzzles() {
               {(puzzles.length === 0 || (puzzleComplete && puzzles.length - 1 === pIdx)) && (
                 <div className="w-full">
                   <Button className="w-full"  onClick={async () => {
-                    if (dailyPuzzles < 5 || isPro) {
-                      await getDailyPuzzles();
+                    // if (dailyPuzzles < 5 || isPro) {
+                      // await getDailyPuzzles();
                       await getCustomPuzzles();
-                    } else {
-                      trigRef.current?.click();
-                    }
-                  }}>Personalized Puzzles</Button>
+                    // } else {
+                      // trigRef.current?.click();
+                    // }
+                  }}>Custom Puzzles</Button>
                 </div>
               )}
               {(puzzles.length > 0 && (!puzzleComplete || puzzles.length - 1 > pIdx)) && (
@@ -176,14 +176,14 @@ export default function Puzzles() {
                   {puzzleComplete && (<Button className="w-full" onClick={restartPuzzle}>Restart</Button>)}
                   {(puzzleComplete || wrongMove) && (
                     <Button className="w-full" onClick={async() => { 
-                      if (dailyPuzzles < 5 || isPro) {
-                        await getDailyPuzzles();
+                      // if (dailyPuzzles < 5 || isPro) {
+                        // await getDailyPuzzles();
 
                         setPuzzle(puzzles[pIdx + 1].id); 
                         setPIdx(pIdx + 1);
-                      } else {
-                        trigRef.current?.click();
-                      }
+                      // } else {
+                        // trigRef.current?.click();
+                      // }
                     }}>Next</Button>
                   )}
                 </div>
