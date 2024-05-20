@@ -27,7 +27,7 @@ export const POST = async (req: Request) => {
     match_count: 50,
   });
 
-  console.log(documents);
+  // console.log(documents);
 
   return new Response(JSON.stringify(documents), { status: 200 });
 };

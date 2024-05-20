@@ -28,15 +28,7 @@ async function describePuzzle(rating: string, themes: string) {
       },
       {
         "role": "assistant",
-        "content": "Experience: Intermediate to Advanced (around 2092 rating)\nWeaknesses: Strategic planning in the middlegame, recognizing and capitalizing on advantages in complex positions, and maintaining focus over extended calculations and sequences."
-      },
-      {
-        "role": "user",
-        "content": "This puzzle is for players rated around 889. It trains these themes: advantage, hangingPiece, oneMove, opening"
-      },
-      {
-        "role": "assistant",
-        "content": "Experience: Beginner (around 889 rating)\nWeaknesses: Identifying and taking advantage of hanging pieces in the opening, spotting one-move tactical opportunities."
+        "content": "Experience: Advanced (around 2092 rating)\nWeaknesses: Strategic planning in the middlegame, recognizing and capitalizing on advantages in complex positions, and maintaining focus over extended calculations and sequences."
       },
       {
         "role": "user",
@@ -59,12 +51,12 @@ async function describePuzzle(rating: string, themes: string) {
 export const POST = async (req: Request) => {
   const supabase = getSupabaseCilent();
 
-  for (let j = 14; j < 100; j++) {
+  for (let j = 101; j < 200; j++) {
     const { data, error } = await supabase
       .from("puzzles")
       .select("*")
       .order("id", { ascending: false })
-      .range(j * 50, j * 50 + 49);
+      .range(j * 100, j * 100 + 99);
 
     if (error) {
       return new Response(JSON.stringify({ error }), { status: 500 });
@@ -107,6 +99,8 @@ export const POST = async (req: Request) => {
 
       // console.log(i, embData.length);
     }
+
+    await new Promise(resolve => setTimeout(resolve, 30000));
   }
 
   return new Response(JSON.stringify("success"), { status: 200 });

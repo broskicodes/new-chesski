@@ -1,0 +1,29 @@
+{
+  "name": "update_user_repetoir",
+  "description": "update the list of openings that the user plays.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "openings": {
+        "type": "array",
+        "description": "The list of onenings that the user plays the most often.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The name of the opening"
+            },
+            "number": {
+              "type": "number",
+              "description": "The number of times they have played this opening."
+            }
+          }
+        }
+      }
+    },
+    "required": [
+      "openings"
+    ]
+  }
+}
