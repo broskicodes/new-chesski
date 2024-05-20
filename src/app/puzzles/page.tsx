@@ -176,7 +176,7 @@ export default function Puzzles() {
                     <span className="text-lg sm:text-xl font-semibold">Themes:</span>
                     <ul className="list-disc pl-6 text-sm sm:text-base">
                       {puzzles[pIdx].description.split("Weaknesses: ").at(-1)?.split(", ").map((w, i) => {
-                        const out = w.startsWith("and") ? w.slice(4) : w;
+                        const out = w.startsWith("and ") ? w.slice(4) : w;
 
                         return (
                         <li key={i}>{out.at(0)?.toUpperCase() + out.slice(1)}</li>
