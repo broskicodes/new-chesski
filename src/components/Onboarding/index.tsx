@@ -112,7 +112,7 @@ export const Onboarding = ({ show }: Props) => {
     }, [session])
 
   return (
-    <Sheet open={show && !done && false} >
+    <Sheet open={show && !done} >
       {/* <SheetTrigger>
         hey
       </SheetTrigger> */}
