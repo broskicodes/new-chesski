@@ -42,6 +42,13 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     return createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {},
+        auth: {
+          flowType: "pkce",
+          debug: true
+        }
+      }
     );
   }, []);
 
@@ -51,6 +58,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         provider: "google",
         options: {
           redirectTo: `${API_URL}/auth/callback${next ? `?next=${next}` : ""}`,
+          // skipBrowserRedirect: true
         },
       });
     },
