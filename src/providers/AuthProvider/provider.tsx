@@ -30,6 +30,7 @@ import {
 import { usePathname } from "next/navigation";
 import { Onboarding } from "@/components/Onboarding";
 import { API_URL } from "@/utils/types";
+import Cookie from "js-cookie";
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [origin, setOrigin] = useState("");
@@ -39,14 +40,24 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   // const pathname = usePathname();
 
   const supabase = useMemo(() => {
+    // console.log(Cookie.)
     return createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
-        cookies: {},
+        cookies: {
+          get(name: string) {
+            return Cookie.get(name);
+          },
+          set(name: string, value: string, options: any) {
+            Cookie.set(name, value, options);
+          },
+          remove(name: string, options: any) {
+            Cookie.set(name, "", options);
+          },
+        },
         auth: {
           flowType: "pkce",
-          debug: true
         }
       }
     );
