@@ -30,7 +30,7 @@ import {
 import { usePathname } from "next/navigation";
 import { Onboarding } from "@/components/Onboarding";
 import { API_URL } from "@/utils/types";
-import Cookie from "js-cookie";
+import { setCookie, getCookie } from "cookies-next"
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [origin, setOrigin] = useState("");
@@ -47,13 +47,13 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       {
         cookies: {
           get(name: string) {
-            return Cookie.get(name);
+            return getCookie(name);
           },
           set(name: string, value: string, options: any) {
-            Cookie.set(name, value, options);
+            setCookie(name, value, options);
           },
           remove(name: string, options: any) {
-            Cookie.set(name, "", options);
+            setCookie(name, "", options);
           },
         },
         auth: {
