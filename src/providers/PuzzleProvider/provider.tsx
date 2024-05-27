@@ -6,7 +6,7 @@ import {
   useState,
 } from "react";
 import { PuzzleContext } from "./context";
-import { Puzzle } from "@/utils/types";
+import { API_URL, Puzzle } from "@/utils/types";
 import { useChess } from "../ChessProvider/context";
 import { Chess, Square } from "chess.js";
 import { useAuth } from "../AuthProvider/context";
@@ -67,7 +67,7 @@ export const PuzzleProvider = ({ children }: PropsWithChildren) => {
 
   const setNewPuzzle = useCallback(
     async (puzzleId: string) => {
-      const res = await fetch(`/api/puzzle/${puzzleId}`);
+      const res = await fetch(`${API_URL}/puzzles/${puzzleId}`);
       const data = await res.json();
 
       const tempGame = new Chess(data.starting_fen);

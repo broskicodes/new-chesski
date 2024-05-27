@@ -14,6 +14,7 @@ import { useChess } from "@/providers/ChessProvider/context";
 import { usePuzzle } from "@/providers/PuzzleProvider/context";
 import { useUserData } from "@/providers/UserDataProvider/context";
 import { experienceToTitle } from "@/utils/clientHelpers";
+import { API_URL } from "@/utils/types";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -67,8 +68,12 @@ export default function Puzzles() {
 
 
   const getCustomPuzzles = useCallback(async () => {
-    const res = await fetch("/api/puzzle", {
+    const res = await fetch(`${API_URL}/puzzles`, {
       method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
         experience: experienceText ? experienceText : experienceToTitle(experience),
         weaknesses
@@ -88,16 +93,16 @@ export default function Puzzles() {
     setPuzzle(ps[0].id);
   }, [setPuzzle, experienceText, experience, weaknesses])
 
-  const embed = useCallback(async () => {
-    const res = await fetch("/api/puzzle/embed", {
-      method: "POST",
-      // body: JSON.stringify({
-      //   experience: experienceText ? experienceText : experienceToTitle(experience),
-      //   weaknesses
-      // })
-    });
+  // const embed = useCallback(async () => {
+  //   const res = await fetch("/api/puzzle/embed", {
+  //     method: "POST",
+  //     // body: JSON.stringify({
+  //     //   experience: experienceText ? experienceText : experienceToTitle(experience),
+  //     //   weaknesses
+  //     // })
+  //   });
 
-  }, [])
+  // }, [])
 
   // useEffect(() => {
   //   // console.log(puzzles);

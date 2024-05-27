@@ -1,9 +1,10 @@
 import { OPENAI_ASSISTANT_ID, RunStarterMsgMap, RunType } from "@/utils/types";
 import { ChangeEvent, Dispatch, FormEvent, PropsWithChildren, SetStateAction, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { AssistantStatus, Message, useAssistant as useVercelAssistant } from 'ai/react';
+import { Message, useAssistant as useVercelAssistant } from 'ai/react';
 import { useAuth } from "./AuthProvider/context";
 import { useUserData } from "./UserDataProvider/context";
 import posthog from "posthog-js";
+import { AssistantStatus } from "ai";
 
 export interface AssistantProviderContext {
   assistantId: string;

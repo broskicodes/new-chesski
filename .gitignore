@@ -39,3 +39,5 @@ next-env.d.ts
 *.ipynb
 *.csv
 public/nmrugg_stockfish_js/
+
+android

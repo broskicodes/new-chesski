@@ -18,7 +18,7 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { usePathname, useRouter } from "next/navigation";
 import { Input } from "../ui/input";
-import { CHESSKI_MONTHLY_PRICE, CHESSKI_YEARLY_PRICE, ChessSite, Goal, SubType, UserData } from "@/utils/types";
+import { API_URL, CHESSKI_MONTHLY_PRICE, CHESSKI_YEARLY_PRICE, ChessSite, Goal, SubType, UserData } from "@/utils/types";
 import { useAuth } from "@/providers/AuthProvider/context";
 import Image from "next/image";
 import posthog from "posthog-js";
@@ -112,7 +112,7 @@ export const Onboarding = ({ show }: Props) => {
     }, [session])
 
   return (
-    <Sheet open={show && !done} >
+    <Sheet open={show && !done && false} >
       {/* <SheetTrigger>
         hey
       </SheetTrigger> */}
@@ -218,7 +218,18 @@ export const Onboarding = ({ show }: Props) => {
                   <Button className="w-full sm:w-96" disabled={username.length < 1 || loading || summary.length > 0} onClick={async () => {
                     setLoading(true);
                     setUsenamInvalid(false);
-                    const res = await fetch("/api/analyze-user", { method: "POST", body: JSON.stringify(chesssite === ChessSite.Lichess ? { lichess_name: username.trim() } :  { chesscom_name: username.trim() }) });
+                    const res = await fetch(`${API_URL}/user/analyze`, { 
+                      method: "POST",
+                      credentials: "include",
+                      headers: {
+                        'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify(
+                        chesssite === ChessSite.Lichess 
+                          ? { lichess_name: username.trim() } 
+                          : { chesscom_name: username.trim() }
+                      )
+                    });
                     setLoading(false)
 
                     if (!res.ok) {
@@ -380,8 +391,12 @@ export const Onboarding = ({ show }: Props) => {
                       setLoading(true);
                       await finishOnboarding();
                       posthog.capture("sub_clicked");
-                      const re = await fetch("/api/stripe/checkout/session", {
+                      const re = await fetch(`${API_URL}/stripe/session/checkout`, {
                         method: "POST",
+                        credentials: "include",
+                        headers: {
+                          'Content-Type': 'application/json'
+                        },
                         body: JSON.stringify({
                           subType: SubType.Monthly,
                           // @ts-ignore

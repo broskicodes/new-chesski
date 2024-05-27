@@ -240,7 +240,7 @@ export const GameSelect = ({ className }: Props) => {
         const chesscomarchiveData = await chesscomarchiveRes.json();
 
         // console.log(chesscomarchiveData);
-        setChesscomArchives(chesscomarchiveData.archives);
+        setChesscomArchives(chesscomarchiveData.archives ?? []);
         setCaIdx(chesscomarchiveData.archives.length - 1);
       })();
     }

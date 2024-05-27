@@ -8,10 +8,13 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write ./src",
-    "stockfish": "cd public && rm -rf nmrugg_stockfish_js && cp -r ../node_modules/stockfish/src nmrugg_stockfish_js && cd .."
+    "stockfish": "cd public && rm -rf nmrugg_stockfish_js && cp -r ../node_modules/stockfish/src nmrugg_stockfish_js && cd ..",
+    "export": "next build && next export"
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.10",
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
@@ -47,7 +50,7 @@
     "posthog-node": "^3.6.3",
     "react": "^18",
     "react-chessboard": "^4.4.0",
-    "react-dnd": "^16.0.1",
+    "react-dnd": "16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dnd-touch-backend": "^16.0.1",
     "react-dom": "^18",
@@ -62,6 +65,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@capacitor/cli": "^6.0.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
