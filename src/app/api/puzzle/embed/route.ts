@@ -48,7 +48,7 @@ async function describePuzzle(rating: string, themes: string) {
   return res.choices[0].message.content!
 }
 
-export const POST = async (req: Request) => {
+export const POST = async () => {
   const supabase = getSupabaseCilent();
 
   for (let j = 101; j < 200; j++) {

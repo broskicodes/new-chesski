@@ -59,18 +59,18 @@ export const Chessboard = () => {
 
   // const modalTriggerRef = useRef<HTMLButtonElement>(null);
 
-  const updateStreak = useCallback(async () => {
-    if (!supabase || !session) {
-      return;
-    }
+  // const updateStreak = useCallback(async () => {
+  //   if (!supabase || !session) {
+  //     return;
+  //   }
 
-    await fetch("/api/streaks/update", {
-      method: "POST",
-      body: JSON.stringify({
-        id: session.id,
-      }),
-    });
-  }, [supabase, session]);
+  //   await fetch("/api/streaks/update", {
+  //     method: "POST",
+  //     body: JSON.stringify({
+  //       id: session.id,
+  //     }),
+  //   });
+  // }, [supabase, session]);
 
   useEffect(() => {
     if (evals.length >= 2) {
@@ -255,7 +255,7 @@ export const Chessboard = () => {
             if (res && !settingUp) {
               setMovesMade(movesMade + 1);
               posthog.capture("user_played_move");
-              updateStreak();
+              // updateStreak();
             }
 
             return res;
@@ -302,7 +302,7 @@ export const Chessboard = () => {
           addArrows([], true);
           setShowPromotionDialog(false);
           posthog.capture("user_played_move");
-          updateStreak();
+          // updateStreak();
 
           return true;
         }}
@@ -351,7 +351,7 @@ export const Chessboard = () => {
               if (!settingUp) {
                 setMovesMade(movesMade + 1);
                 posthog.capture("user_played_move");
-                updateStreak();
+                // updateStreak();
               }
               // addHighlightedSquares([{ square: sqr, color: "#000000" }], true);
               // console.log(evals.at(-1)?.bestMove)

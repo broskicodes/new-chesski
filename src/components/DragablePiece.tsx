@@ -17,8 +17,14 @@ export const DragablePiece = ({ p }: Props) => {
     },
   }));
 
+  const ref = (element: HTMLDivElement | null) => {
+    if (element) {
+      dragRef(element);
+    }
+  };
+
   return (
-    <div ref={dragRef}>
+    <div ref={ref}>
       <Image width={48} height={48} alt="" src={`/pieces/${p.type}${p.color === "w" ? "l" : "d"}t.svg`} />
     </div>
   )

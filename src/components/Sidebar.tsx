@@ -22,7 +22,7 @@ import {
   SheetTrigger,
 } from "./ui/sheet";
 import { ReactNode, useState } from "react";
-import { Experience, STRIPE_LINK } from "@/utils/types";
+import { API_URL, Experience, STRIPE_LINK } from "@/utils/types";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/providers/AuthProvider/context";
 import { usePathname, useRouter } from "next/navigation";
@@ -268,8 +268,12 @@ export const Sidebar = ({ children, panel }: Props) => {
             // className={buttonVariants({ variant: "ghost" })}
             onClick={async () => {
               // posthog.capture("dono_clicked")
-              const res = await fetch("/api/stripe/subscription", {
+              const res = await fetch(`${API_URL}/stripe/session/billing`, {
                 method: "POST",
+                credentials: "include",
+                headers: {
+                  'Content-Type': 'application/json'
+                },
               });
               const link = await res.text();
 

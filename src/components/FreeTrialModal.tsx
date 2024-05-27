@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
-import { CHESSKI_MONTHLY_PRICE, SubType } from "@/utils/types";
+import { API_URL, CHESSKI_MONTHLY_PRICE, SubType } from "@/utils/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -49,13 +49,17 @@ export const FreeTrialModal = () => {
               size="lg"
               onClick={async () => {
                 posthog.capture("trial_clicked");
-                const re = await fetch("/api/stripe/checkout/session", {
+                const re = await fetch(`${API_URL}/stripe/session/checkout`, {
                   method: "POST",
+                  credentials: "include",
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
                   body: JSON.stringify({
                     subType: SubType.Monthly,
                     // @ts-ignore
                     referral: window.tolt_referral,
-                    trial: true,
+                    trial: true
                   }),
                 });
 

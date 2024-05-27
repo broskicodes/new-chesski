@@ -29,6 +29,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { usePathname } from "next/navigation";
 import { Onboarding } from "@/components/Onboarding";
+import { API_URL } from "@/utils/types";
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [origin, setOrigin] = useState("");
@@ -46,11 +47,10 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
   const signInWithOAuth = useCallback(
     async (next?: string) => {
-      // console.log(next);
       await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${origin}/auth/callback${next ? `?next=${next}` : ""}`,
+          redirectTo: `${API_URL}/auth/callback${next ? `?next=${next}` : ""}`,
         },
       });
     },

@@ -16,6 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/providers/AuthProvider/context";
 import { useUserData } from "@/providers/UserDataProvider/context";
 import {
+  API_URL,
   CHESSKI_MONTHLY_PRICE,
   CHESSKI_YEARLY_PRICE,
   SubType,
@@ -66,14 +67,6 @@ const SubPage = () => {
     [currTab],
   );
 
-  useEffect(() => {
-    // if (session && !isPro) {
-    (async () => {
-      const res = await fetch("/subscribe/free-trial", { method: "POST" });
-      console.log(res.ok);
-    })();
-    // }
-  }, []);
 
   return (
     <div className="pb-8 h-full flex flex-col justify-center items-center">
@@ -119,8 +112,12 @@ const SubPage = () => {
                     className="w-60"
                     onClick={async () => {
                       posthog.capture("sub_clicked");
-                      const re = await fetch("/api/stripe/checkout/session", {
+                      const re = await fetch(`${API_URL}/stripe/session/checkout`, {
                         method: "POST",
+                        credentials: "include",
+                        headers: {
+                          'Content-Type': 'application/json'
+                        },
                         body: JSON.stringify({
                           subType: currTab === "yearly" ? SubType.Yearly : SubType.Monthly,
                           // @ts-ignore
