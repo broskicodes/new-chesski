@@ -93,6 +93,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
       const { data: listener } = supabase.auth.onAuthStateChange(
         (_event, session) => {
+          setCookie("code-verifier", "")
           setSession(session?.user || null);
         },
       );
