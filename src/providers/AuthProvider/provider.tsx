@@ -59,11 +59,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       });
 
       const codeVer = getCookie("sb-mhhaxafdtiqyzugcasss-auth-token-code-verifier");
-      setCookie("peen", codeVer, { domain: `.${process.env.NEXT_PUBLIC_ENV_DOMAIN}` })
+      setCookie("code-verifier", codeVer, { domain: `.${process.env.NEXT_PUBLIC_ENV_DOMAIN}` })
       
-      console.log(url);
-      console.log(getCookie("sb-mhhaxafdtiqyzugcasss-auth-token-code-verifier"))
-      console.log(getCookies())
       router.push(url!);
     },
     [origin, supabase],
