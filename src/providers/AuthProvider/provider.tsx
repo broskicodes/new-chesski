@@ -45,33 +45,36 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
-        cookies: {
-          get(name: string) {
-            return getCookie(name);
-          },
-          set(name: string, value: string, options: any) {
-            setCookie(name, value, options);
-          },
-          remove(name: string, options: any) {
-            setCookie(name, "", options);
-          },
-        },
         auth: {
           flowType: "pkce",
-        }
+          storage: {
+            getItem: (key) => {
+              return getCookie(key) ?? null
+            },
+            setItem: (key, value) => {
+              setCookie(key, value)
+            },
+            removeItem: (key) => {
+              setCookie(key, "")
+            },
+          }
+        },
+        cookies: {}
       }
     );
   }, []);
 
   const signInWithOAuth = useCallback(
     async (next?: string) => {
-      await supabase.auth.signInWithOAuth({
+      const { data: { url } } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: `${API_URL}/auth/callback${next ? `?next=${next}` : ""}`,
           // skipBrowserRedirect: true
         },
       });
+
+      // console.log(url);
     },
     [origin, supabase],
   );
