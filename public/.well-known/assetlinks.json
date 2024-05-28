@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target" : { 
+    "namespace": "android_app", 
+    "package_name": "lol.chesski.app",           
+    "sha256_cert_fingerprints": ["98:9F:D7:35:75:E2:A1:57:3E:05:CE:79:A7:49:38:FF:2A:14:25:7A:5F:04:C5:57:51:2D:FD:7D:6F:F3:37:87"] 
+  }
+}]
