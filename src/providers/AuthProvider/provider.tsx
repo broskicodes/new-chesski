@@ -27,7 +27,7 @@ import {
   faStar,
   faUnlock,
 } from "@fortawesome/free-solid-svg-icons";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Onboarding } from "@/components/Onboarding";
 import { API_URL } from "@/utils/types";
 import { setCookie, getCookie, getCookies } from "cookies-next"
@@ -37,6 +37,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [session, setSession] = useState<User | null>(null);
   const [sessionLoaded, setSessionLoaded] = useState(false);
 
+  const router = useRouter()
   // const pathname = usePathname();
 
   const supabase = useMemo(() => {
@@ -44,23 +45,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     return createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        auth: {
-          flowType: "pkce",
-          storage: {
-            getItem: (key) => {
-              return getCookie(key) ?? null
-            },
-            setItem: (key, value) => {
-              setCookie(key, value)
-            },
-            removeItem: (key) => {
-              setCookie(key, "")
-            },
-          }
-        },
-        cookies: {}
-      }
     );
   }, []);
 
@@ -76,6 +60,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
       console.log(url);
       console.log(getCookies())
+      router.push(url!);
     },
     [origin, supabase],
   );
@@ -118,6 +103,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   }, [supabase.auth]);
 
   useEffect(() => {
+    console.log(session);
     if (session) {
       try {
         posthog.identify(session.id, {
