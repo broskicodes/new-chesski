@@ -105,7 +105,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   }, [supabase.auth]);
 
   useEffect(() => {
-    console.log(session);
     if (session) {
       try {
         posthog.identify(session.id, {
