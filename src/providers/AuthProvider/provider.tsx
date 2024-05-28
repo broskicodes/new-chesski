@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       });
 
       const codeVer = getCookie("sb-mhhaxafdtiqyzugcasss-auth-token-code-verifier");
-      setCookie("sb-mhhaxafdtiqyzugcasss-auth-token-code-verifier", codeVer, { domain: `.${process.env.NEXT_PUBLIC_ENV_DOMAIN}`, sameSite: "none", secure: process.env.NEXT_PUBLIC_ENV !== "dev", httpOnly: true })
+      setCookie("peen", codeVer, { domain: `.${process.env.NEXT_PUBLIC_ENV_DOMAIN}` })
       
       console.log(url);
       console.log(getCookie("sb-mhhaxafdtiqyzugcasss-auth-token-code-verifier"))
