@@ -41,3 +41,4 @@ next-env.d.ts
 public/nmrugg_stockfish_js/
 
 android
+*.keystore

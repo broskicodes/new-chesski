@@ -31,6 +31,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Onboarding } from "@/components/Onboarding";
 import { API_URL } from "@/utils/types";
 import { setCookie, getCookie, getCookies } from "cookies-next"
+import { Capacitor } from "@capacitor/core"
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [origin, setOrigin] = useState("");
@@ -58,10 +59,18 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         },
       });
 
-      const codeVer = getCookie("sb-mhhaxafdtiqyzugcasss-auth-token-code-verifier");
-      setCookie("code-verifier", codeVer, { domain: `.${process.env.NEXT_PUBLIC_ENV_DOMAIN}` })
-      
-      router.push(url!);
+      const platform = Capacitor.getPlatform();
+
+      switch (platform) {
+        case "web":
+          const codeVer = getCookie("sb-mhhaxafdtiqyzugcasss-auth-token-code-verifier");
+          setCookie("code-verifier", codeVer, { domain: `.${process.env.NEXT_PUBLIC_ENV_DOMAIN}` })
+          
+          router.push(url!);
+          break
+        case "android":
+          alert("peen");
+      }
     },
     [origin, supabase],
   );

@@ -9,7 +9,7 @@
     "lint": "next lint",
     "format": "prettier --write ./src",
     "stockfish": "cd public && rm -rf nmrugg_stockfish_js && cp -r ../node_modules/stockfish/src nmrugg_stockfish_js && cd ..",
-    "export": "next build && next export"
+    "android": "yarn build && npx cap run android"
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.10",
