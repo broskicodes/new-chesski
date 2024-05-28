@@ -30,7 +30,7 @@ import {
 import { usePathname } from "next/navigation";
 import { Onboarding } from "@/components/Onboarding";
 import { API_URL } from "@/utils/types";
-import { setCookie, getCookie } from "cookies-next"
+import { setCookie, getCookie, getCookies } from "cookies-next"
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [origin, setOrigin] = useState("");
@@ -70,11 +70,12 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         provider: "google",
         options: {
           redirectTo: `${API_URL}/auth/callback${next ? `?next=${next}` : ""}`,
-          // skipBrowserRedirect: true
+          skipBrowserRedirect: true
         },
       });
 
-      // console.log(url);
+      console.log(url);
+      console.log(getCookies())
     },
     [origin, supabase],
   );
