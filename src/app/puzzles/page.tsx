@@ -15,6 +15,7 @@ import { usePuzzle } from "@/providers/PuzzleProvider/context";
 import { useUserData } from "@/providers/UserDataProvider/context";
 import { experienceToTitle } from "@/utils/clientHelpers";
 import { API_URL } from "@/utils/types";
+import { Capacitor, CapacitorHttp, HttpResponse } from "@capacitor/core";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -68,18 +69,40 @@ export default function Puzzles() {
 
 
   const getCustomPuzzles = useCallback(async () => {
-    const res = await fetch(`${API_URL}/puzzles`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        experience: experienceText ? experienceText : experienceToTitle(experience),
-        weaknesses
-      })
-    });
+    let res: Response;
 
+    const platform = Capacitor.getPlatform();
+
+    // switch (platform) {
+    //   case "web":
+        res = await fetch(`${API_URL}/puzzles`, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            experience: experienceText ? experienceText : experienceToTitle(experience),
+            weaknesses
+          })
+        });
+      // case "android":
+        // res = await CapacitorHttp.request({
+        //   url: `${API_URL}/puzzles`,
+        //   method: "POST",
+        //   headers: {
+        //     "Content-Type": "application/json"
+        //   },
+        //   webFetchExtra: {
+        //     credentials: "include",
+        //     body: JSON.stringify({
+        //       experience: experienceText ? experienceText : experienceToTitle(experience),
+        //       weaknesses
+        //     }),
+        //   }
+        // })
+    // }
+    console.log(res);
     const ps = await res.json();
 
     setPIdx(0);

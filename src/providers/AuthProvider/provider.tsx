@@ -31,12 +31,16 @@ import { usePathname, useRouter } from "next/navigation";
 import { Onboarding } from "@/components/Onboarding";
 import { API_URL } from "@/utils/types";
 import { setCookie, getCookie, getCookies } from "cookies-next"
-import { Capacitor } from "@capacitor/core"
+import { Capacitor, Plugin } from "@capacitor/core";
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [origin, setOrigin] = useState("");
   const [session, setSession] = useState<User | null>(null);
   const [sessionLoaded, setSessionLoaded] = useState(false);
+
+  const [peen, setPeen] = useState("");
 
   const router = useRouter()
   // const pathname = usePathname();
@@ -69,7 +73,22 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
           router.push(url!);
           break
         case "android":
-          alert("peen");
+          try {
+            const userRes = await GoogleAuth.signIn();
+            setPeen(userRes.email);
+            const res = await supabase.auth.signInWithIdToken({
+              provider: "google",
+              token: userRes.authentication.idToken,
+              access_token: userRes.authentication.accessToken
+            });
+
+            if (res.error) {
+              alert(res.error);
+            }
+          } catch (e) {
+            alert(e);
+          }
+          break;
       }
     },
     [origin, supabase],
@@ -87,6 +106,14 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       orientation: "white",
     });
   }, [supabase]);
+
+  useEffect(() => {
+    GoogleAuth.initialize({
+      clientId: process.env.NEXT_PUBLIC_OAUTH_CLIENT_ID,
+      scopes: ["email", "profile"],
+      grantOfflineAccess: true
+    });
+  }, [])
 
   useEffect(() => {
     setOrigin(window.location.origin);
