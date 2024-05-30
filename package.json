@@ -5,11 +5,13 @@
   "scripts": {
     "dev": "next dev",
     "build": "yarn stockfish && next build",
+    "build:dev": "NODE_ENV=development yarn stockfish && next build",
+    "build:prod": "NODE_ENV=production yarn stockfish && next build",
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write ./src",
     "stockfish": "cd public && rm -rf nmrugg_stockfish_js && cp -r ../node_modules/stockfish/src nmrugg_stockfish_js && cd ..",
-    "android": "yarn build && npx cap run android"
+    "android": "yarn build:prod && npx cap run android"
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.10",

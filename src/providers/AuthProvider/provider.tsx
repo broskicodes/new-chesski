@@ -31,7 +31,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Onboarding } from "@/components/Onboarding";
 import { API_URL } from "@/utils/types";
 import { setCookie, getCookie, getCookies } from "cookies-next"
-import { Capacitor, Plugin } from "@capacitor/core";
+import { Capacitor, CapacitorCookies } from "@capacitor/core";
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 
 
@@ -128,7 +128,18 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       setSessionLoaded(true);
 
       const { data: listener } = supabase.auth.onAuthStateChange(
-        (_event, session) => {
+        async (_event, session) => {
+          const cookies = await CapacitorCookies.getCookies();
+          await Promise.all(
+            Object.keys((cookies)).map(async (cookie) => {
+              await CapacitorCookies.setCookie({
+                url: process.env.NEXT_PUBLIC_ENV_API_URL,
+                key: cookie,
+                value: cookies[cookie]
+              })
+            })
+          );
+
           setCookie("code-verifier", "")
           setSession(session?.user || null);
         },

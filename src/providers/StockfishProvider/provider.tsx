@@ -8,6 +8,7 @@ import {
 import { StockfishProviderContext } from "./context";
 import { SkillLevel, SkillLevelMap } from "@/utils/types";
 import { useChess } from "../ChessProvider/context";
+import { Capacitor } from "@capacitor/core"
 
 const MAX_DEPTH = 14;
 
@@ -32,7 +33,12 @@ export const StockfishProvider = ({ children }: PropsWithChildren) => {
       return;
     }
 
-    return new Worker("/nmrugg_stockfish_js/stockfish-nnue-16.js");
+    const platform = Capacitor.getPlatform();
+    const file = platform === "web"
+      ? "/nmrugg_stockfish_js/stockfish-nnue-16.js"
+      : "/nmrugg_stockfish_js/stockfish-nnue-16-single.js";
+
+    return new Worker(file);
   }, []);
 
   const onMessage = useCallback(

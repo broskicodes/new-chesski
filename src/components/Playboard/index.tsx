@@ -160,80 +160,9 @@ export const Chessboard = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-
-  // useEffect(() => {
-  //   if (movesMade === (session ? 15 : 5) * mult) {
-  //     setMult(mult * 2);
-
-  //     if (session && supabase) {
-  //       (async () => {
-  //         const { data, error } = await supabase
-  //           .from("user_donos")
-  //           .select()
-  //           .eq("email", session.email);
-
-  //         if (data && data.length > 0) return;
-
-  //         modalTriggerRef.current?.click();
-  //       })();
-
-  //       return;
-  //     }
-
-  //     modalTriggerRef.current?.click();
-  //   }
-  // }, [movesMade, mult, session, supabase])
-  const [mobile, setMobile] = useState(true);
-
-  useEffect(() => {
-    setMobile("ontouchstart" in window);
-   }, []);
-
-   useEffect(() => {
-    console.log(mobile)
-   }, [mobile])
   return (
     <div>
-      {/* <Dialog>
-        <DialogTrigger ref={modalTriggerRef} className='hidden' />
-        <DialogContent>
-          <DialogHeader className='flex flex-col items-center space-y-0'>
-            <DialogTitle className='text-2xl'>Enjoying  Chesski?</DialogTitle>
-          </DialogHeader>
-          <div className='flex flex-col space-y-4'>
-            {!session && (
-              <div className='flex flex-col space-y-1'>
-                <DialogDescription className='text-black font-semibold text-lg'>Get notified about future updates!</DialogDescription>
-                <Button 
-                  variant="outline"
-                  className='w-full'
-                  onClick={() => signInWithOAuth()}>
-                  Sign in with Google
-                </Button>
-              </div>
-            )}
-            <div className='flex flex-col space-y-1'>
-              <DialogDescription className='text-black font-semibold text-lg'>Support the creator!</DialogDescription>
-              <Link
-                href={`${STRIPE_LINK}?${session ? `prefilled_email=${session.email}`: ""}`} 
-                target="_blank" 
-                className={`${buttonVariants({ variant: "default" })} w-full`}
-                onClick={() => { posthog.capture("dono_clicked") }}
-                >
-                Donate now
-              </Link>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog> */}
       <ReactChessboad
-        // customDndBackend={(manager: DragDropManager, globalContext?: any, configuration?: any) => {
-        //   if (mobile) {
-        //     return TouchBackend(manager, globalContext, configuration)
-        //   } else {
-        //     return HTML5Backend(manager, globalContext, configuration)
-        //   }
-        // }}
         boardWidth={boardWidth}
         position={game.fen()}
         onPieceDrop={(sSqr: Square, tSqr: Square, pc: Pc) => {

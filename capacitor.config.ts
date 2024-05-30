@@ -9,6 +9,12 @@ const config: CapacitorConfig = {
       androidClientId: process.env.NEXT_PUBLIC_OAUTH_CLIENT_ID,
       scopes: ["email", "profile"]
     },
+    CapacitorHttp: {
+      enabled: true
+    },
+    CapacitorCookies: {
+      enabled: true
+    }
   }
 };
 
