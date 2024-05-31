@@ -13,13 +13,13 @@ import { useStockfish } from "@/providers/StockfishProvider/context";
 import { GameState } from "@/utils/types";
 import { useEffect, useRef, useState } from "react";
 import { Footer } from "@/components/Footer";
-import { Message } from "ai";
 import { useSetup } from "@/providers/SetupProvider";
-import { expToLvl } from "@/utils/clientHelpers";
+import { expToLvl, setLocalMessages } from "@/utils/clientHelpers";
 import { useUserData } from "@/providers/UserDataProvider/context";
 import { BottomNav } from "@/components/BottomNav";
 import { SetupOptions } from "@/components/SetupOptions";
 import { ChatPopupTrigger } from "@/components/ChatPopupTrigger";
+import { ChatCompletionMessage } from "openai/resources/index.mjs";
 
 export default function Play() {
   const [gameStateChanged, setGameStateChanged] = useState(0);
@@ -66,7 +66,7 @@ export default function Play() {
     const gameState: GameState | null = JSON.parse(
       localStorage.getItem("currGameState")!,
     );
-    const msgState: Message[] = JSON.parse(
+    const msgState: ChatCompletionMessage[] = JSON.parse(
       localStorage.getItem("currMessages")!,
     );
 
@@ -100,7 +100,7 @@ export default function Play() {
 
       <Navbar />
       <BottomNav />
-      <ChatPopupTrigger hideMobile={true} />
+      {/* <ChatPopupTrigger hideMobile={true} /> */}
       {/* <Footer /> */}
       <div className="page-content" ref={contentRef}>
         <div

@@ -205,6 +205,7 @@ export const AnalysisProvider = ({ children }: PropsWithChildren) => {
   ]);
 
   const analyzeGame = useCallback(() => {
+    console.log("\n\n\n\ngame anal\n\n\n\n")
     const userPrompt = `Please analyze this game:
 <moves>
 ${moves.map((m, i) => {
@@ -218,10 +219,9 @@ Be sure to analyze the game from ${orientation}'s perspective.
 Closely follow all instructions in the system prompt. 
 Be sure to use the correct delimitres for relevant sections and pay careful attention to where to use apostrophes vs quotes.`;
 
-    reqGameAnalysis({
-      role: "user",
-      content: userPrompt,
-    });
+    reqGameAnalysis(
+      userPrompt,
+    );
   }, [reqGameAnalysis, evals, classifications, orientation, result, moves]);
 
   const getMoveExplaination = useCallback(
@@ -245,10 +245,9 @@ Be sure to use the correct delimitres for relevant sections and pay careful atte
 
 Please explain why ${lm.at(-1)} is a ${classif}`;
 
-      getExplantion({
-        role: "user",
-        content: userPrompt,
-      });
+      getExplantion(
+        userPrompt
+      );
     },
     [getExplantion],
   );

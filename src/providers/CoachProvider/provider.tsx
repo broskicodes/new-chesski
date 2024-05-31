@@ -5,10 +5,11 @@ import { CreateMessage, Message, ToolCall } from "ai";
 import { useChess } from "../ChessProvider/context";
 import posthog from "posthog-js";
 import { useUserData } from "../UserDataProvider/context";
-import { useEvaluation } from "../EvaluationProvider/context";
-import { Experience } from "@/utils/types";
-import { experienceToTitle, setCurrMessages } from "@/utils/clientHelpers";
+import { PositionEval, useEvaluation } from "../EvaluationProvider/context";
+import { API_URL, Experience } from "@/utils/types";
+import { experienceToTitle, setLocalMessages } from "@/utils/clientHelpers";
 import { useAnalysis } from "../AnalysisProvider";
+import { ChatCompletionMessage } from "openai/resources/index.mjs";
 
 export const CoachProvider = ({ children }: PropsWithChildren) => {
   const [processing, setProcessing] = useState(false);
@@ -16,121 +17,101 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
   const [phases, setPhases] = useState("");
   const [lastExp, setLastExp] = useState("");
   const [expProc, setExpProc] = useState(false);
+
+  const [gameMessages, setGameMessages] = useState<ChatCompletionMessage[]>([]);
   // const [queries, setQueries] = useState<Query[]>([]);
 
   const { experienceText } = useUserData();
-  const { evals } = useEvaluation();
   const { orientation, game, turn } = useChess();
-
-  const { append: appendAnal } = useChat({
-    api: "/chat/coach/analysis",
-
-    onFinish: (msg: Message) => {
-      console.log(msg.content);
-      setProcessing(false);
-      setInsights(msg.content.split('"""').at(-2)!);
-      setPhases(msg.content.split("'''").at(-2)!);
-    },
-  });
-
-  const {
-    messages: gameMessages,
-    append,
-    setMessages,
-  } = useChat({
-    api: "/chat/coach/position",
-    body: {
-      skill: experienceText,
-      orientation: orientation,
-      turn: turn,
-      fen: game.fen(),
-      ascii: game.ascii(),
-      pgn: game.history().join(" "),
-    },
-    onFinish: (msg: Message) => {
-      console.log(msg.content);
-
-      setCurrMessages([msg], false);
-      posthog.capture("ai_msg_sent");
-      setProcessing(false);
-    },
-  });
-
-  const {
-    append: appendExplanation,
-    setMessages: addExplanationContext,
-    reload,
-  } = useChat({
-    api: "/chat/coach/explanations",
-    onFinish: (msg: Message) => {
-      console.log(msg.content);
-      setExpProc(false);
-      setLastExp(msg.content.split('"""').at(-2)!);
-
-      // posthog.capture("ai_msg_sent");
-      // setMessages([...gameMessages, msg]);
-      // findQueries(msg);
-    },
-  });
 
   const clearInsights = useCallback(() => {
     setInsights("");
   }, []);
 
-  const reqGameAnalysis = useCallback(
-    (msg: Message | CreateMessage) => {
-      setProcessing(true);
-      appendAnal(msg);
+
+  const getExplantion = useCallback(
+    async (prompt: string) => {
+      setExpProc(true);
+
+      const res = await fetch(`${API_URL}/coach/explain`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          prompt
+        }),
+      });
+  
+      const msg = await res.json();
+
+      setExpProc(false);
+      setLastExp(msg.content.split('"""').at(-2)!);
     },
-    [appendAnal],
+    [],
   );
+
+  const reqGameAnalysis = useCallback(
+    async (prompt: string) => {
+      setProcessing(true);
+
+      const res = await fetch(`${API_URL}/coach/analyze`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          prompt
+        }),
+      });
+  
+      const msg = await res.json();
+
+      setInsights(msg.content.split('"""').at(-2)!);
+      setPhases(msg.content.split("'''").at(-2)!);
+      setProcessing(false);
+    },
+    [],
+  );
+
+  const analyzePosition = useCallback(async (latestEval: PositionEval) => {
+    setProcessing(true);
+
+    const res = await fetch(`${API_URL}/coach/position`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        eval: latestEval.evaluation,
+        engineLine: latestEval.pv.join(" "),
+        skill: experienceText,
+        orientation: orientation,
+        turn: turn,
+        fen: game.fen(),
+        ascii: game.ascii(),
+        pgn: game.history().join(" "),
+      }),
+    });
+
+    const msg = await res.json();
+
+    setGameMessages([...gameMessages, msg]);
+    setLocalMessages([msg], false);
+    setProcessing(false);
+  }, [experienceText, orientation, turn, game]);
 
   const addGameMessage = useCallback(
-    (msg: Message) => {
-      setMessages([...gameMessages, msg]);
+    (msg: ChatCompletionMessage) => {
+      setGameMessages([...gameMessages, msg]);
     },
-    [setMessages, gameMessages],
-  );
-
-  const appendGameMessage = useCallback(
-    (msg: Message | CreateMessage) => {
-      setProcessing(true);
-      append(msg);
-    },
-    [append],
+    [gameMessages],
   );
 
   const clearGameMessages = useCallback(() => {
-    setMessages([]);
-    setCurrMessages([], true);
-  }, [setMessages]);
-
-  const getExplantion = useCallback(
-    (msg: Message | CreateMessage) => {
-      setExpProc(true);
-      appendExplanation(msg);
-      // addExplanationContext([
-      //   {
-      //     id: Math.random().toString(36).substring(7),
-      //     role: "user",
-      //     content: `The user's query is in response to this message: ${gameMessages.at(-1)?.content}`,
-      //   },
-      //   {
-      //     id: Math.random().toString(36).substring(7),
-      //     role: "user",
-      //     content: `The user is playing as ${orientation}. The current position is ${fen}. The moves leading up to this position are ${moves.join(" ")}. ${turn === "white" ? "Black" : "White"} just played ${moves.at(-1)}.`,
-      //   },
-      //   {
-      //     id: Math.random().toString(36).substring(7),
-      //     role: "user",
-      //     content: `The user's query is: ${query}`,
-      //   },
-      // ]);
-
-      // reload();
-    },
-    [appendExplanation],
-  );
+    setGameMessages([]);
+    setLocalMessages([], true);
+  }, []);
 
   const value: CoachProviderContext = useMemo(
     () => ({
@@ -140,10 +121,10 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
       gameMessages: gameMessages,
       lastExp,
       expProc,
+      analyzePosition,
       addGameMessage: addGameMessage,
-      appendGameMessage: appendGameMessage,
       clearGameMessages: clearGameMessages,
-      setGameMessages: setMessages,
+      setGameMessages,
       getExplantion: getExplantion,
       reqGameAnalysis,
       clearInsights,
@@ -155,10 +136,9 @@ export const CoachProvider = ({ children }: PropsWithChildren) => {
       gameMessages,
       insights,
       phases,
-      appendGameMessage,
+      analyzePosition,
       addGameMessage,
       clearGameMessages,
-      setMessages,
       getExplantion,
       reqGameAnalysis,
       clearInsights,

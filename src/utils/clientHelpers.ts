@@ -1,6 +1,6 @@
-import { Message } from "ai";
 import { Experience, GameState, SkillLevel, SkillLevelMap } from "./types";
 import { Classification } from "@/providers/EvaluationProvider/context";
+import { ChatCompletionMessage } from "openai/resources/index.mjs";
 
 export const getChessRatingCategory = (rating: number): SkillLevel => {
   for (const category of Object.entries(SkillLevelMap)) {
@@ -41,7 +41,7 @@ export const setCurrGameState = (props: Partial<GameState>) => {
   );
 };
 
-export const setCurrMessages = (msgs: Message[], reset: boolean) => {
+export const setLocalMessages = (msgs: ChatCompletionMessage[], reset: boolean) => {
   if (reset) {
     localStorage.setItem("currMessages", JSON.stringify(msgs));
   } else {

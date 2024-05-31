@@ -16,10 +16,11 @@ import { Piece as Pc } from "react-chessboard/dist/chessboard/types"
 // import { toast } from 'sonner';
 import { useToast } from "@/components/ui/use-toast";
 import { useCoach } from "@/providers/CoachProvider/context";
-import { setCurrMessages } from "@/utils/clientHelpers";
+import { setLocalMessages } from "@/utils/clientHelpers";
 import { Message } from "ai";
 import { useAuth } from "@/providers/AuthProvider/context";
 import { useSetup } from "@/providers/SetupProvider";
+import { ChatCompletionMessage } from "openai/resources/index.mjs";
 
 export const Chessboard = () => {
   const [boardWidth, setBoardWidth] = useState(1);
@@ -127,14 +128,13 @@ export const Chessboard = () => {
           }
           setLastMoveHighlightColor(color);
 
-          const gameMsg: Message = {
-            id: Math.random().toString(36).substring(7),
+          const gameMsg: ChatCompletionMessage = {
             role: "assistant",
             content: `"""You played ${game.history().at(-2)}${msg === "Book Move" ? ", its a book move." : msg !== "Best Move" ? `. The best move was ${tempGame.history().at(-1)}` : ", it was the best move."}"""`,
           };
 
           addGameMessage(gameMsg);
-          setCurrMessages([gameMsg], false);
+          setLocalMessages([gameMsg], false);
         } catch (e) {
           // console.error(e);
           return;

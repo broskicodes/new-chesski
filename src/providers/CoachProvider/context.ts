@@ -1,5 +1,7 @@
 import { CreateMessage, Message } from "ai";
-import { createContext, useContext } from "react";
+import { Dispatch, SetStateAction, createContext, useContext } from "react";
+import { PositionEval } from "../EvaluationProvider/context";
+import { ChatCompletionMessage } from "openai/resources/index";
 
 export interface Query {
   title: string;
@@ -8,18 +10,18 @@ export interface Query {
 
 export interface CoachProviderContext {
   processing: boolean;
-  gameMessages: Message[];
+  gameMessages: ChatCompletionMessage[];
   insights: string;
   phases: string;
   lastExp: string;
   expProc: boolean;
   // queries: Query[];
-  addGameMessage: (msg: Message) => void;
-  appendGameMessage: (msg: Message | CreateMessage) => void;
+  addGameMessage: (msg: ChatCompletionMessage) => void;
+  analyzePosition: (latestEval: PositionEval) => void;
   clearGameMessages: () => void;
-  setGameMessages: (msgs: Message[]) => void;
-  getExplantion: (msg: Message | CreateMessage) => void;
-  reqGameAnalysis: (msg: Message | CreateMessage) => void;
+  setGameMessages: Dispatch<SetStateAction<ChatCompletionMessage[]>>;
+  getExplantion: (prompt: string) => void;
+  reqGameAnalysis: (prompt: string) => void;
   clearInsights: () => void;
 }
 
@@ -34,7 +36,7 @@ export const CoachContext = createContext<CoachProviderContext>({
   addGameMessage: (_msg) => {
     throw new Error("CoachProvider not initialized");
   },
-  appendGameMessage: (_msg) => {
+  analyzePosition: (_eval) => {
     throw new Error("CoachProvider not initialized");
   },
   clearGameMessages: () => {

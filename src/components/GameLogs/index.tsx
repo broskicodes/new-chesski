@@ -44,7 +44,7 @@ export const GameLogs = () => {
     processing,
     // queries,
     addGameMessage,
-    appendGameMessage,
+    analyzePosition,
     getExplantion,
   } = useCoach();
   const { isPro } = useUserData();
@@ -74,7 +74,6 @@ export const GameLogs = () => {
   useEffect(() => {
     if (gameMessages.length === 0) {
       addGameMessage({
-        id: Math.random().toString(32).substring(7),
         role: "assistant",
         content: `"""This is the starting position. Make a move to start the game."""`,
       });
@@ -93,7 +92,7 @@ export const GameLogs = () => {
       const moves = game.history();
 
       setPrevFen(fen);
-      // appendGameMessage({
+      // analyzePosition({
       //   role: "user",
       //   content: `${latestEval.evaluation} ${latestEval.pv.join(" ")}`
       // });
@@ -106,13 +105,12 @@ export const GameLogs = () => {
     turn,
     isInit,
     evals,
-    appendGameMessage,
   ]);
 
   useEffect(() => {
     if (logRef.current) {
       const message = gameMessages.at(-1);
-      const advice = message?.content.split('"""')[1];
+      const advice = message?.content!.split('"""')[1];
 
       if (!advice) return;
 
@@ -281,10 +279,7 @@ export const GameLogs = () => {
 
                   if (!latestEval) return;
 
-                  appendGameMessage({
-                    role: "user",
-                    content: `${latestEval.evaluation} ${latestEval.pv.join(" ")}`,
-                  });
+                  analyzePosition(latestEval);
                 }}
               >
                 Analyze position

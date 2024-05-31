@@ -154,7 +154,7 @@ export default function Puzzles() {
       </Dialog>
       <Navbar />
       <BottomNav />
-      <ChatPopupTrigger hideMobile={true} />
+      {/* <ChatPopupTrigger hideMobile={true} /> */}
 
       <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-16 h-full justify-center sm:h-min">
         <div
