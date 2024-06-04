@@ -39,6 +39,12 @@ export const Onboarding = ({ show }: Props) => {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
+  const [gRev, setGRev] = useState(false);
+  const [devClicks, setDevClicks] = useState(0);
+
+  const [un, setUn] = useState("");
+  const [pw, setPw] = useState("");
+
   const { signInWithOAuth, session, supabase } = useAuth();
   const { isPro } = useUserData();
   const path = usePathname();
@@ -104,12 +110,29 @@ export const Onboarding = ({ show }: Props) => {
     [chesssite, goal,, session, supabase],
   );
 
-    useEffect(() => {
-      if (session)
-        setStep(1);
-      else
-        setStep(0)
-    }, [session])
+  const login = useCallback(async () => {
+    if (!supabase) return;
+    
+    const res = await supabase.auth.signInWithPassword({
+      email: un,
+      password: pw
+    });
+
+    console.log(res)
+  }, [un, pw, supabase])
+
+  useEffect(() => {
+    if (session)
+      setStep(1);
+    else
+      setStep(0)
+  }, [session]);
+
+  useEffect(() => {
+    if (devClicks >= 5) {
+      setGRev(true);
+    }
+  }, [devClicks]);
 
   return (
     <Sheet open={show && !done} >
@@ -123,28 +146,47 @@ export const Onboarding = ({ show }: Props) => {
               <Image width={48} height={48} src={"/chesski-logo.svg"} alt="" />
               <span className="arvo text-2xl font-bold">CHESSKI</span>
             </SheetHeader>
-            <div className="w-full h-full flex flex-col relative mt-32 justify-between">
-              <div className="flex flex-col space-y-4 items-center text-center">
-                <SheetTitle className="text-3xl sm:text-4xl font-m font-semibold"><span className="font-extrabold text-[#1b03a3]">Win more</span> chess games.</SheetTitle>
-                <SheetDescription className="text-lg font-m">
-                  Chesski helps you <span className="font-semibold">train faster</span> so you can <span className="font-semibold">win more.</span>
-                </SheetDescription>
+            {!gRev && (
+              <div className="w-full h-full flex flex-col relative mt-32 justify-between">
+                <div className="flex flex-col space-y-4 items-center text-center">
+                  <SheetTitle className="text-3xl sm:text-4xl font-m font-semibold"><span className="font-extrabold text-[#1b03a3]">Win more</span> chess games.</SheetTitle>
+                  <SheetDescription className="text-lg font-m">
+                    Chesski helps you <span className="font-semibold">train faster</span> so you can <span className="font-semibold">win more.</span>
+                  </SheetDescription>
+                </div>
+                <Button
+                  className="w-full font-bold text-lg "
+                  onClick={() =>
+                    signInWithOAuth(
+                      `${window.location.pathname.slice(1)}${window.location.search}`,
+                    )
+                    // setStep(step + 1)
+                  }
+                >
+                  Sign in with Google
+                </Button>
               </div>
-              <Button
-                className="w-full font-bold text-lg "
-                onClick={() =>
-                  signInWithOAuth(
-                    `${window.location.pathname.slice(1)}${window.location.search}`,
-                  )
-                  // setStep(step + 1)
-                }
-              >
-                Sign in with Google
-              </Button>
-            </div>
+            )}
+            {gRev && (
+              <div className="w-full h-full flex flex-col relative mt-16 justify-between">
+                <div className="flex flex-col space-y-4">
+                  <Input placeholder="Email" value={un} onChange={({ target: { value }}) => { setUn(value) }} />
+                  <Input placeholder="Password" value={pw} onChange={({ target: { value }}) => { setPw(value) }} />
+                </div>
+                <Button onClick={() => { login() }}>Log in</Button>
+              </div>
+            )}
             <SheetFooter>
-              <div className="flex flex-col sm:space-y-6 mt-6">
+              <div className="flex flex-col sm:space-y-6 mt-6 w-full">
                 <div className="flex flex-row items-center">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    // disabled={true}
+                    onClick={() => setDevClicks(devClicks + 1)}
+                  >
+                    <FontAwesomeIcon icon={faArrowLeft} />
+                  </Button>
                   <Progress
                     className="w-full"
                     value={(step / maxSteps) * 100}
