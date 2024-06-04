@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import { UserDataContext, UserDataProviderContext } from "./context";
-import { Experience, ONBOARDING_UPDATE_DATE, UserData } from "@/utils/types";
+import { API_URL, Experience, ONBOARDING_UPDATE_DATE, UserData } from "@/utils/types";
 import { Onboarding } from "@/components/Onboarding";
 import { usePathname } from "next/navigation";
 import { Cross2Icon } from "@radix-ui/react-icons";
@@ -97,8 +97,9 @@ export const UserDataProvider = ({ children }: PropsWithChildren) => {
   }, [session, supabase]);
 
   const saveData = useCallback(async () => {
-    const res = await fetch("/profile/save", {
+    const res = await fetch(`${API_URL}/profile`, {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ chesscom, lichess, experience }),
     });

@@ -27,17 +27,26 @@ import {
   faStar,
   faUnlock,
 } from "@fortawesome/free-solid-svg-icons";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Onboarding } from "@/components/Onboarding";
+import { API_URL } from "@/utils/types";
+import { setCookie, getCookie, getCookies } from "cookies-next"
+import { Capacitor, CapacitorCookies } from "@capacitor/core";
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [origin, setOrigin] = useState("");
   const [session, setSession] = useState<User | null>(null);
   const [sessionLoaded, setSessionLoaded] = useState(false);
 
+  const [peen, setPeen] = useState("");
+
+  const router = useRouter()
   // const pathname = usePathname();
 
   const supabase = useMemo(() => {
+    // console.log(Cookie.)
     return createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -46,13 +55,41 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
   const signInWithOAuth = useCallback(
     async (next?: string) => {
-      // console.log(next);
-      await supabase.auth.signInWithOAuth({
+      const { data: { url } } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${origin}/auth/callback${next ? `?next=${next}` : ""}`,
+          redirectTo: `${API_URL}/auth/callback${next ? `?next=${next}` : ""}`,
+          skipBrowserRedirect: true
         },
       });
+
+      const platform = Capacitor.getPlatform();
+
+      switch (platform) {
+        case "web":
+          const codeVer = getCookie("sb-mhhaxafdtiqyzugcasss-auth-token-code-verifier");
+          setCookie("code-verifier", codeVer, { domain: `.${process.env.NEXT_PUBLIC_ENV_DOMAIN}` })
+          
+          router.push(url!);
+          break
+        case "android":
+          try {
+            const userRes = await GoogleAuth.signIn();
+            setPeen(userRes.email);
+            const res = await supabase.auth.signInWithIdToken({
+              provider: "google",
+              token: userRes.authentication.idToken,
+              access_token: userRes.authentication.accessToken
+            });
+
+            if (res.error) {
+              alert(res.error);
+            }
+          } catch (e) {
+            alert(e);
+          }
+          break;
+      }
     },
     [origin, supabase],
   );
@@ -71,6 +108,14 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   }, [supabase]);
 
   useEffect(() => {
+    GoogleAuth.initialize({
+      clientId: process.env.NEXT_PUBLIC_OAUTH_CLIENT_ID,
+      scopes: ["email", "profile"],
+      grantOfflineAccess: true
+    });
+  }, [])
+
+  useEffect(() => {
     setOrigin(window.location.origin);
   }, []);
 
@@ -83,7 +128,19 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       setSessionLoaded(true);
 
       const { data: listener } = supabase.auth.onAuthStateChange(
-        (_event, session) => {
+        async (_event, session) => {
+          const cookies = await CapacitorCookies.getCookies();
+          await Promise.all(
+            Object.keys((cookies)).map(async (cookie) => {
+              await CapacitorCookies.setCookie({
+                url: process.env.NEXT_PUBLIC_ENV_API_URL,
+                key: cookie,
+                value: cookies[cookie]
+              })
+            })
+          );
+
+          setCookie("code-verifier", "")
           setSession(session?.user || null);
         },
       );

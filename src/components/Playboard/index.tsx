@@ -16,10 +16,11 @@ import { Piece as Pc } from "react-chessboard/dist/chessboard/types"
 // import { toast } from 'sonner';
 import { useToast } from "@/components/ui/use-toast";
 import { useCoach } from "@/providers/CoachProvider/context";
-import { setCurrMessages } from "@/utils/clientHelpers";
+import { setLocalMessages } from "@/utils/clientHelpers";
 import { Message } from "ai";
 import { useAuth } from "@/providers/AuthProvider/context";
 import { useSetup } from "@/providers/SetupProvider";
+import { ChatCompletionMessage } from "openai/resources/index.mjs";
 
 export const Chessboard = () => {
   const [boardWidth, setBoardWidth] = useState(1);
@@ -59,18 +60,18 @@ export const Chessboard = () => {
 
   // const modalTriggerRef = useRef<HTMLButtonElement>(null);
 
-  const updateStreak = useCallback(async () => {
-    if (!supabase || !session) {
-      return;
-    }
+  // const updateStreak = useCallback(async () => {
+  //   if (!supabase || !session) {
+  //     return;
+  //   }
 
-    await fetch("/api/streaks/update", {
-      method: "POST",
-      body: JSON.stringify({
-        id: session.id,
-      }),
-    });
-  }, [supabase, session]);
+  //   await fetch("/api/streaks/update", {
+  //     method: "POST",
+  //     body: JSON.stringify({
+  //       id: session.id,
+  //     }),
+  //   });
+  // }, [supabase, session]);
 
   useEffect(() => {
     if (evals.length >= 2) {
@@ -127,14 +128,13 @@ export const Chessboard = () => {
           }
           setLastMoveHighlightColor(color);
 
-          const gameMsg: Message = {
-            id: Math.random().toString(36).substring(7),
+          const gameMsg: ChatCompletionMessage = {
             role: "assistant",
             content: `"""You played ${game.history().at(-2)}${msg === "Book Move" ? ", its a book move." : msg !== "Best Move" ? `. The best move was ${tempGame.history().at(-1)}` : ", it was the best move."}"""`,
           };
 
           addGameMessage(gameMsg);
-          setCurrMessages([gameMsg], false);
+          setLocalMessages([gameMsg], false);
         } catch (e) {
           // console.error(e);
           return;
@@ -160,80 +160,9 @@ export const Chessboard = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-
-  // useEffect(() => {
-  //   if (movesMade === (session ? 15 : 5) * mult) {
-  //     setMult(mult * 2);
-
-  //     if (session && supabase) {
-  //       (async () => {
-  //         const { data, error } = await supabase
-  //           .from("user_donos")
-  //           .select()
-  //           .eq("email", session.email);
-
-  //         if (data && data.length > 0) return;
-
-  //         modalTriggerRef.current?.click();
-  //       })();
-
-  //       return;
-  //     }
-
-  //     modalTriggerRef.current?.click();
-  //   }
-  // }, [movesMade, mult, session, supabase])
-  const [mobile, setMobile] = useState(true);
-
-  useEffect(() => {
-    setMobile("ontouchstart" in window);
-   }, []);
-
-   useEffect(() => {
-    console.log(mobile)
-   }, [mobile])
   return (
     <div>
-      {/* <Dialog>
-        <DialogTrigger ref={modalTriggerRef} className='hidden' />
-        <DialogContent>
-          <DialogHeader className='flex flex-col items-center space-y-0'>
-            <DialogTitle className='text-2xl'>Enjoying  Chesski?</DialogTitle>
-          </DialogHeader>
-          <div className='flex flex-col space-y-4'>
-            {!session && (
-              <div className='flex flex-col space-y-1'>
-                <DialogDescription className='text-black font-semibold text-lg'>Get notified about future updates!</DialogDescription>
-                <Button 
-                  variant="outline"
-                  className='w-full'
-                  onClick={() => signInWithOAuth()}>
-                  Sign in with Google
-                </Button>
-              </div>
-            )}
-            <div className='flex flex-col space-y-1'>
-              <DialogDescription className='text-black font-semibold text-lg'>Support the creator!</DialogDescription>
-              <Link
-                href={`${STRIPE_LINK}?${session ? `prefilled_email=${session.email}`: ""}`} 
-                target="_blank" 
-                className={`${buttonVariants({ variant: "default" })} w-full`}
-                onClick={() => { posthog.capture("dono_clicked") }}
-                >
-                Donate now
-              </Link>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog> */}
       <ReactChessboad
-        // customDndBackend={(manager: DragDropManager, globalContext?: any, configuration?: any) => {
-        //   if (mobile) {
-        //     return TouchBackend(manager, globalContext, configuration)
-        //   } else {
-        //     return HTML5Backend(manager, globalContext, configuration)
-        //   }
-        // }}
         boardWidth={boardWidth}
         position={game.fen()}
         onPieceDrop={(sSqr: Square, tSqr: Square, pc: Pc) => {
@@ -255,7 +184,7 @@ export const Chessboard = () => {
             if (res && !settingUp) {
               setMovesMade(movesMade + 1);
               posthog.capture("user_played_move");
-              updateStreak();
+              // updateStreak();
             }
 
             return res;
@@ -302,7 +231,7 @@ export const Chessboard = () => {
           addArrows([], true);
           setShowPromotionDialog(false);
           posthog.capture("user_played_move");
-          updateStreak();
+          // updateStreak();
 
           return true;
         }}
@@ -351,7 +280,7 @@ export const Chessboard = () => {
               if (!settingUp) {
                 setMovesMade(movesMade + 1);
                 posthog.capture("user_played_move");
-                updateStreak();
+                // updateStreak();
               }
               // addHighlightedSquares([{ square: sqr, color: "#000000" }], true);
               // console.log(evals.at(-1)?.bestMove)

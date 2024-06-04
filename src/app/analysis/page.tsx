@@ -108,7 +108,7 @@ const AnalyzePage = () => {
     <div className="sm:justify-center flex flex-col h-full">
       <Navbar />
       <BottomNav />
-      <ChatPopupTrigger hideMobile={true} />
+      {/* <ChatPopupTrigger hideMobile={true} /> */}
 
       <Suspense>
         <UselessComp />

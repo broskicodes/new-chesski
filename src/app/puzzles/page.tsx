@@ -14,6 +14,8 @@ import { useChess } from "@/providers/ChessProvider/context";
 import { usePuzzle } from "@/providers/PuzzleProvider/context";
 import { useUserData } from "@/providers/UserDataProvider/context";
 import { experienceToTitle } from "@/utils/clientHelpers";
+import { API_URL } from "@/utils/types";
+import { Capacitor } from "@capacitor/core";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -67,17 +69,25 @@ export default function Puzzles() {
 
 
   const getCustomPuzzles = useCallback(async () => {
-    const res = await fetch("/api/puzzle", {
+    const platform = Capacitor.getPlatform();
+    let ps: any;
+
+    const res = await fetch(`${API_URL}/puzzles`, {
       method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
         experience: experienceText ? experienceText : experienceToTitle(experience),
         weaknesses
       })
     });
 
-    const ps = await res.json();
-
+    ps = await res.json();
+    
     setPIdx(0);
+    setPuzzle(ps[0].id);
     setPuzzles(ps.map((p: any) => {
       return {
         id: p.id,
@@ -85,19 +95,18 @@ export default function Puzzles() {
       }
     }));
 
-    setPuzzle(ps[0].id);
   }, [setPuzzle, experienceText, experience, weaknesses])
 
-  const embed = useCallback(async () => {
-    const res = await fetch("/api/puzzle/embed", {
-      method: "POST",
-      // body: JSON.stringify({
-      //   experience: experienceText ? experienceText : experienceToTitle(experience),
-      //   weaknesses
-      // })
-    });
+  // const embed = useCallback(async () => {
+  //   const res = await fetch("/api/puzzle/embed", {
+  //     method: "POST",
+  //     // body: JSON.stringify({
+  //     //   experience: experienceText ? experienceText : experienceToTitle(experience),
+  //     //   weaknesses
+  //     // })
+  //   });
 
-  }, [])
+  // }, [])
 
   // useEffect(() => {
   //   // console.log(puzzles);
@@ -145,7 +154,7 @@ export default function Puzzles() {
       </Dialog>
       <Navbar />
       <BottomNav />
-      <ChatPopupTrigger hideMobile={true} />
+      {/* <ChatPopupTrigger hideMobile={true} /> */}
 
       <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-16 h-full justify-center sm:h-min">
         <div

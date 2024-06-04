@@ -26,13 +26,13 @@ export const BottomNav = () => {
               </Button>
             </Sidebar>
           </div>
-          <div className="flex items-center justify-center shadow rounded-full w-12 h-12 bg-[#fafafa]">
+          {/* <div className="flex items-center justify-center shadow rounded-full w-12 h-12 bg-[#fafafa]">
             <ChatPopup>
               <Button  variant="ghost" size="icon">
                 <FontAwesomeIcon icon={faComment} size="xl" />
               </Button>
             </ChatPopup>
-          </div>
+          </div> */}
           <div className="flex items-center justify-center shadow rounded-full w-12 h-12 bg-[#fafafa]">
             <Button onClick={() => setOpen(false)} variant="ghost" size="icon">
               <FontAwesomeIcon icon={faClose} size="xl" />

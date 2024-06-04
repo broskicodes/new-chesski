@@ -199,31 +199,34 @@ export const MoveList = () => {
                 <span>White</span>
                 <span>Black</span>
               </div>
-              {qualMap &&
-                Object.keys(qualMap).map((row) => {
-                  return (
-                    <div
-                      key={row}
-                      className="font-bold flex flex-row justify-between"
-                      // @ts-ignore
-                      style={{ color: getClassColor(row) }}
-                    >
-                      <div>
-                        {
-                          // @ts-ignore
-                          qualMap[row][0]
-                        }
+              <div className="px-2">
+                {qualMap &&
+                  Object.keys(qualMap).map((row) => {
+                    return (
+                      <div
+                        key={row}
+                        className="font-bold flex flex-row justify-between"
+                        // @ts-ignore
+                        style={{ color: getClassColor(row) }}
+                      >
+                        <div>
+                          {
+                            // @ts-ignore
+                            qualMap[row][0]
+                          }
+                        </div>
+                        <span>{row}</span>
+                        <div>
+                          {
+                            // @ts-ignore
+                            qualMap[row][1]
+                          }
+                        </div>
                       </div>
-                      <span>{row}</span>
-                      <div>
-                        {
-                          // @ts-ignore
-                          qualMap[row][1]
-                        }
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  }
+                )}
+              </div>
             </div>
           )}
           {moves.length > 0 && (

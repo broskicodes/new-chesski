@@ -27,6 +27,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { API_URL } from "@/utils/types";
 
 interface Props {
   showMobile?: boolean;
@@ -156,9 +157,12 @@ export const Navbar = ({ showMobile }: Props) => {
                       <Button
                         size="thin"
                         onClick={async () => {
-                          setFeedback("");
-                          await fetch("/api/feedback", {
+                          await fetch(`${API_URL}/feedback`, {
                             method: "POST",
+                            credentials: "include",
+                            headers: {
+                              "Content-Type": "application/json"
+                            },
                             body: JSON.stringify({
                               feedback: feedback,
                               email: session?.email,
@@ -166,6 +170,7 @@ export const Navbar = ({ showMobile }: Props) => {
                             }),
                           });
 
+                          setFeedback("");
                           toast({
                             title: "Message sent",
                             description: "Thanks for your feedback!",
